@@ -40,10 +40,10 @@ class Cuadrado(object):
 		return True
 	
 	def obtener_area(self):
-		return calcDistancia(self.p1, self.p2)**2
+		return round(calcDistancia(self.p1, self.p2)**2, 5)
 		
 	def obtener_perimetro(self):
-		return calcDistancia(self.p1, self.p2)*4
+		return round(calcDistancia(self.p1, self.p2)*4, 5)
 		
 	def __str__(self):
 		return "{:10} {}\n{:10} {}\n{:10} {}".format("Tipo:", "Cuadrado", 
@@ -53,22 +53,49 @@ class Cuadrado(object):
 
 class Triangulo(object):
 	def __init__(self, *args):
-		self.p1, self.p2, self.p3 = args
-		
+		self.puntos = [*args]
+		self.p1, self.p2, self.p3 = self.puntos
+		if not self.es_triangulo():
+			raise ValueError("No es triangulo")
+
+	def es_triangulo(self):
+		for i in range(2):
+			if len(set(map(lambda x:x[i], self.puntos))) == 1:
+				return False
+		return True
+
 	def obtener_area(self):
-		pass
+		a = calcDistancia(self.p1, self.p2)
+		b = calcDistancia(self.p2, self.p3)
+		c = calcDistancia(self.p3, self.p1)
+		# Semiperimeter
+		s = (a + b + c)/2
+		# Heron's Formula
+		return round(math.sqrt(s*(s-a)*(s-b)*(s-c)), 5)
 		
 	def obtener_perimetro(self):
-		pass
+		a = calcDistancia(self.p1, self.p2)
+		b = calcDistancia(self.p2, self.p3)
+		c = calcDistancia(self.p3, self.p1)
+		return round(a+b+c, 5)
 		
 	def es_equilatero(self):
-		pass
-		
+		for i in range(1,4):
+			if truncate(calcAngulo(self.puntos[i%3], self.puntos[(i+1)%3], 
+			self.puntos[(i-1)%3]), 6) == truncate(math.pi/2,6):
+				return True
+		return False
+
 	def __str__(self):
-		return """ this """
+		return "{:10} {}\n{:10} {}\n{:10} {}\n{}".format("Tipo:", "Triangulo", 
+	"Area:", str(self.obtener_area()), "Perimetro:", 
+	str(self.obtener_perimetro()), "Es equilatero" if self.es_equilatero()
+	else "No es equilatero")
 
 
 if __name__ == '__main__':
-	q = Cuadrado((0,0), (0,2), (2,2), (2,0))
+	q = Cuadrado((0,0), (2,0), (2,2), (0,2))
 	print(q)
+	t = Triangulo((0,0), (1,2), (2,0))
+	print(t)
 	
