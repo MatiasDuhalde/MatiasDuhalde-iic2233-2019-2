@@ -6,10 +6,13 @@ import random
 import gametext
 import sys
 
+# LIMPIA LA PANTALLA, PARA HACER MEJOR LAS TRANSICIONES
 def clear_screen():
     _ = os.system("cls" if os.name == "nt" else "clear")
     return None
 
+# RECIBE UN INPUT ESTRICTAMENTE NUMÉRICO ENTRE DOS VALORES DADOS. ESPECIALMENTE
+# ÚTIL EN LOS MENÚS
 def get_int_input(a, b ,prompt="Ingrese un número: ", acceptZero=False):
     n = input(prompt)
     if n.isdigit():
@@ -26,6 +29,20 @@ def get_int_input(a, b ,prompt="Ingrese un número: ", acceptZero=False):
         clear_screen()
         return None
     return None
+
+# ORGANIZA LA SCOREBOARD DE MANERA DESCENDIENTE
+def sort_scoreboard():
+    temp = []
+    f = open("puntajes.txt", "r")
+    for line in f:
+        temp.append(line.split(","))
+    f.close
+    temp.sort(key=lambda x: int(x[1].rstrip()), reverse=True)
+    f = open("puntajes.txt", "w")
+    for line in temp:
+        f.write(",".join(line))
+    f.close
+
 
 def menu_inicio():
     print(gametext.BRICKS)
@@ -102,10 +119,29 @@ def main_game():
 
 
 def scoreboard():
-    print(gametext.SEP)
-    # ABRIR PUNTAJES.TXT
-    print("ACA VA A IR EL SCOREBOARD/RANKING")
-    print(gametext.SEP)
+    print(gametext.BRICKS)
+    print("{:^79}".format("PUNTAJES"))
+    print(gametext.BRICKS)
+    sort_scoreboard()
+    f = open("puntajes.txt", "r")
+    if len(list(f)) == 0:
+        print("{:^79}".format("Aún no hay puntajes para mostrar..."))
+    else:
+        f.close()
+        f = open("puntajes.txt", "r")
+        print("{:^35}{}{:^35}".format("Nombre", gametext.MIDSEP1, "Puntos"))
+        print("{:^79}".format(gametext.MIDSEP2))
+        index = 0
+        for line in f:
+            name, score = line.split(",")
+            print("{:14}{:21.10}{}{:>20}".format("", name, 
+            gametext.MIDSEP1 if index%2 == 0 else gametext.MIDSEP2, 
+            score.rstrip()))
+            index += 1
+        print("{:^79}".format(
+        gametext.MIDSEP1 if index%2 == 1 else gametext.MIDSEP2))
+    print(gametext.BRICKS)
+    f.close()
     input("Presione ENTER para volver al menú principal...")
     clear_screen()
     return None
