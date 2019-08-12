@@ -66,8 +66,8 @@ def menu_nueva_partida():
     status = 0
     while status != 4:
         print(gametext.BRICKS)
-        print("{:>15}: {}\n{:>15}: {}\n{:>15}: {}\n{:>40}".format("JUGADOR", username, 
-        "Largo", largo, "Ancho", ancho, "[0]  Salir"))
+        print("{:>15}: {}\n{:>15}: {}\n{:>15}: {}\n{:>40}".format("JUGADOR", 
+        username, "Largo", largo, "Ancho", ancho, "[0]  Salir"))
         print(gametext.BRICKS)
 
         if status == 0:
@@ -79,7 +79,6 @@ def menu_nueva_partida():
                 clear_screen()
             else:
                 clear_screen()
-
 
         elif status == 1:
             largo = get_int_input(3, 15, "Ingrese el largo del tablero: ", 
@@ -113,10 +112,8 @@ def menu_nueva_partida():
 def menu_cargar_partida():
     pass
 
-
 def main_game():
     pass
-
 
 def scoreboard():
     print(gametext.BRICKS)
