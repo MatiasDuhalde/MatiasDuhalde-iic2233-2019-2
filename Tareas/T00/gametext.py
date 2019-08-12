@@ -20,3 +20,6 @@ MAINMENU_OPTIONS = """{:>15}    {}
 {:>15}    {}
 {:>15}    {}""".format("[1]", "Nueva partida", "[2]", "Cargar partida", "[3]", 
 "Scoreboard", "[0]", "Salir")
+
+MIDSEP1 = "__|___|__"
+MIDSEP2 = "|___|___|"
