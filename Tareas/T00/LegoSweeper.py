@@ -13,11 +13,11 @@ def clear_screen():
 
 # RECIBE UN INPUT ESTRICTAMENTE NUMÉRICO ENTRE DOS VALORES DADOS. ESPECIALMENTE
 # ÚTIL EN LOS MENÚS
-def get_int_input(a, b ,prompt="Ingrese un número: ", acceptZero=False):
+def get_int_input(a, b ,prompt="Ingrese un número: ", accept_zero=False):
     n = input(prompt)
     if n.isdigit():
         n = int(n)
-        if acceptZero and n == 0:
+        if accept_zero and n == 0:
             return 0
         elif a <= n <= b:
             return n
@@ -47,8 +47,8 @@ def sort_scoreboard():
 def menu_inicio():
     print(gametext.BRICKS)
     print(gametext.TITLE)
-    endCycle = False
-    while not endCycle:
+    end_cycle = False
+    while not end_cycle:
         print(gametext.BRICKS)
         print(gametext.MAINMENU_OPTIONS)
         print(gametext.BRICKS)
@@ -82,7 +82,7 @@ def menu_nueva_partida():
 
         elif status == 1:
             largo = get_int_input(3, 15, "Ingrese el largo del tablero: ", 
-            acceptZero=True)
+            accept_zero=True)
             if largo == 0:
                 break
             elif largo != None:
@@ -93,7 +93,7 @@ def menu_nueva_partida():
 
         elif status == 2:
             ancho = get_int_input(3, 15, "Ingrese el ancho del tablero: ", 
-            acceptZero=True)
+            accept_zero=True)
             if ancho == 0:
                 break
             elif ancho != None:
@@ -132,11 +132,11 @@ def scoreboard():
         for line in f:
             name, score = line.split(",")
             print("{:14}{:21.10}{}{:>20}".format("", name, 
-            gametext.MIDSEP1 if index%2 == 0 else gametext.MIDSEP2, 
+            gametext.MIDSEP1 if index % 2 == 0 else gametext.MIDSEP2, 
             score.rstrip()))
             index += 1
         print("{:^79}".format(
-        gametext.MIDSEP1 if index%2 == 1 else gametext.MIDSEP2))
+        gametext.MIDSEP1 if index % 2 == 1 else gametext.MIDSEP2))
     print(gametext.BRICKS)
     f.close()
     input("Presione ENTER para volver al menú principal...")
@@ -154,17 +154,17 @@ if __name__ == '__main__':
     # END OF PREPROCESSING
 
     # GAME START
-    mainCycle = True
-    while mainCycle:
-        userChoice = menu_inicio()
+    main_cycle = True
+    while main_cycle:
+        user_choice = menu_inicio()
         
-        if userChoice == 1:
+        if user_choice == 1:
             success = menu_nueva_partida()
             if success:
                 main_game()
     
-        elif userChoice == 2:
+        elif user_choice == 2:
             pass
 
-        elif userChoice == 3:
+        elif user_choice == 3:
             scoreboard()
