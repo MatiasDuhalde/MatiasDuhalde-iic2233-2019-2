@@ -1,9 +1,9 @@
-# Generado en http://patorjk.com/software/taag/#p=display&h=3&f=Bloody
-
 SEP = "="*79
 
 BRICKS = """_|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|_
 ___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___"""
+
+# Generado en http://patorjk.com/software/taag/#p=display&h=3&f=Bloody
 
 TITLE = """██▓   ▓█████  ▄████ ▒█████   ██████ █     █▓█████▓█████ ██▓███ ▓█████ ██▀███  
 ▓██▒   ▓█   ▀ ██▒ ▀█▒██▒  ██▒██    ▒▓█░ █ ░█▓█   ▀▓█   ▀▓██░  ██▓█   ▀▓██ ▒ ██▒
@@ -15,11 +15,24 @@ TITLE = """██▓   ▓█████  ▄████ ▒█████   
   ░ ░     ░  ░ ░   ░░ ░ ░ ▒ ░  ░  ░   ░   ░    ░     ░  ░░         ░    ░░   ░ 
     ░  ░  ░  ░     ░    ░ ░       ░     ░      ░  ░  ░  ░          ░  ░  ░     """
 
+# ASCII Art obtenido de https://www.oocities.org/spunk1111/small.htm
+# By jgs
+LEGOBRICK = """.=========.
+/ (_)  (_) /| 
+/-========-/ |
+|          |/
+'-========-'"""
+
 MAINMENU_OPTIONS = """{:>15}    {}
 {:>15}    {}
 {:>15}    {}
 {:>15}    {}""".format("[1]", "Nueva partida", "[2]", "Cargar partida", "[3]", 
-"Scoreboard", "[0]", "Salir")
+"Scoreboard", "[0]", "Salir del juego")
+
+GAMEMENU_OPTIONS = """{:>15}    {}
+{:>15}    {}
+{:>15}    {}""".format("[X-Y]", "Revelar casilla (e.g. \"B-2\")", "[1]", "Guardar partida", 
+"[0]", "Salir")
 
 MIDSEP1 = "__|___|__"
 MIDSEP2 = "|___|___|"
