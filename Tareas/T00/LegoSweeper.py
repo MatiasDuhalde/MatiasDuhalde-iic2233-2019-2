@@ -1,19 +1,26 @@
 from parametros import PROB_LEGO, POND_PUNT
 from tablero import print_tablero
+import random
 import os
 import math
-import random
 import gametext
 import sys
 
+# =============================================================================
+#                              MISC. FUNCTIONS
+# =============================================================================
+
+
 # LIMPIA LA PANTALLA, PARA HACER MEJOR LAS TRANSICIONES
+# Snippet basado en respuesta de @popcnt en:
+# https://stackoverflow.com/questions/517970/how-to-clear-the-interpreter-console
 def clear_screen():
     _ = os.system("cls" if os.name == "nt" else "clear")
     return None
 
 # RECIBE UN INPUT ESTRICTAMENTE NUMÉRICO ENTRE DOS VALORES DADOS. ESPECIALMENTE
 # ÚTIL EN LOS MENÚS
-def get_int_input(a, b ,prompt="Ingrese un número: ", accept_zero=False):
+def get_int_input(a, b, prompt="Ingrese un número: ", accept_zero=False):
     n = input(prompt)
     if n.isdigit():
         n = int(n)
@@ -42,7 +49,29 @@ def sort_scoreboard():
     for line in temp:
         f.write(",".join(line))
     f.close
+    return None
 
+
+# =============================================================================
+#                          BOARD HANDLING FUNCTIONS
+# =============================================================================
+
+
+# En el enunciado está implícito que se debe ocupar math.ceil para aproximar
+# la cantidad de legos
+def crear_tablero(largo, ancho):
+    n_legos = math.ceil(largo * ancho * PROB_LEGO)
+    pos_legos = random.sample(range(largo * ancho), n_legos)
+    print(pos_legos)
+    tablero = []
+    for _ in range(largo):
+        tablero.append([" "] * ancho)
+    return tablero, pos_legos
+
+
+# =============================================================================
+#                             MENU FUNCTIONS
+# =============================================================================
 
 def menu_inicio():
     print(gametext.BRICKS)
@@ -106,16 +135,20 @@ def menu_nueva_partida():
 
     if status == 4:
         input("Presione ENTER para comenzar la partida...")
-        return True
-    return False
+        clear_screen()
+        return (username, largo, ancho)
+    clear_screen()
+    return None
 
 def menu_cargar_partida():
     pass
 
-def main_game():
-    pass
+def main_game(username, largo, ancho):
+    tablero, pos_legos = crear_tablero(largo, ancho)
+    print_tablero(tablero)
 
 def scoreboard():
+    clear_screen()
     print(gametext.BRICKS)
     print("{:^79}".format("PUNTAJES"))
     print(gametext.BRICKS)
@@ -128,11 +161,13 @@ def scoreboard():
         f = open("puntajes.txt", "r")
         print("{:^35}{}{:^35}".format("Nombre", gametext.MIDSEP1, "Puntos"))
         print("{:^79}".format(gametext.MIDSEP2))
-        index = 0
+        index = 1
         for line in f:
+            if index == 11:
+                break
             name, score = line.split(",")
-            print("{:14}{:21.10}{}{:>20}".format("", name, 
-            gametext.MIDSEP1 if index % 2 == 0 else gametext.MIDSEP2, 
+            print("{:8d}.{:5}{:21.10}{}{:>20}".format(index, "", name, 
+            gametext.MIDSEP1 if index % 2 == 1 else gametext.MIDSEP2, 
             score.rstrip()))
             index += 1
         print("{:^79}".format(
@@ -144,7 +179,13 @@ def scoreboard():
     return None
 
 
+# =============================================================================
+#                          
+# =============================================================================
+
+
 if __name__ == '__main__':
+    
     # PREPROCESSING
     if not os.path.isfile("puntajes.txt"):
         f = open("puntajes.txt", "a+")
@@ -159,9 +200,9 @@ if __name__ == '__main__':
         user_choice = menu_inicio()
         
         if user_choice == 1:
-            success = menu_nueva_partida()
-            if success:
-                main_game()
+            datos_juego = menu_nueva_partida()
+            if datos_juego != None:
+                main_game(*datos_juego)
     
         elif user_choice == 2:
             pass
