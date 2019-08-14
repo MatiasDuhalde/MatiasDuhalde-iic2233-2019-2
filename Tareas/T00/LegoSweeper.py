@@ -7,10 +7,7 @@ import gametext
 import sys
 
 # TO DO:
-# add score live
-# check for end of game
-# implement victory screen
-# implement defeat screen
+# embellish end screen
 # implement save/load feature
 
 # NEXT FEATURES:
@@ -30,6 +27,7 @@ class Tablero:
         self.largo = largo
         self.ancho = ancho
         self.legos = legos
+        self.reveladas = 0
 
         self.tablero = []
         for _ in range(largo):
@@ -46,8 +44,18 @@ class Tablero:
         # retorna (fil, col)
         return (num // self.ancho, num % self.ancho)
     
+    def reveal_legos(self):
+        for i in self.legos:
+            coords = self.num_to_pos(i)
+            self.tablero[coords[0]][coords[1]] = "L"
+
     def lego_in_tile(self, fil, col):
         if self.pos_to_num(fil, col) in self.legos:
+            return True
+        return False
+
+    def check_comp(self):
+        if self.reveladas == self.ancho * self.largo - 1 - len(self.legos):
             return True
         return False
 
@@ -57,7 +65,6 @@ class Tablero:
             for m in [-1, 0, 1]:
                 if 0 <= n + fil < self.largo and 0 <= m + col < self.ancho:
                     num = self.pos_to_num(n + fil, m + col)
-                    print(num)
                     if num in self.legos:
                         legos_found += 1
         return legos_found
@@ -72,12 +79,8 @@ class Tablero:
         elif self.tablero[fil][col] != " ":
             print("Esta casilla ya ha sido revelada. Intenta con otra.")
         else: 
+            self.reveladas += 1
             return self.adj_legos(fil, col)
-    
-    def reveal_legos(self):
-        for i in self.legos:
-            coords = self.num_to_pos(i)
-            self.tablero[coords[0]][coords[1]] = "L"
 
     # COMPLETAR
     # COMPLETAR
@@ -138,6 +141,23 @@ def sort_scoreboard():
 # =============================================================================
 #                             MENU FUNCTIONS
 # =============================================================================
+
+def end_screen(tablero, username, score, win=False):
+    if not win:
+        print("perdiste lol")
+    else:
+        print("GANASTE!")
+    tablero.reveal_legos()
+    tablero.show()
+    print("Jugador: ", username)
+    print("Puntaje: ", score)
+    f = open("puntajes.txt", "a")
+    f.write(username + "," + str(score) + "\n")
+    f.close()
+    input("Presione ENTER para volver al menú principal...")
+    clear_screen()
+
+
 
 def menu_inicio():
     print(gametext.BRICKS)
@@ -231,11 +251,11 @@ def main_game(username, largo, ancho):
     score = 0
     game_cycle = True
     while game_cycle:
+        score = t.reveladas * len(t.legos) * POND_PUNT
         print(gametext.BRICKS)
         print("{:^35}{:^9}{:^35}".format("JUGADOR", gametext.MIDSEP1, "PUNTOS"))
         print("{:^35}{:^9}{:^35}".format(username, gametext.MIDSEP2, score))
         print(gametext.BRICKS)
-        print(t.legos)
         t.show()
         print(gametext.BRICKS)
         print(gametext.GAMEMENU_OPTIONS)
@@ -274,19 +294,21 @@ def main_game(username, largo, ancho):
                 col = ord(coords[0].lower()) - 97
                 fil = int(coords[1])
                 tile = t.check_tile(fil, col)
+                
                 if tile == "L":
-                    print("git gud")
+                    end_screen(t, username, score)
                     game_cycle = False
+                
                 elif type(tile) == int:
                     t.tablero[fil][col] = tile
+                
+                if t.check_comp():
+                    end_screen(t, username, score, win=True)
+                    game_cycle = False
         
         else:
             clear_screen()
     return username, score, t
-                
-def end_screen(username, score, tablero):
-    pass
-
 
 # Muestra primeros 10 puntajes guardados en puntajes.txt
 def scoreboard():
@@ -345,7 +367,6 @@ if __name__ == '__main__':
             datos_juego = menu_nueva_partida()
             if datos_juego != None:
                 username, score, tablero = main_game(*datos_juego)
-                end_screen(username, score, tablero)
         elif user_choice == 2:
             menu_cargar_partida()
 
