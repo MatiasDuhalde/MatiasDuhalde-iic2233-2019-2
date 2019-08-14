@@ -17,11 +17,11 @@ TITLE = """██▓   ▓█████  ▄████ ▒█████   
 
 # ASCII Art obtenido de https://www.oocities.org/spunk1111/small.htm
 # By jgs
-LEGOBRICK = """.=========.
-/ (_)  (_) /| 
-/-========-/ |
-|          |/
-'-========-'"""
+LEGOBRICK = """                                 .=========.
+                                / (_)  (_) /| 
+                               /-========-/ |
+                               |          |/
+                               '-========-'"""
 
 MAINMENU_OPTIONS = """{:>15}    {}
 {:>15}    {}
@@ -31,8 +31,16 @@ MAINMENU_OPTIONS = """{:>15}    {}
 
 GAMEMENU_OPTIONS = """{:>15}    {}
 {:>15}    {}
-{:>15}    {}""".format("[X-Y]", "Revelar casilla (e.g. \"B-2\")", "[1]", "Guardar partida", 
-"[0]", "Salir")
+{:>15}    {}""".format("[X-Y]", "Revelar casilla (e.g. \"B-2\")", "[1]", 
+"Guardar partida", "[0]", "Salir al menú principal")
+
+EXITPROMPT_OPTIONS = """{:>15}    {}
+{:>15}    {}
+{:>15}    {}
+{:>15}    {}""".format("", "¿ESTÁ SEGURO QUE DESEA SALIR?", "[1]", 
+"Salir y guardar partida", "[2]", "Salir sin guardar", "[0]", "Volver")
+
+
 
 MIDSEP1 = "__|___|__"
 MIDSEP2 = "|___|___|"
