@@ -6,7 +6,16 @@ import math
 import gametext
 import sys
 
+# TO DO:
+# add score live
+# check for end of game
+# implement victory screen
+# implement defeat screen
+# implement save/load feature
+
 # NEXT FEATURES:
+# Add auto-reveal (bonus)
+# Easter eggs
 # Add highscore to in game screen
 # Prevent user from losing in first reveal
 
@@ -14,12 +23,10 @@ import sys
 #                          BOARD HANDLING FUNCTIONS
 # =============================================================================
 
-let_to_num = {} 
-
-
 class Tablero:
 
     def __init__(self, largo, ancho, legos = []):
+        # use legos default to autogen, specify for loaded games
         self.largo = largo
         self.ancho = ancho
         self.legos = legos
@@ -36,7 +43,7 @@ class Tablero:
         return self.ancho * fil + col
 
     def num_to_pos(self, num):
-        # (fil, col)
+        # retorna (fil, col)
         return (num // self.ancho, num % self.ancho)
     
     def lego_in_tile(self, fil, col):
@@ -44,13 +51,28 @@ class Tablero:
             return True
         return False
 
+    def adj_legos(self, fil, col):
+        legos_found = 0
+        for n in [-1, 0, 1]:
+            for m in [-1, 0, 1]:
+                if 0 <= n + fil < self.largo and 0 <= m + col < self.ancho:
+                    num = self.pos_to_num(n + fil, m + col)
+                    print(num)
+                    if num in self.legos:
+                        legos_found += 1
+        return legos_found
+
+
     def check_tile(self, fil, col):
         if self.lego_in_tile(fil, col):
             self.reveal_legos()
             return "L"
+        elif fil >= self.largo or col >= self.ancho:
+            print("Esta casilla no se encuentra en el tablero.")
+        elif self.tablero[fil][col] != " ":
+            print("Esta casilla ya ha sido revelada. Intenta con otra.")
         else: 
-            # COMPLETAR
-            pass
+            return self.adj_legos(fil, col)
     
     def reveal_legos(self):
         for i in self.legos:
@@ -180,6 +202,7 @@ def menu_nueva_partida():
 
     if status == 4:
         input("Presione ENTER para comenzar la partida...")
+        clear_screen()
         return (username, largo, ancho)
     clear_screen()
     return None
@@ -208,7 +231,6 @@ def main_game(username, largo, ancho):
     score = 0
     game_cycle = True
     while game_cycle:
-        clear_screen()
         print(gametext.BRICKS)
         print("{:^35}{:^9}{:^35}".format("JUGADOR", gametext.MIDSEP1, "PUNTOS"))
         print("{:^35}{:^9}{:^35}".format(username, gametext.MIDSEP2, score))
@@ -241,9 +263,11 @@ def main_game(username, largo, ancho):
             clear_screen()
         
         elif user_choice == "1":
+            clear_screen()
             t.guardar(username)
         
         elif "-" in user_choice:
+            clear_screen()
             coords = user_choice.split("-")
             if len(coords) == 2 and coords[1].isdigit() and \
                 coords[0].isalpha() and len(coords[0]) == 1:
@@ -251,7 +275,13 @@ def main_game(username, largo, ancho):
                 fil = int(coords[1])
                 tile = t.check_tile(fil, col)
                 if tile == "L":
+                    print("git gud")
                     game_cycle = False
+                elif type(tile) == int:
+                    t.tablero[fil][col] = tile
+        
+        else:
+            clear_screen()
     return username, score, t
                 
 def end_screen(username, score, tablero):
