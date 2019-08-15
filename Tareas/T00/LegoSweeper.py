@@ -7,11 +7,10 @@ import gametext
 import sys
 
 # TO DO:
-# embellish end screen
 # implement save/load feature
-
-# NEXT FEATURES:
 # Add auto-reveal (bonus)
+
+# OPTIONAL FEATURES:
 # Easter eggs
 # Add highscore to in game screen
 # Prevent user from losing in first reveal
@@ -55,7 +54,7 @@ class Tablero:
         return False
 
     def check_comp(self):
-        if self.reveladas == self.ancho * self.largo - 1 - len(self.legos):
+        if self.reveladas == self.ancho * self.largo - len(self.legos):
             return True
         return False
 
@@ -124,6 +123,25 @@ def get_int_input(a, b, prompt="Ingrese un número: ", accept_zero=False):
         return None
     return None
 
+# Rechaza strings largos y con caracteres que generan conflictos al usarlos en
+# directorios.
+def get_str_input():
+    banned_chr = ["/", "\\", "?", "%", "*", ":", "|", "\"", "<", ">", ".", " "]
+    a = input("Ingrese su nombre: ")
+    if a == "":
+        clear_screen()
+    if len(a) > 20:
+        clear_screen()
+        print("Tu nombre no puede tener más de 20 caracteres.")
+        return ""
+    for i in a:
+        if i in banned_chr:
+            clear_screen()
+            print("Tu nombre no puede contener espacios ni los siguientes caracteres:")
+            print(" ".join(banned_chr))
+            return ""
+    return a
+    
 # Organiza la scoreboard de manera descendiente
 def sort_scoreboard():
     temp = []
@@ -143,20 +161,23 @@ def sort_scoreboard():
 # =============================================================================
 
 def end_screen(tablero, username, score, win=False):
+    print(gametext.BRICKS)
     if not win:
-        print("perdiste lol")
+        print(gametext.LOSE_TEXT)
     else:
-        print("GANASTE!")
+        print(gametext.WIN_TEXT)
+    print(gametext.BRICKS)
     tablero.reveal_legos()
     tablero.show()
-    print("Jugador: ", username)
-    print("Puntaje: ", score)
+    print(gametext.BRICKS)
+    print("{:^35}{:^9}{:^35}".format("JUGADOR", gametext.MIDSEP1, "PUNTOS"))
+    print("{:^35}{:^9}{:^35}".format(username, gametext.MIDSEP2, score))
+    print(gametext.BRICKS)
     f = open("puntajes.txt", "a")
     f.write(username + "," + str(score) + "\n")
     f.close()
     input("Presione ENTER para volver al menú principal...")
     clear_screen()
-
 
 
 def menu_inicio():
@@ -187,13 +208,11 @@ def menu_nueva_partida():
         print(gametext.BRICKS)
 
         if status == 0:
-            username = input("Ingrese su nombre: ")
+            username = get_str_input()
             if username == "0":
                 break
             elif username != "":
                 status = 1
-                clear_screen()
-            else:
                 clear_screen()
 
         elif status == 1:
@@ -237,10 +256,11 @@ def menu_cargar_partida():
     print(gametext.LEGOBRICK)
     print("{:>15}    {}".format("[0]", "Volver"))
     print(gametext.BRICKS)
-    username = input("\nInserte su nombre: ")
+    username = get_str_input()
     if username != "0":
         pass
     clear_screen()
+
 
 #PENDIENTE
 #PENDIENTE
@@ -310,6 +330,7 @@ def main_game(username, largo, ancho):
             clear_screen()
     return username, score, t
 
+
 # Muestra primeros 10 puntajes guardados en puntajes.txt
 def scoreboard():
     clear_screen()
@@ -330,7 +351,7 @@ def scoreboard():
             if index == 11:
                 break
             name, score = line.split(",")
-            print("{:8d}.{:5}{:21.10}{}{:>20}".format(index, "", name, 
+            print("{:8d}.{:5}{:21.16}{}{:>20}".format(index, "", name, 
             gametext.MIDSEP1 if index % 2 == 1 else gametext.MIDSEP2, 
             score.rstrip()))
             index += 1
