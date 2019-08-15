@@ -6,14 +6,14 @@ import os
 import math
 import sys
 
-# TO DO:
-# implement load feature
-# Add auto-reveal (bonus)
+# Bugs menores:
+# No muestra error de rango en in-game menu, pero lo atrapa
 
-# OPTIONAL FEATURES:
+# FUTURE FEATURES:
 # Easter eggs
 # Add highscore to in game screen
 # Prevent user from losing in first reveal
+# maybe do something to prevent exploiting load/save feature
 
 # =============================================================================
 #                          BOARD HANDLING FUNCTIONS
@@ -83,7 +83,24 @@ class Tablero:
             print("Esta casilla ya ha sido revelada. Intenta con otra.")
         else: 
             self.reveladas += 1
-            return self.adj_legos(fil, col)
+            self.tablero[fil][col] = self.adj_legos(fil, col)
+            if self.tablero[fil][col] == 0:
+                self.auto_reveal(fil, col)
+
+    # corresponde al bonus, revela tiles adyacentes con solo un comando.
+    def auto_reveal(self, fil, col):
+        if self.tablero[fil][col] == 0:
+            for n in [-1, 0, 1]:
+                for m in [-1, 0, 1]:
+                    if 0 <= n + fil < self.largo and 0 <= m + col < self.ancho:
+                        if self.tablero[n + fil][m + col] == " ":
+                            self.tablero[n + fil][m + col] = \
+                                self.adj_legos(n + fil, m + col)
+                            self.reveladas += 1
+                            if self.tablero[n + fil][m + col] == 0: 
+                                self.auto_reveal(n + fil, m + col)
+
+
 
     # guarda la partida en partidas/username.txt
     def guardar(self, username):
@@ -267,24 +284,44 @@ def menu_nueva_partida():
     return None
 
 
-#PENDIENTE
-#PENDIENTE
-#PENDIENTE
-#PENDIENTE
+# Carga datos según archivos guardados en el directorio partidas/
 def menu_cargar_partida():
-    print(gametext.BRICKS)
-    print(gametext.LEGOBRICK)
-    print("{:>15}    {}".format("[0]", "Volver"))
-    print(gametext.BRICKS)
-    username = get_str_input()
-    if username != "0":
-        pass
+    load_loop = True
+    while load_loop:
+        print(gametext.BRICKS)
+        print("{:^79}".format("CARGAR PARTIDA"))
+        print(gametext.BRICKS)
+        print(gametext.LEGOBRICK)
+        print("{:>15}    {}".format("[0]", "Volver"))
+        print(gametext.BRICKS)
+        username = get_str_input()
+        if username == "0":
+            load_loop = False
+            break
+        if username + ".txt" in os.listdir("partidas/"):
+            f = open("partidas/" + username + ".txt", "r")
+            
+            username = f.readline().rstrip("\n")
+            largo, ancho = map(int, f.readline().rstrip("\n").split(","))
+            legos = list(map(int, f.readline().rstrip("\n").split(",")))
+            reveladas = int(f.readline().rstrip("\n"))
+            tablero = []
+            for _ in range(largo):
+                tablero.append((f.readline().rstrip("\n")).split(","))
+            
+            f.close()
+            clear_screen()
+            return username, largo, ancho, legos, reveladas, tablero
+        elif username != "":
+            clear_screen()
+            print("No existen partidas guardadas para el usuario " + username + ".")
+        
     clear_screen()
     return None
 
 
-def main_game(username, largo, ancho):
-    t = Tablero(largo, ancho)
+def main_game(username, largo, ancho, legos = [], reveladas = 0, tablero = []):
+    t = Tablero(largo, ancho, legos, reveladas, tablero)
     score = 0
     game_cycle = True
     while game_cycle:
@@ -338,13 +375,13 @@ def main_game(username, largo, ancho):
                     end_screen(t, username, score)
                     game_cycle = False
                 
-                elif type(tile) == int:
-                    t.tablero[fil][col] = tile
-                
                 if t.check_comp():
                     end_screen(t, username, score, win=True)
                     game_cycle = False
         
+        elif user_choice.isdigit() and not 0 <= int(user_choice) <= 1:
+            clear_screen()
+            print("El número debe estar entre 0 y 1 incluyéndolos.")
         else:
             clear_screen()
     return username, score, t
@@ -408,8 +445,13 @@ if __name__ == '__main__':
             if datos_juego != None:
                 main_game(*datos_juego)
         elif user_choice == 2:
-            datos_partida = menu_cargar_partida()
-            if datos_partida != None:
-                pass
+            datos_juego = menu_cargar_partida()
+            if datos_juego != None:
+                print(gametext.BRICKS)
+                print("{:^79}".format("PARTIDA CARGADA CON ÉXITO!"))
+                print(gametext.BRICKS)
+                input("Presione ENTER para continuar...")
+                clear_screen()
+                main_game(*datos_juego)
         elif user_choice == 3:
             scoreboard()
