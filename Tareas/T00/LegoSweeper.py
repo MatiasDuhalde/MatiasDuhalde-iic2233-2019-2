@@ -285,7 +285,6 @@ def menu_cargar_partida():
 
 def main_game(username, largo, ancho):
     t = Tablero(largo, ancho)
-    print(t.tablero)
     score = 0
     game_cycle = True
     while game_cycle:
