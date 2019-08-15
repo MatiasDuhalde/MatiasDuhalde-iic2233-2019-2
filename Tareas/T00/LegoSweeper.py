@@ -6,9 +6,6 @@ import os
 import math
 import sys
 
-# Bugs menores:
-# No muestra error de rango en in-game menu, pero lo atrapa
-
 # FUTURE FEATURES:
 # Easter eggs
 # Add highscore to in game screen
