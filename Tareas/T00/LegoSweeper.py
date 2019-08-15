@@ -1,13 +1,13 @@
 from parametros import PROB_LEGO, POND_PUNT
 from tablero import print_tablero
+import gametext
 import random
 import os
 import math
-import gametext
 import sys
 
 # TO DO:
-# implement save/load feature
+# implement load feature
 # Add auto-reveal (bonus)
 
 # OPTIONAL FEATURES:
@@ -21,16 +21,17 @@ import sys
 
 class Tablero:
 
-    def __init__(self, largo, ancho, legos = []):
-        # use legos default to autogen, specify for loaded games
+    def __init__(self, largo, ancho, legos = [], rev = 0, tab = []):
+        # use defaults to autogen, specify to load a game
         self.largo = largo
         self.ancho = ancho
-        self.legos = legos
-        self.reveladas = 0
+        self.legos = legos.copy()
+        self.reveladas = rev
 
-        self.tablero = []
-        for _ in range(largo):
-            self.tablero.append([" "] * ancho)
+        self.tablero = tab.copy()
+        if self.tablero == []:
+            for _ in range(largo):
+                self.tablero.append([" "] * ancho)
         
         if self.legos == []:
             n_legos = math.ceil(largo * ancho * PROB_LEGO)
@@ -43,6 +44,7 @@ class Tablero:
         # retorna (fil, col)
         return (num // self.ancho, num % self.ancho)
     
+    # coloca L's en el tablero
     def reveal_legos(self):
         for i in self.legos:
             coords = self.num_to_pos(i)
@@ -52,12 +54,14 @@ class Tablero:
         if self.pos_to_num(fil, col) in self.legos:
             return True
         return False
-
+    
+    # True si están todas las casillas reveladas (menos las con lego)
     def check_comp(self):
         if self.reveladas == self.ancho * self.largo - len(self.legos):
             return True
         return False
-
+    
+    # retorna num de legos adyacentes a la casilla deseada
     def adj_legos(self, fil, col):
         legos_found = 0
         for n in [-1, 0, 1]:
@@ -68,7 +72,7 @@ class Tablero:
                         legos_found += 1
         return legos_found
 
-
+    # revisa si la casilla elegida tiene un lego o ya fue revelada
     def check_tile(self, fil, col):
         if self.lego_in_tile(fil, col):
             self.reveal_legos()
@@ -81,11 +85,27 @@ class Tablero:
             self.reveladas += 1
             return self.adj_legos(fil, col)
 
-    # COMPLETAR
-    # COMPLETAR
-    # COMPLETAR
+    # guarda la partida en partidas/username.txt
     def guardar(self, username):
-        pass
+        f = open("partidas/" + username + ".txt", "w")
+        
+        # username
+        print(username, file = f)
+        # dimensions
+        print(self.largo, self.ancho, sep = ",", file = f)
+        # legos csv
+        print(*self.legos, sep = ",", file = f)
+        # reveladas
+        print(self.reveladas, file = f)
+        # filas esc, cols csv
+        for fila in self.tablero:
+            print(*fila, sep = ",", file = f)
+        
+        f.close()
+        print(gametext.BRICKS)
+        print("{:^79}".format("La partida ha sido guardada."))
+        print(gametext.BRICKS)
+        input("Presione ENTER para continuar...")
 
     def show(self):
         print_tablero(self.tablero)
@@ -260,14 +280,12 @@ def menu_cargar_partida():
     if username != "0":
         pass
     clear_screen()
+    return None
 
 
-#PENDIENTE
-#PENDIENTE
-#PENDIENTE
-#PENDIENTE
 def main_game(username, largo, ancho):
     t = Tablero(largo, ancho)
+    print(t.tablero)
     score = 0
     game_cycle = True
     while game_cycle:
@@ -293,6 +311,7 @@ def main_game(username, largo, ancho):
                 if exit_choice == 1:
                     clear_screen()
                     t.guardar(username)
+                    clear_screen()
                     exit_cycle = False
                     game_cycle = False
                 elif exit_choice == 2:
@@ -305,6 +324,7 @@ def main_game(username, largo, ancho):
         elif user_choice == "1":
             clear_screen()
             t.guardar(username)
+            clear_screen()
         
         elif "-" in user_choice:
             clear_screen()
@@ -387,9 +407,10 @@ if __name__ == '__main__':
         if user_choice == 1:
             datos_juego = menu_nueva_partida()
             if datos_juego != None:
-                username, score, tablero = main_game(*datos_juego)
+                main_game(*datos_juego)
         elif user_choice == 2:
-            menu_cargar_partida()
-
+            datos_partida = menu_cargar_partida()
+            if datos_partida != None:
+                pass
         elif user_choice == 3:
             scoreboard()
