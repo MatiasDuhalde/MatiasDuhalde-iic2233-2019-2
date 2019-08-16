@@ -105,7 +105,7 @@ class Tablero:
 
     # guarda la partida en partidas/username.txt
     def guardar(self, username):
-        f = open("partidas/" + username + ".txt", "w")
+        f = open("partidas/" + username.lower() + ".txt", "w")
         
         # username
         print(username, file = f)
@@ -302,7 +302,7 @@ def menu_cargar_partida():
         if username == "0":
             load_loop = False
             break
-        if username + ".txt" in os.listdir("partidas/"):
+        if username.lower() + ".txt" in os.listdir("partidas/"):
             f = open("partidas/" + username + ".txt", "r")
             
             username = f.readline().rstrip("\n")
