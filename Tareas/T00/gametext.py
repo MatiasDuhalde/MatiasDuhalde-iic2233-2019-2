@@ -44,7 +44,7 @@ MAINMENU_OPTIONS = """{:>15}    {}
 {:>15}    {}
 {:>15}    {}
 {:>15}    {}""".format("[1]", "Nueva partida", "[2]", "Cargar partida", "[3]", 
-"Scoreboard", "[0]", "Salir del juego")
+"Leaderboard", "[0]", "Salir del juego")
 
 GAMEMENU_OPTIONS = """{:>15}    {}
 {:>15}    {}
