@@ -6,6 +6,10 @@ import os
 import math
 import sys
 
+# Problemas:
+# Los tableros grandes se ven demasiado trippy. Poner pipes entre casillas 
+# podría quitar el efecto pero el tamaño del tablero se duplicaría.
+
 # FUTURE FEATURES:
 # Easter eggs
 # Add highscore to in game screen
@@ -121,6 +125,9 @@ class Tablero:
         print(gametext.BRICKS)
         input("Presione ENTER para continuar...")
 
+    def get_score(self):
+        return self.reveladas * len(self.legos) * POND_PUNT
+    
     def show(self):
         print_tablero(self.tablero)
 
@@ -319,10 +326,9 @@ def menu_cargar_partida():
 
 def main_game(username, largo, ancho, legos = [], reveladas = 0, tablero = []):
     t = Tablero(largo, ancho, legos, reveladas, tablero)
-    score = 0
     game_cycle = True
     while game_cycle:
-        score = t.reveladas * len(t.legos) * POND_PUNT
+        score = t.get_score()
         print(gametext.BRICKS)
         print("{:^35}{:^9}{:^35}".format("JUGADOR", gametext.MIDSEP1, "PUNTOS"))
         print("{:^35}{:^9}{:^35}".format(username, gametext.MIDSEP2, score))
@@ -369,10 +375,12 @@ def main_game(username, largo, ancho, legos = [], reveladas = 0, tablero = []):
                 tile = t.check_tile(fil, col)
                 
                 if tile == "L":
+                    score = t.get_score()
                     end_screen(t, username, score)
                     game_cycle = False
                 
                 if t.check_comp():
+                    score = t.get_score()
                     end_screen(t, username, score, win=True)
                     game_cycle = False
         
