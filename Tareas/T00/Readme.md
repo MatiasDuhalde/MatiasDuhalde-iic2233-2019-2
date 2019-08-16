@@ -1,4 +1,4 @@
-# Tarea X: Nombre de la tarea :school_satchel:
+# Tarea 00: LegoSweeper :school_satchel:
 
 
 Un buen ```README.md``` puede marcar una gran diferencia en la facilidad con la que corregimos una tarea, y consecuentemente cómo funciona su programa, por lo en general, entre más ordenado y limpio sea éste, mejor será 
@@ -11,9 +11,10 @@ Un buen ```README.md``` no tiene por que ser muy extenso tampoco, hay que ser **
 
 ## Consideraciones generales :octocat:
 
-<Descripción de lo que hace y que **_no_** hace la tarea que entregaron junto
-con detalles de último minuto y consideraciones como por ejemplo cambiar algo
-en cierta línea del código o comentar una función>
+El código entregado hace todo lo pedido en el enunciado y la pauta (incluyendo el **bonus**). De igual manera, se deben tener ciertas consideraciones:
+* En el enunciado, se pide dar la opción de **salir de la partida con guardar** en el menú de juego, entre otras opciones. Si bien esta opción no aparece explícita, se muestra una vez el jugador elige la opción de **salir**. Esto para darle una estructura más clásica al menú, ya que me parecía poco natural mostrarla junto con las otras.
+* Se limitaron los caracteres y la longitud del nombre de usuario del jugador, para no tener problemas al hacer los *savefiles*.
+* El código no contempla la posibilidad de que el usuario modifique externamente los *savefiles* y el archivo ```puntajes.txt```. Es posible que al hacer esto se generen errores.
 
 ### Cosas implementadas y no implementadas :white_check_mark: :x:
 
@@ -27,26 +28,27 @@ en cierta línea del código o comentar una función>
 * <Nombre item pauta<sub>n</sub>>: Me faltó hacer <insertar qué cosa faltó>
 
 ## Ejecución :computer:
-El módulo principal de la tarea a ejecutar es  ```archivo.py```. Además se debe crear los siguientes archivos y directorios adicionales:
-1. ```archivo.ext``` en ```ubicación```
-2. ```directorio``` en ```ubicación```
-3. ...
+El módulo principal de la tarea a ejecutar es  ```LegoSweeper.py```. El script creará automáticamente los siguientes directorios y archivos:
+1. ```partidas/```
+2. ```puntajes.txt```
 
+Ámbos estarán vacíos en un principio, y se iran agregando datos según se use el programa. Los **savegames** se almacenarán dentro de ```partidas/``` según el formato pedido en el enunciado. Además, los archivos entregados deben estar en el directorio base (junto con ```LegoSweeper.py```):
+1. ```parametros.py```
+2. ```tablero.py```
 
 ## Librerías :books:
 ### Librerías externas utilizadas
 La lista de librerías externas que utilicé fue la siguiente:
 
-1. ```librería_1```: ```función() / módulo```
-2. ```librería_2```: ```función() / módulo``` (debe instalarse)
-3. ...
+1. ```random```: ```sample()```
+2. ```os```: ```system(), listdir(), name``` 
+3. ```math```: ```ceil()```
+4. ```sys```: ```exit()```
 
 ### Librerías propias
 Por otro lado, los módulos que fueron creados fueron los siguientes:
 
-1. ```librería_1```: Contiene a ```ClaseA```, ```ClaseB```, (ser general, tampoco es necesario especificar cada una)...
-2. ```librería_2```: Hecha para <insertar descripción **breve** de lo que hace o qué contiene>
-3. ...
+1. ```gametext```: Contiene **constantes** que guardan texto y elementos gráficos para mostrar en el terminal (i.e. ASCII Art, opciones de los menús). Todas las constantes están en mayúsculas, siguiendo el estilo de ```parametros```
 
 ## Supuestos y consideraciones adicionales :thinking:
 Los supuestos que realicé durante la tarea son los siguientes:
@@ -90,7 +92,7 @@ Lo importante es que expliquen qué hace la función y que si saben que alguna p
 ## Referencias de código externo :book:
 
 Para realizar mi tarea saqué código de:
-1. \<link de código>: este hace \<lo que hace> y está implementado en el archivo <nombre.py> en las líneas <número de líneas> y hace <explicación breve de que hace>
+1. https://stackoverflow.com/questions/517970/how-to-clear-the-interpreter-console: está implementado en el archivo ```LegoSweeper.py``` en la línea **145** y sirve para *limpiar* la pantalla del terminal, y de esa manera hacer las transiciones entre menús y dentro del mismo juego más claras.
 
 
 
