@@ -16,13 +16,22 @@ La pauta se encuentra [aquí](https://docs.google.com/spreadsheets/d/1ndqu5lnVhC
     * Menú de Juego: :heavy_check_mark:
     * Tablero: :heavy_check_mark:
     * Legos: :heavy_check_mark:
+        * :ledger: [```LegoSweeper.py```](LegoSweeper.py) | Línea **38**
     * Guardado de partida: :heavy_check_mark:
+        * :floppy_disk: Los *savefiles* siguen el siguiente formato:
+            * **1era línea**: nombre de usuario con mayúsculas originales.
+            * **2da línea**: dimensiones del tablero separadas por coma (*ancho,largo*).
+            * **3era línea**: posiciones de los legos separadas por comas.
+            * **4ta línea**: número de casillas reveladas.
+            * **5ta línea en adelante**: las filas del tablero, con cada casilla separada por un coma. Un **espacio** indica que la casilla no ha sido descubierta. Un **número** indica que la casilla ha sido descubierta, y el número representa los legos adyacentes. **Nota**: esta última parte no muestra los legos en el tablero.
 * **Término del Juego**: Hecha completa.
     * Fin del juego: :heavy_check_mark:
     * Puntajes: :heavy_check_mark:
+        * :ledger: [```LegoSweeper.py```](LegoSweeper.py) | Línea **129**
 * **General**: Hecha completa.
     * Menús: :heavy_check_mark:
     * Parámetros: :heavy_check_mark:
+        * :ledger: [```LegoSweeper.py```](LegoSweeper.py) | Líneas **1, 38, 129**
 * **:sparkles:Bonus:sparkles:**: Hecha completa.
     * Descubrimiento de celdas: :heavy_check_mark:
 
