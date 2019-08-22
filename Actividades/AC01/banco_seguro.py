@@ -33,7 +33,8 @@ class ClienteSeguro(Cliente):
         with open(ruta_transacciones, 'a+', encoding='utf-8') as archivo:
             saldo_anterior = self.saldo
             self.depositar(dinero)
-            archivo.write("DEP", self.id_cliente, saldo_anterior, self.saldo, sep=",")
+            print("depositar", self.id_cliente, saldo_anterior, self.saldo, 
+            sep=",", file=archivo)
 
     def retiro_seguro(self, dinero):
         '''
@@ -44,7 +45,8 @@ class ClienteSeguro(Cliente):
         with open(ruta_transacciones, 'a+', encoding='utf-8') as archivo:
             saldo_anterior = self.saldo
             self.retirar(dinero)
-            archivo.write("RET", self.id_cliente, saldo_anterior, self.saldo, sep=",")
+            print("retirar", self.id_cliente, saldo_anterior, self.saldo, 
+            sep=",", file=archivo)
 
 
 class BancoSeguroDCC(BancoDCC):
@@ -72,10 +74,12 @@ class BancoSeguroDCC(BancoDCC):
 
     def verificar_historial_transacciones(self, historial):
         print('Validando transacciones')
-        # completar
-        pass
+        for linea in historial:
+            id_cliente, accion, monto = linea.split(",")
+            monto = int(monto)
+            self.realizar_transaccion(id_cliente, monto, accion)
 
     def validar_monto_clientes(self, ruta):
         print('Validando monto de los clientes')
         # completar
-        pass
+        print(ruta)
