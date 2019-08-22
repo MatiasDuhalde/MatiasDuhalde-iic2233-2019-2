@@ -80,4 +80,13 @@ class BancoSeguroDCC(BancoDCC):
 
     def validar_monto_clientes(self, ruta):
         print('Validando monto de los clientes')
-        # completar
+        with open(ruta, "r") as saldos_reales:
+            print(saldos_reales)
+            saldos_reales.readline()
+            for linea in saldos_reales:
+                id_cliente, nombre, saldo, contrasena = linea.split(", ")
+                saldo = int(saldo)
+                customer = self.buscar_cliente(id_cliente)
+                if saldo != customer.saldo:
+                    customer.tiene_fraude = True
+                
