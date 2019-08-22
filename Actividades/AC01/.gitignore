@@ -1,0 +1,12 @@
+__pycache__/
+.vscode/
+
+*.py[cod]
+*$py.class
+
+*.idea
+*.DS_STORE
+
+Enunciado.pdf
+
+AC01__IIC2233_2019_2.pdf
