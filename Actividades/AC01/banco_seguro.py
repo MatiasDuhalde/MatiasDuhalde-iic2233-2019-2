@@ -8,6 +8,7 @@ Deberas completar las clases ClienteSeguro, BancoSeguroDCC y  sus metodos
 class ClienteSeguro(Cliente):
     def __init__(self, id_cliente, nombre, contrasena):
         super().__init__(id_cliente, nombre, contrasena)
+        self.saldo_actual = self.saldo
         self.tiene_fraude = False
 
     @property
@@ -20,8 +21,8 @@ class ClienteSeguro(Cliente):
         Completar: Recuerda que si el saldo es menor a 0, entonces este cliente
         si tiene un fraude
         '''
-        self.saldo = nuevo_saldo
-        if self.saldo < 0:
+        self.saldo = int(nuevo_saldo)
+        if self.saldo_actual < 0:
             self.tiene_fraude = True
 
     def deposito_seguro(self, dinero):
@@ -32,8 +33,8 @@ class ClienteSeguro(Cliente):
         ruta_transacciones = path.join('banco_seguro', 'transacciones.txt')
         with open(ruta_transacciones, 'a+', encoding='utf-8') as archivo:
             saldo_anterior = self.saldo
-            self.depositar(dinero)
-            print("depositar", self.id_cliente, saldo_anterior, self.saldo, 
+            self.saldo_actual += dinero
+            print("depositar", self.id_cliente, saldo_anterior, self.saldo_actual, 
             sep=",", file=archivo)
 
     def retiro_seguro(self, dinero):
@@ -44,8 +45,8 @@ class ClienteSeguro(Cliente):
         ruta_transacciones = path.join('banco_seguro', 'transacciones.txt')
         with open(ruta_transacciones, 'a+', encoding='utf-8') as archivo:
             saldo_anterior = self.saldo
-            self.retirar(dinero)
-            print("retirar", self.id_cliente, saldo_anterior, self.saldo, 
+            self.saldo_actual -= dinero
+            print("retirar", self.id_cliente, saldo_anterior, self.saldo_actual, 
             sep=",", file=archivo)
 
 
@@ -64,13 +65,11 @@ class BancoSeguroDCC(BancoDCC):
                 self.clientes.append(instancia_cliente)
 
     def realizar_transaccion(self, id_cliente, dinero, accion):
-        for customer in self.clientes:
-            if customer.id_cliente == id_cliente:
-                if accion == "depositar":
-                    customer.deposito_seguro(dinero)
-                elif accion == "retirar":
-                    customer.retiro_seguro(dinero)
-                break
+        customer = self.buscar_cliente(id_cliente)
+        if accion == "depositar":
+            customer.deposito_seguro(dinero)
+        elif accion == "retirar":
+            customer.retiro_seguro(dinero)
 
     def verificar_historial_transacciones(self, historial):
         print('Validando transacciones')
@@ -82,4 +81,3 @@ class BancoSeguroDCC(BancoDCC):
     def validar_monto_clientes(self, ruta):
         print('Validando monto de los clientes')
         # completar
-        print(ruta)
