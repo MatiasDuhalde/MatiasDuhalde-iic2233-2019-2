@@ -65,7 +65,6 @@ def simular_batalla(alumnos, ayudantes):
                     break
                 else:    
                     alumno_atacante = alumnos.pop()
-                print(alumno_atacante)
             # O se acabaron los alumnos, o se logró distraer al ayudante
             if not alumnos:
                 # Si no quedan alumnos, no podemos distraer ayudantes
