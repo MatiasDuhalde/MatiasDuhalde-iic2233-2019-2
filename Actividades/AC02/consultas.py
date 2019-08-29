@@ -18,5 +18,12 @@ def resumen_actual(ayudantes, alumnos):
 
 
 def stock_comida(alumnos):
-    # Completar
-    pass
+    dict_comidas = {}
+    for alumno in alumnos:
+        for comida in alumno.habilidades:
+            if not comida in dict_comidas.keys():
+                dict_comidas[comida] = 1
+            else:
+                dict_comidas[comida] += 1
+    comidas_totales = [(comida, dict_comidas[comida]) for comida in dict_comidas.keys()]
+    return comidas_totales
