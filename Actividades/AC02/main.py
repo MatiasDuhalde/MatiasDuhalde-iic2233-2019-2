@@ -29,7 +29,8 @@ Aquí debes completar las funciones propias de Acciones en DCCampal
 def distraer(alumno, ayudante):
     posibilidades = alumno.habilidades & ayudante.debilidades
     if posibilidades != set():
-        comida = random.sample(posibilidades, 1)[0]
+        n = random.randint(0, len(posibilidades)-1)
+        comida = list(posibilidades)[n]
         alumno.habilidades.remove(comida)
         ayudante.comiendo.append(comida)
         return True
