@@ -56,8 +56,6 @@ def simular_batalla(alumnos, ayudantes):
             # Mientras hayan ayudantes en el piso
             ayudante_defensor = ayudantes_del_piso.popleft()
             alumno_atacante = alumnos.pop()
-            print(ayudante_defensor)
-            print(alumno_atacante)
             while not distraer(alumno_atacante, ayudante_defensor):
                 # Si no se logró distraer el ayudante con el alumno actual,
                 # se debe mandar a la casa al alumno
@@ -70,7 +68,6 @@ def simular_batalla(alumnos, ayudantes):
                 print(alumno_atacante)
             # O se acabaron los alumnos, o se logró distraer al ayudante
             if not alumnos:
-                print("\n\nHERE\n\n")
                 # Si no quedan alumnos, no podemos distraer ayudantes
                 break
             elif ayudante_defensor.comiendo and ayudantes_del_piso:
