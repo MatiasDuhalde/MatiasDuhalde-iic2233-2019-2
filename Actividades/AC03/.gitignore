@@ -1,14 +1,4 @@
-# --------------------------------------------
-# Python
-# --------------------------------------------
-
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-
-*.idea
-*.DS_STORE
-
-# Enunciado
-Enunciado.pdf
+data_base/**
+yoNube.py
+data_base.iTunes
+*.csv
