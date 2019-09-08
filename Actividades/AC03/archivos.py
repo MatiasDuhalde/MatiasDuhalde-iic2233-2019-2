@@ -24,7 +24,8 @@ def desencriptar(funcion_decodificadora, tipo_archivo):
     # Este es el código base del decorador y es completamente editable
     def decorador(funcion_a_decorar):
         def wrapper(*args, **kwargs):
-            return funcion_a_decorar(*args, **kwargs)
+            for i in funcion_a_decorar(*args, **kwargs):
+                yield [decodificar(string) for string in i]
         return wrapper
     return decorador
 
@@ -119,6 +120,8 @@ if __name__ == "__main__":
     ratings = leer_ratings(ruta_ratings)
 
     generadores = [canciones, artistas, usuarios, ratings]
+    print(type(canciones))
+    print(leer_canciones.__name__)
 
     for gen in generadores:
         print(f"\nProbando generador : ")
