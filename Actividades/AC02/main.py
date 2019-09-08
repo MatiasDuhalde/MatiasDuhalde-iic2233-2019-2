@@ -12,6 +12,7 @@ import random
 from collections import deque
 from cargar_datos import cargar_alumnos, cargar_ayudantes
 from consultas import resumen_actual, stock_comida
+from bonus import cargar_llaves, desbloquear_pisos
 
 
 
@@ -28,16 +29,16 @@ Aquí debes completar las funciones propias de Acciones en DCCampal
 
 def distraer(alumno, ayudante):
     posibilidades = alumno.habilidades & ayudante.debilidades
-    if posibilidades != set():
-        n = random.randint(0, len(posibilidades)-1)
-        comida = list(posibilidades)[n]
+    if posibilidades:
+        posibilidades = list(posibilidades)
+        comida = random.choice(posibilidades)
         alumno.habilidades.remove(comida)
         ayudante.comiendo.append(comida)
         return True
     return False
 
 
-def simular_batalla(alumnos, ayudantes):
+def simular_batalla(alumnos, ayudantes, llaves):
     """
     El malvado PhD. Pinto ha borrado todo el código de esta función,
     pero ha decidido dejar unas cuantas línea de la simulación
@@ -51,8 +52,13 @@ def simular_batalla(alumnos, ayudantes):
 
     while PISOS and alumnos:
         # Mientras queden pisos y alumnos para distraer
+        # PISOS: DICCIONARIO
+        # alumnos: lista, contiene namedtuples
+        # ayudantes: diccionario, contiene deques, que contiene namedtuples
         piso_actual = PISOS[0]
         ayudantes_del_piso = ayudantes[piso_actual]
+        if not desbloquear_pisos(llaves, piso_actual):
+            break
         while ayudantes_del_piso:
             # Mientras hayan ayudantes en el piso
             ayudante_defensor = ayudantes_del_piso[0]
@@ -89,4 +95,5 @@ def simular_batalla(alumnos, ayudantes):
 if __name__ == '__main__':
     alumnos = cargar_alumnos(os.path.join('bases_datos', 'alumnos.csv'))
     ayudantes = cargar_ayudantes(os.path.join('bases_datos', 'ayudantes.csv'))
-    simular_batalla(alumnos, ayudantes)
+    llaves = cargar_llaves(os.path.join('bases_datos', 'tech_keys.csv'))
+    simular_batalla(alumnos, ayudantes, llaves)
