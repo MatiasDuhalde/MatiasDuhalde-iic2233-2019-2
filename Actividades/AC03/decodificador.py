@@ -2,12 +2,10 @@ from itertools import chain
 
 
 def decodificar(string):
-    """
-    Debes completar esta función para poder decodificar las
-    bases de datos.
-
-    Debe retornar un string decodificado.
-    """
+    CODEWORD = "arquetipos"
+    CLAVE = {str(i): CODEWORD[i] for i in range(len(CODEWORD))}
+    CLAVE = dict(CLAVE, **{val : key for key, val in CLAVE.items()})
+    string = ''.join([CLAVE[i] if i in CLAVE.keys() else i for i in string])
     return string
 
 
