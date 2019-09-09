@@ -2,15 +2,21 @@ import os
 from yoNube import descargar
 from archivos import (leer_artistas, leer_canciones, leer_usuarios, leer_ratings)
 from decodificador import decodificar
+from datetime import datetime
+from statistics import mean
 
 # ----- PROPUESTO: DECORADOR CONTADOR -------
 
-def contador():
+def contador(consulta):
     """
     Completar para llevar la cuenta de las consultas.
     Eres libre de agregar argumentos para el desarrollo del decorador.
     """
-    pass
+    i = 0
+    def wrapper(*args, **kwargs)
+        i += 1
+        return consulta(*args, **kwargs)
+    return wrapper
 
 
 # ------------------------------------------------------------
@@ -25,7 +31,15 @@ def usuarios_por_antiguedad(usuarios):
     Esta consulta debe retornar un GENERADOR con los usuarios
     ordenados desde el más antiguo hasta el más nuevo.
     """
-    pass
+    usuarios_ordenados = []
+    for usuario in usuarios:
+        date = datetime.strptime(usuario.fecha_ingreso, "%d/%m/%Y")
+        usuarios_ordenados.append((usuario, date))
+    usuarios_ordenados.sort(key=lambda x: x[1])
+    i = 0
+    while True:
+        yield usuarios_ordenados[i][0]
+        i += 1
 
 
 def ratings_usuarios(username, ratings):
@@ -33,7 +47,7 @@ def ratings_usuarios(username, ratings):
     Esta consulta retorna una LISTA con los ratings que el usuario
     ha emitido.
     """
-    pass
+    return list(filter(lambda x: x.username == username, ratings))
 
 
 def canciones_artistas(nombre_artista, canciones, artistas):
@@ -41,7 +55,13 @@ def canciones_artistas(nombre_artista, canciones, artistas):
     Esta consulta retorna un GENERADOR con las canciones del artista
     solicitado.
     """
-    pass
+    ID_artista = -1
+    for artista in artistas:
+        if artista.nombre == nombre_artista:
+            ID_artista = artista.id
+            break
+    canciones_artista = list(filter(lambda x: x.id == ID_artista, canciones))
+    yield from canciones_artista
 
 
 def rating_promedio(nombre_cancion, canciones, ratings):
@@ -52,7 +72,17 @@ def rating_promedio(nombre_cancion, canciones, ratings):
     OJO: puede que la canción indicada no tenga ratings asociados.
     En ese caso asume un rating promedio = 0.
     """
-    pass
+    rating = 0
+    ID_cancion = -1
+    for cancion in canciones:
+        if cancion.nombre == nombre_cancion:
+            ID_cancion = cancion.id
+            break
+    ratings_cancion = filter(lambda x: x.id_cancion == ID_cancion, ratings)
+    ratings_cancion = map(lambda x: int(x.rating), ratings_cancion)
+    if ratings_cancion:
+        rating = mean(ratings_cancion)
+    return rating
 
 # ----- PROPUESTO: DECORADOR CONTADOR -------
 
