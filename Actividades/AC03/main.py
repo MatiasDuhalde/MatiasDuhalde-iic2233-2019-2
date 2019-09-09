@@ -7,16 +7,22 @@ from statistics import mean
 
 # ----- PROPUESTO: DECORADOR CONTADOR -------
 
-def contador(consulta):
+calls = {"usuarios_por_antiguedad": 0, "ratings_usuarios": 0, 
+    "canciones_artistas": 0, "rating_promedio": 0}
+
+
+def contador(nombre_consulta):
     """
     Completar para llevar la cuenta de las consultas.
     Eres libre de agregar argumentos para el desarrollo del decorador.
-    """
-    i = 0
-    def wrapper(*args, **kwargs)
-        i += 1
-        return consulta(*args, **kwargs)
-    return wrapper
+    """ 
+    def decorador(consulta):
+        def wrapper(*args, **kwargs):
+            calls[nombre_consulta] += 1
+            res = consulta(*args, **kwargs)
+            return res
+        return wrapper
+    return decorador
 
 
 # ------------------------------------------------------------
@@ -25,7 +31,7 @@ def contador(consulta):
 
 # ------------------------------------------------------------
 
-
+@contador("usuarios_por_antiguedad")
 def usuarios_por_antiguedad(usuarios):
     """
     Esta consulta debe retornar un GENERADOR con los usuarios
@@ -41,7 +47,7 @@ def usuarios_por_antiguedad(usuarios):
         yield usuarios_ordenados[i][0]
         i += 1
 
-
+@contador("ratings_usuarios")
 def ratings_usuarios(username, ratings):
     """
     Esta consulta retorna una LISTA con los ratings que el usuario
@@ -49,7 +55,7 @@ def ratings_usuarios(username, ratings):
     """
     return list(filter(lambda x: x.username == username, ratings))
 
-
+@contador("canciones_artistas")
 def canciones_artistas(nombre_artista, canciones, artistas):
     """
     Esta consulta retorna un GENERADOR con las canciones del artista
@@ -63,7 +69,7 @@ def canciones_artistas(nombre_artista, canciones, artistas):
     canciones_artista = list(filter(lambda x: x.id == ID_artista, canciones))
     yield from canciones_artista
 
-
+@contador("rating_promedio")
 def rating_promedio(nombre_cancion, canciones, ratings):
     """
     Esta consulta retorna un FLOAT con el rating promedio de la cancion
@@ -90,7 +96,7 @@ def cantidad_consultas(consulta):
     """
     Recuerda que esta consulta es necesario solo si hiciste el decorador.
     """
-    pass
+    return calls[consulta]
 
 
 if __name__ == "__main__":
