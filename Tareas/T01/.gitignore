@@ -14,6 +14,5 @@ __pycache__/
 Enunciado.pdf
 
 # Archivos estáticos
-pistas.csv
-contrincantes.csv
+databases/static/*
 
