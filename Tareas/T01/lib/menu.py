@@ -2,22 +2,18 @@ import os
 from abc import ABC, abstractmethod
 
 import lib.gametext as gametext
-from lib.funciones import clear
+from lib.funciones import clear, get_piloto
 from lib.carreras import Tareo, Docencio, Hibrido
+from lib.carreras import Automovil, Motocicleta, Troncomovil, Bicicleta
 
 
 
 class Menu(ABC):
     """Abstract class. Inherited by more specific menu classes."""
-    
-    teams_pilotos = {"Tareos" : Tareo, 
-    "Hibrido" : Hibrido, 
-    "Docencios" : Docencio}
 
     @abstractmethod
     def __init__(self):
         self.actions = {}
-
 
     def recibir_input(self, msj="Ingrese una opción: "):
         """Receives and returns a numeric input. Number must be in action list."""
@@ -29,16 +25,15 @@ class Menu(ABC):
                     return number
             clear()
             print(self)
-            print(f"Debes entrar un número según las acciones disponibles")
+            print(f"Debes entrar un número según las acciones disponibles.")
 
-
-    def get_str(self):
-        """Returns str. Contains self.actions items + decorative elements."""
+    def get_str(self, actions=self.actions):
+        """Returns str. Contains actions items + decorative elements."""
         string = ""
         
         string += ">>>|  ┌───┐\n"
-        for action in self.actions:
-            string += f">>>|  │ {action} │    {self.actions[action]}\n"
+        for action in actions:
+            string += f">>>|  │ {action} │    {actions[action]}\n"
             if action != 0:
                 string += ">>>|  ├───┤\n"
         string += ">>>|  └───┘\n"
@@ -46,10 +41,9 @@ class Menu(ABC):
         
         return string
 
-
     @abstractmethod
     def __str__(self):
-        """Meant to be used with print(). Shows the menu"""
+        """Meant to be used with print(). Shows the menu."""
         string = str(self.get_str())
         return string
 
@@ -65,29 +59,26 @@ class MenuSesion(Menu):
 
     def cargar_partida(self):
         """Return Piloto object based on user input."""
+        clear()
+        print(gametext.LOAD_TITLE)
+        print(gametext.SEP)
+        
         while True:
-            clear()
-            print(gametext.LOAD_TITLE)
-            print(gametext.SEP)
-            
             name = input("Introduzca su nombre: ")
             
             if name == "0":
                 break
-            with open(os.path.join('..', 'databases', 'pilotos.csv'), 'r') \
-                as pilotos:
-                pilotos.readline()
-                for line in pilotos:
-                    if name in line:
-                        line = line.rstrip().split(",")
-                        piloto = teams_pilotos[line[-1]](*line)
-                        if name == piloto.nombre:
-                            return piloto
-
-
+            piloto = get_piloto(name)
+            if piloto is not None:
+                return piloto
+            
+            clear()
+            print(gametext.LOAD_TITLE)
+            print(gametext.SEP)
+            print(f"No existen partidas guardadas para el nombre {name}")
 
     def nueva_partida(self):
-        pass
+        clear()
 
     def __str__(self):
         string = gametext.TITLE + gametext.SEP + str(self.get_str())
