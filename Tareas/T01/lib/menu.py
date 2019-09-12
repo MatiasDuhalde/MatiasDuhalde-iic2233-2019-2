@@ -8,7 +8,6 @@ from lib.carreras import Tareo, Docencio, Hibrido
 from lib.carreras import Automovil, Motocicleta, Troncomovil, Bicicleta
 
 
-
 class Menu(ABC):
     """Abstract class. Inherited by more specific menu classes."""
 
@@ -114,7 +113,7 @@ class MenuSesion(Menu):
                     actions = {1 : f"Crear nueva partida con nombre {name}",
                     0 : "Volver"}
                     string = gametext.NEW_TITLE + '\n' + gametext.SEP + '\n' + \
-                        ' '*25 + "El nombre de usuario ya existe!\n" + \
+                        '{:^79}'.format("El nombre de usuario ya existe!") + '\n' + \
                         self.get_str(actions=actions)
                     
                     clear()
@@ -129,7 +128,8 @@ class MenuSesion(Menu):
         while name:
             actions = {1 : "Tareos", 2 : "Híbridos", 3 : "Docencios", 0 : "Volver"}
             string = gametext.NEW_TITLE + '\n' +  gametext.SEP + '\n' + \
-                ' '*30 + "Elije un equipo:\n" + self.get_str(actions=actions)
+                '{:^79}'.format("Elije un equipo:") + '\n' + \
+                self.get_str(actions=actions)
             
             clear()
             print(string)
@@ -163,15 +163,18 @@ class MenuPrincipal(Menu):
     def __init__(self, piloto):
         super().__init__()
         self.piloto = piloto
-        self.actions.update({0 : "Volver",
-        3 : "Guardar partida"})
+        self.actions.update({3 : "Guardar partida",
+        0 : "Volver"})
 
     def go_to(self, option):
         destinations = {0 : "MenuSesion"}
         return destinations[option]
 
     def __str__(self):
-        return self.get_str()
+        string = f"    Piloto: {self.piloto.nombre}\n" + \
+            f"    Dinero: ${str(self.piloto.dinero)}\n" + gametext.SEP2 + \
+            '\n' + self.get_str()
+        return string
 
 class MenuCompraVehiculos(Menu):
     def __init__(self):
