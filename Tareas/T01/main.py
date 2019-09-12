@@ -32,12 +32,14 @@ while main_loop:
             print(type(menu_actual))
             menus[type(menu_actual).__name__] = menu_actual
 
-    
+    principal_loop = True
+    while principal_loop:
+        clear()
+        print(menu_actual)
+        user_input = menu_actual.recibir_input()
 
+        principal_loop = False
     
-    
-    print("HERE")
-    print(menus)
-    break
+    main_loop = False
 
 
