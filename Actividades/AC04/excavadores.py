@@ -2,26 +2,37 @@ from threading import Thread, Lock
 from utils import reloj
 import random
 
+lock_avanzar = Lock()
 
 class Excavador(Thread):
 
     def __init__(self, nombre, berlin, tunel):
-        super().__init__()
-        pass
+        super().__init__(name=nombre, target=self.run)
+        self.berlin = berlin
+        self.tunel = tunel
 
     def run(self):
         '''
-        Funcionalidad de Excavador que crea x metros de tunel cada 10 min,
-        cada iteracion chequea si se cumple que hay problema con la picota (10%)
+        Funcionalidad de Excavador que crea x metros de túnel cada 10 min,
+        cada iteración chequea si se cumple que hay problema con la picota (10%)
         '''
-        reloj(10)
+        while not self.tunel.tunel_listo.is_set():
+            reloj(10)
+            self.avanzar(random.randint(50,100))
+            self.problema_picota()
 
     def problema_picota(self):
         '''
-        Probabilida de problema con la picota de 10%
+        Probabilidad de problema con la picota de 10%
         Se llama a berlin para resolverlo
         '''
-        pass
+        if random.random() <= 0.10:
+            self.berlin.acquire()
+            print(f"{self.name}: problema con picota!")
+            reloj(5)
+            print(f"{self.name}: problema solucionado!")
+            self.berlin.release()
+
 
     def avanzar(self, metros):
         '''
@@ -29,4 +40,11 @@ class Excavador(Thread):
         ***Acá debes procurarte de evitar errores de concurrencia***
         :param metros: int
         '''
-        pass
+        with lock_avanzar:
+            print(f"{self.name}: avanzando {metros} metros.")
+            self.tunel.metros_avanzados += metros
+            if self.tunel.metros_avanzados >= self.tunel.largo:
+                print(f"{self.name}: tunel listo!")
+                self.tunel.tunel_listo.set()
+            print(f"{self.name}: el tunel lleva {self.tunel.metros_avanzados} metros.")
+            
