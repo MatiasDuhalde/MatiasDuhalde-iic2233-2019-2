@@ -1,4 +1,5 @@
 import os
+import sys
 from abc import ABC, abstractmethod
 
 import lib.gametext as gametext
@@ -15,20 +16,32 @@ class Menu(ABC):
     def __init__(self):
         self.actions = {}
 
-    def recibir_input(self, msj="Ingrese una opción: "):
+    def recibir_input(self, msj="Ingrese una opción: ", actions={}, to_print=None):
         """Receives and returns a numeric input. Number must be in action list."""
+        if not actions:
+            actions = self.actions
         while True:
             number = input(msj)
             if number.isdecimal():
                 number = int(number)
-                if number in self.actions.keys():
+                if number in actions.keys():
                     return number
             clear()
-            print(self)
+            if not to_print:
+                print(self)
+            else:
+                print(to_print)
             print(f"Debes entrar un número según las acciones disponibles.")
 
-    def get_str(self, actions=self.actions):
+    @abstractmethod
+    def go_to(self, option):
+        pass
+
+    def get_str(self, actions={}):
         """Returns str. Contains actions items + decorative elements."""
+        if not actions:
+            actions = self.actions
+
         string = ""
         
         string += ">>>|  ┌───┐\n"
@@ -54,14 +67,13 @@ class MenuSesion(Menu):
         self.actions.update({
             1 : "Nueva partida",
             2 : "Cargar partida",
-            0 : "Salir del juego"
-        })
+            0 : "Salir del juego"})
 
     def cargar_partida(self):
         """Return Piloto object based on user input."""
         clear()
         print(gametext.LOAD_TITLE)
-        print(gametext.SEP)
+        print(gametext.SEP + self.get_str({0 : "Volver"}))
         
         while True:
             name = input("Introduzca su nombre: ")
@@ -69,16 +81,78 @@ class MenuSesion(Menu):
             if name == "0":
                 break
             piloto = get_piloto(name)
-            if piloto is not None:
+            if piloto:
                 return piloto
             
             clear()
             print(gametext.LOAD_TITLE)
-            print(gametext.SEP)
-            print(f"No existen partidas guardadas para el nombre {name}")
+            print(gametext.SEP + self.get_str({0 : "Volver"}))
+            print(f"No existen partidas guardadas para el nombre '{name}'.")
 
     def nueva_partida(self):
         clear()
+        print(gametext.NEW_TITLE)
+        print(gametext.SEP + self.get_str({0 : "Volver"}))
+        
+        # This chunk gets the name
+        while True:
+            name = input("Introduzca su nombre: ")
+            
+            if name == "0":
+                name = False
+                break
+            elif len(name) > 40:
+                clear()
+                print(gametext.NEW_TITLE)
+                print(gametext.SEP + self.get_str({0 : "Volver"}))
+                print("Nombre de usuario muy largo! Intente con uno más corto.")
+            else:
+                piloto = get_piloto(name)
+                
+                # In case name is already registered
+                if piloto:
+                    actions = {1 : f"Crear nueva partida con nombre {name}",
+                    0 : "Volver"}
+                    string = gametext.NEW_TITLE + '\n' + gametext.SEP + '\n' + \
+                        ' '*25 + "El nombre de usuario ya existe!\n" + \
+                        self.get_str(actions=actions)
+                    
+                    clear()
+                    print(string)
+                    
+                    user_input = self.recibir_input(actions=actions, to_print=string)
+                    if user_input == 0:
+                        name = False
+                break
+        
+        # This chunk gets the team
+        while name:
+            actions = {1 : "Tareos", 2 : "Híbridos", 3 : "Docencios", 0 : "Volver"}
+            string = gametext.NEW_TITLE + '\n' +  gametext.SEP + '\n' + \
+                ' '*30 + "Elije un equipo:\n" + self.get_str(actions=actions)
+            
+            clear()
+            print(string)
+
+            user_input = self.recibir_input(actions=actions, to_print=string)
+            if user_input == 1:
+                return Tareo(name)
+            elif user_input == 2:
+                return Hibrido(name)
+            elif user_input == 3:
+                return Docencio(name)
+            elif user_input == 0:
+                break
+
+    def go_to(self, option):
+        """
+        This method may seem trivial for this menu/subclass, but it makes 
+        sense for the others.
+        """
+        destinations = {0 : "Exit", 1 : MenuPrincipal, 2: MenuPrincipal}
+        if option == 0:
+            sys.exit(0)
+        return destinations[option]
 
     def __str__(self):
         string = gametext.TITLE + gametext.SEP + str(self.get_str())
@@ -86,11 +160,18 @@ class MenuSesion(Menu):
 
 
 class MenuPrincipal(Menu):
-    def __init__(self):
+    def __init__(self, piloto):
         super().__init__()
+        self.piloto = piloto
+        self.actions.update({0 : "Volver",
+        3 : "Guardar partida"})
 
+    def go_to(self, option):
+        destinations = {0 : "MenuSesion"}
+        return destinations[option]
 
-
+    def __str__(self):
+        return self.get_str()
 
 class MenuCompraVehiculos(Menu):
     def __init__(self):
