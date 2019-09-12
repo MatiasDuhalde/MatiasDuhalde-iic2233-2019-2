@@ -2,9 +2,10 @@ from threading import Thread, Lock
 from utils import reloj
 import random
 
-lock_imprimir = Lock()
 
 class Imprimidor(Thread):
+
+    lock_imprimir = Lock()
 
     def __init__(self, nombre, berlin, bolsa_dinero):
         super().__init__(name=nombre, target=self.run)
@@ -28,7 +29,7 @@ class Imprimidor(Thread):
         :param dinero:
         :return:
         '''
-        with lock_imprimir:
+        with self.lock_imprimir:
             print(f"{self.name}: imprimiendo €{dinero}.") 
             self.bolsa_dinero.dinero_acumulado += dinero
             if self.bolsa_dinero.dinero_acumulado >= self.bolsa_dinero.meta_dinero:

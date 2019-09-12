@@ -2,9 +2,11 @@ from threading import Thread, Lock
 from utils import reloj
 import random
 
-lock_avanzar = Lock()
+
 
 class Excavador(Thread):
+
+    lock_avanzar = Lock()
 
     def __init__(self, nombre, berlin, tunel):
         super().__init__(name=nombre, target=self.run)
@@ -40,7 +42,7 @@ class Excavador(Thread):
         ***Acá debes procurarte de evitar errores de concurrencia***
         :param metros: int
         '''
-        with lock_avanzar:
+        with self.lock_avanzar:
             print(f"{self.name}: avanzando {metros} metros.")
             self.tunel.metros_avanzados += metros
             if self.tunel.metros_avanzados >= self.tunel.largo:
