@@ -40,8 +40,12 @@ class Simulacion:
         demoraron en terminar el túnel
         :return:
         '''
-        print(f"Dinero impreso: {self.bolsa_dinero.dinero_acumulado}")
+        # This puts the prints AFTER remaining threads
+        sleep(5)
+        print("------ESTADISTICAS------")
+        print(f"Dinero impreso: €{self.bolsa_dinero.dinero_acumulado}")
         print(f"Tiempo total: {self.t_fin - self.t_inicio} horas")
+        print("------------------------")
 
 
 if __name__ == '__main__':
