@@ -137,7 +137,7 @@ class Tareo(Piloto):
     """Tareos team. Inherits from Piloto."""
     
     def __init__(self, nombre, dinero=0, personalidad='precavido', 
-    contextura=randint(26, 45), equilibrio=randint(36, 55), n_exp, vehiculos = []):
+    contextura=randint(26, 45), equilibrio=randint(36, 55), n_exp=0, vehiculos = []):
         """
         Arguments are ordered according to pilotos.csv original data. i.e.:
         Nombre, Dinero, Personalidad, Contextura, 
@@ -170,10 +170,16 @@ class Hibrido(Piloto):
 
 class Docencio(Piloto):
     """Docencios team. Inherits from Piloto"""
-
-    def __init__(self):
-        super().__init__()
-        self.contextura = randint(44, 60)
-        self.equilibrio = randint(4, 10)
-        self.personalidad = 'osado'
         
+    def __init__(self, nombre, dinero=0, personalidad='osado', 
+    contextura=randint(44, 60), equilibrio=randint(4, 10), n_exp=0, vehiculos = []):
+        """
+        Arguments are ordered according to pilotos.csv original data. i.e.:
+        Nombre, Dinero, Personalidad, Contextura, 
+        Equilibrio, Experiencia, Equipo,
+        Lista de Vehículos (obtained from vehículos.csv)
+        """
+        super().__init__(nombre, dinero, n_exp, vehiculos)
+        self.contextura = contextura
+        self.equilibrio = equilibrio
+        self.personalidad = personalidad
