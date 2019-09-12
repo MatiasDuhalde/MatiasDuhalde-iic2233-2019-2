@@ -6,10 +6,26 @@ import lib.gametext as gametext
 from lib.funciones import clear, get_piloto
 from lib.carreras import Tareo, Docencio, Hibrido
 from lib.carreras import Automovil, Motocicleta, Troncomovil, Bicicleta
+from lib.carreras import PistaHelada, PistaRocosa, PistaSuprema
+
+# CHECK PARAMETERS IN PARAMETROS.PY
 
 
 class Menu(ABC):
     """Abstract class. Inherited by more specific menu classes."""
+
+    # Objects dicts:
+
+    # SUPUESTO: Híbridos se escribe con tilde en pilotos.csv, no hay ejemplo en 
+    # datos originales.
+    LISTA_EQUIPOS = {"Tareos" : Tareo, "Híbridos" : Hibrido, "Docencios" : Docencio}
+
+    # string based in original data form vehículos.csv
+    TIPOS_VEHICULO = {"automóvil" : Automovil, "motocicleta" : Motocicleta, 
+    "troncomóvil" : Troncomovil, "bicicleta" : Bicicleta}
+
+    TIPOS_PISTA = {"PistaHelada" : PistaHelada, "PistaRocosa" : PistaRocosa, 
+    "PistaSuprema" : PistaSuprema}
 
     @abstractmethod
     def __init__(self):
@@ -79,7 +95,7 @@ class MenuSesion(Menu):
             
             if name == "0":
                 break
-            piloto = get_piloto(name)
+            piloto = get_piloto(name, self.LISTA_EQUIPOS, self.TIPOS_VEHICULO)
             if piloto:
                 return piloto
             
@@ -106,7 +122,7 @@ class MenuSesion(Menu):
                 print(gametext.SEP + self.get_str({0 : "Volver"}))
                 print("Nombre de usuario muy largo! Intente con uno más corto.")
             else:
-                piloto = get_piloto(name)
+                piloto = get_piloto(name, self.LISTA_EQUIPOS, self.TIPOS_VEHICULO)
                 
                 # In case name is already registered
                 if piloto:

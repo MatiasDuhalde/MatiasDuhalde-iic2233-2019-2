@@ -35,6 +35,9 @@ while main_loop:
     principal_loop = True
     while principal_loop:
         clear()
+        p = menu_actual.piloto
+        print(p.nombre, p.vehículos)
+
         print(menu_actual)
         user_input = menu_actual.recibir_input()
 
