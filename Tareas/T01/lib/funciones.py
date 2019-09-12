@@ -1,4 +1,7 @@
 import os
+from lib.carreras import Automovil, Motocicleta, Troncomovil, Bicicleta
+from lib.carreras import Tareo, Hibrido, Docencio
+
 
 def clear():
     """Clears console lines."""
@@ -15,8 +18,8 @@ def get_vehiculos(name):
     "troncomóvil" : Troncomovil,
     "bicicleta" : Bicicleta}
 
-    vehiculos = []
-    with open(os.path.join('..', 'databases', 'vehículos.csv'), 'r', 
+    lista_vehiculos = []
+    with open(os.path.join('databases', 'vehículos.csv'), 'r', 
     encoding='utf-8') as vehiculos:
         vehiculos.readline()
         for line in vehiculos:
@@ -25,7 +28,7 @@ def get_vehiculos(name):
                 # Line looks like: [Nombre, Dueño, Categoría, Chasis, 
                 # Carrocería, Ruedas, Motor o Zapatillas, Peso]
                 tipo = line.pop(2)
-                vehiculos.append(tipos_vehiculo[tipo](*line))
+                lista_vehiculos.append(tipos_vehiculo[tipo](*line))
     return vehiculos
 
 
@@ -38,7 +41,7 @@ def get_piloto(name):
     "Hibrido" : Hibrido, 
     "Docencios" : Docencio}
 
-    with open(os.path.join('..', 'databases', 'pilotos.csv'), 'r', 
+    with open(os.path.join('databases', 'pilotos.csv'), 'r', 
     encoding='utf-8') as pilotos:
         pilotos.readline()
         for line in pilotos:
