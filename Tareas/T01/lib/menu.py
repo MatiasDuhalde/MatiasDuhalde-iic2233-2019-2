@@ -211,6 +211,71 @@ class MenuPrincipal(Menu):
         pass
 
     def guardar_partida(self):
+        """
+        Overwrites pilotos.csv, vehículos.csv
+        A same pilot with the same name can't have 2 entries in pilotos.csv
+        Previous lines describing the pilot are deleted and replaced with new
+        ones based on the pilot's attributes.
+        """
+        # Delete old line(s) in pilotos.csv
+        lines = []
+        with open(os.path.join(*pm.PATHS["PILOTOS"]), 'r', 
+        encoding='utf-8') as pilotos:
+            headers_string = pilotos.readline()
+            lines.append(headers_string)
+            headers = headers_string.rstrip().split(",")
+            for line in pilotos:
+                lines.append(line)
+                line = line.rstrip().split(",")
+                kwargs = {headers[index].lower() : line[index] for index in range(len(line))}
+                if kwargs["nombre"] == self.piloto.nombre:
+                    lines.pop()
+        
+        # Rewrite pilotos.csv
+        save_data = {"Nombre" : self.piloto.nombre, 
+        "Dinero" : self.piloto.dinero, "Personalidad" : self.piloto.personalidad, 
+        "Contextura" : self.piloto.contextura, "Equilibrio" : self.piloto.equilibrio, 
+        "Experiencia" : self.piloto.experiencia, "Equipo" : self.piloto.equipo}
+        order = {headers[index] : index for index in range(len(headers))}
+        save_data = [str(save_data[key]) for key in sorted(save_data, key=order.get)]
+        save_data = ",".join(save_data) + '\n'
+        lines.append(save_data)
+        with open(os.path.join(*pm.PATHS["PILOTOS"]), 'w', 
+        encoding='utf-8') as pilotos:
+            for line in lines:
+                pilotos.write(line)
+        
+        # Delete old line(s) in vehículos.csv
+        lines = []
+        with open(os.path.join(*pm.PATHS["VEHICULOS"]), 'r', 
+        encoding='utf-8') as vehiculos:
+            headers_string = vehiculos.readline()
+            lines.append(headers_string)
+            headers = headers_string.rstrip().split(",")
+            for line in vehiculos:
+                lines.append(line)
+                line = line.rstrip().split(",")
+                kwargs = {headers[index].lower() : line[index] for index in range(len(line))}
+                if kwargs["dueño"] == self.piloto.nombre:
+                    lines.pop()
+        
+        # Rewrite vehículos.csv
+        for vehiculo in self.piloto.vehículos:
+            save_data = {"Nombre" : vehiculo.nombre, "Dueño" : vehiculo.dueño, 
+            "Categoría" : list(self.TIPOS_VEHICULO.keys())[list(
+                self.TIPOS_VEHICULO.values()).index(type(vehiculo))], 
+            "Chasis" : vehiculo.chasis, "Carrocería" : vehiculo.carrocería, 
+            "Ruedas" : vehiculo.ruedas, "Motor o Zapatillas" : vehiculo.motor 
+            if type(vehiculo) in [Automovil, Motocicleta] else vehiculo.zapatillas, 
+            "Peso" : vehiculo.peso}
+            order = {headers[index] : index for index in range(len(headers))}
+            save_data = [str(save_data[key]) for key in sorted(save_data, key=order.get)]
+            save_data = ",".join(save_data) + '\n'
+            lines.append(save_data)
+        with open(os.path.join(*pm.PATHS["VEHICULOS"]), 'w', 
+        encoding='utf-8') as vehiculos:
+            for line in lines:
+                vehiculos.write(line)
         
         self.active = True
         print(gametext.SAVE_TITLE)
