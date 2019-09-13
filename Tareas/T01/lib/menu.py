@@ -3,32 +3,25 @@ import sys
 from abc import ABC, abstractmethod
 
 import lib.gametext as gametext
+import lib.parametros as pm
 from lib.funciones import clear, get_piloto
 from lib.carreras import Piloto
 from lib.carreras import Automovil, Motocicleta, Troncomovil, Bicicleta
 from lib.carreras import PistaHelada, PistaRocosa, PistaSuprema
 
-# CHECK PARAMETERS IN PARAMETROS.PY
-
-
 class Menu(ABC):
     """Abstract class. Inherited by more specific menu classes."""
 
-    # Objects dicts:
-
-    # SUPUESTO: Híbridos se escribe con tilde en pilotos.csv, no hay ejemplo en 
-    # datos originales.
-
-    # string based in original data form vehículos.csv
+    # strings based in original data from vehículos.csv and pistas.csv
     TIPOS_VEHICULO = {"automóvil" : Automovil, "motocicleta" : Motocicleta, 
     "troncomóvil" : Troncomovil, "bicicleta" : Bicicleta}
-
     TIPOS_PISTA = {"PistaHelada" : PistaHelada, "PistaRocosa" : PistaRocosa, 
     "PistaSuprema" : PistaSuprema}
 
     @abstractmethod
     def __init__(self):
         self.actions = {}
+        self.active = True
 
     def recibir_input(self, msj="Ingrese una opción: ", actions={}, to_print=None):
         """Receives and returns a numeric input. Number must be in action list."""
@@ -49,7 +42,7 @@ class Menu(ABC):
 
     @abstractmethod
     def go_to(self, option):
-        pass
+        self.active = False
 
     def get_str(self, actions={}):
         """Returns str. Contains actions items + decorative elements."""
@@ -84,7 +77,7 @@ class MenuSesion(Menu):
             0 : "Salir del juego"})
 
     def cargar_partida(self):
-        """Return Piloto object based on user input."""
+        """Return Piloto object based on user input. Loads from pilotos.csv"""
         clear()
         print(gametext.LOAD_TITLE)
         print(gametext.SEP + self.get_str({0 : "Volver"}))
@@ -104,12 +97,12 @@ class MenuSesion(Menu):
             print(f"No existen partidas guardadas para el nombre '{name}'.")
 
     def nueva_partida(self):
+        """Return Piloto object based on user input."""
         clear()
         print(gametext.NEW_TITLE)
         print(gametext.SEP + self.get_str({0 : "Volver"}))
         
-        # This chunk gets the name
-        while True:
+        while True: # This chunk (while) gets the name
             name = input("Introduzca su nombre: ")
             
             if name == "0":
@@ -120,11 +113,15 @@ class MenuSesion(Menu):
                 print(gametext.NEW_TITLE)
                 print(gametext.SEP + self.get_str({0 : "Volver"}))
                 print("Nombre de usuario muy largo! Intente con uno más corto.")
+            elif name == "":
+                clear()
+                print(gametext.NEW_TITLE)
+                print(gametext.SEP + self.get_str({0 : "Volver"}))
+                print("Debes ingresar un nombre.")
             else:
                 piloto = get_piloto(name, self.TIPOS_VEHICULO, Piloto)
                 
-                # In case name is already registered
-                if piloto:
+                if piloto: # In case name is already registered
                     actions = {1 : f"Crear nueva partida con nombre {name}",
                     0 : "Volver"}
                     string = gametext.NEW_TITLE + '\n' + gametext.SEP + '\n' + \
@@ -139,8 +136,7 @@ class MenuSesion(Menu):
                         name = False
                 break
         
-        # This chunk gets the team
-        while name:
+        while name: # This chunk gets the team
             actions = {1 : "Tareos", 2 : "Híbridos", 3 : "Docencios", 0 : "Volver"}
             string = gametext.NEW_TITLE + '\n' +  gametext.SEP + '\n' + \
                 '{:^79}'.format("Elije un equipo:") + '\n' + \
@@ -157,13 +153,22 @@ class MenuSesion(Menu):
 
     def go_to(self, option):
         """
-        This method may seem trivial for this menu/subclass, but it makes 
-        sense for the others.
+        This method may seem trivial for this menu/subclass as there's only one 
+        destination, but it makes sense for the others.
         """
+        super().go_to(option)
         destinations = {0 : "Exit", 1 : MenuPrincipal, 2: MenuPrincipal}
+        piloto = None
         if option == 0:
             sys.exit(0)
-        return destinations[option]
+        elif option == 1:
+            piloto = self.nueva_partida()
+        elif option == 2:
+            piloto = self.cargar_partida()
+        if piloto:
+            return destinations[option](piloto)
+        self.active = True
+        return None
 
     def __str__(self):
         string = gametext.TITLE + gametext.SEP + str(self.get_str())
@@ -180,14 +185,41 @@ class MenuPrincipal(Menu):
         0 : "Volver"})
 
     def go_to(self, option):
-        destinations = {0 : "MenuSesion", 
-        1 : "MenuPreparacionCarrera", 
-        2 : "MenuCompraVehiculos"}
+        super().go_to(option)
+        destinations = {0 : MenuSesion, 
+        1 : MenuPreparacionCarrera, 
+        2 : MenuCompraVehiculos, 
+        3 : MenuPrincipal}
+        if option == 0:
+            return destinations[option]()
+        elif option == 1:
+            self.iniciar_carrera()
+        elif option == 2:
+            self.comprar_vehiculos()
+        elif option == 3:
+            self.guardar_partida()
+
         return destinations[option]
 
+    def iniciar_carrera(self):
+        if len(self.piloto.vehículos) == 0: 
+            print("No tienes ningún vehículo! Prueba comprando alguno.")
+            self.active = True
+            input("Presiona enter para volver...")
+    
+    def comprar_vehiculos(self):
+        pass
+
+    def guardar_partida(self):
+        
+        self.active = True
+        print(gametext.SAVE_TITLE)
+        print(gametext.SEP)
+        input("Presione enter para volver...")
+
     def __str__(self):
-        string = f"    Piloto: {self.piloto.nombre}\n" + \
-            f"    Dinero: ${str(self.piloto.dinero)}\n" + gametext.SEP2 + \
+        string = gametext.SEP3 + '\n' + f"    Piloto: {self.piloto.nombre}\n" + \
+            f"    Dinero: ${str(self.piloto.dinero)}\n" + gametext.SEP3 + \
             '\n' + self.get_str()
         return string
 
@@ -195,26 +227,38 @@ class MenuCompraVehiculos(Menu):
     def __init__(self):
         super().__init__()
 
-    def recibir_input(self):
+    def go_to(self, option):
+        super().go_to(option)
+
+    def __str__(self):
         pass
 
 class MenuPreparacionCarrera(Menu):
     def __init__(self):
         super().__init__()
 
-    def recibir_input(self):
-        super().__init__()
+    def go_to(self, option):
+        super().go_to(option)
+
+    def __str__(self):
+        pass
 
 class MenuCarrera(Menu):
     def __init__(self):
         super().__init__()
 
-    def recibir_input(self):
-        super().__init__()
+    def go_to(self, option):
+        super().go_to(option)
+
+    def __str__(self):
+        pass
 
 class MenuPits(Menu):
     def __init__(self):
         super().__init__()
 
-    def recibir_input(self):
+    def go_to(self, option):
+        super().go_to(option)
+
+    def __str__(self):
         pass

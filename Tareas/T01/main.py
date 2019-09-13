@@ -8,45 +8,36 @@ import time
 # -----------------------------------------------------------------------------
 
 menus = {}
+# menus looks like: {"StringWithNameofClass" : instanceofClass, ...}
 main_loop = True
 
 menu_sesion = MenuSesion()
-menu_actual = menu_sesion
-menus[type(menu_actual).__name__] = menu_actual
+menus[type(menu_sesion).__name__] = menu_sesion
 
 while main_loop:
     
-    sesion_loop = True
-    while sesion_loop:
-        print(menu_sesion)
+    while menus["MenuSesion"].active:
+        menu_actual = menus["MenuSesion"]
         
-        user_input = menu_sesion.recibir_input()
-        piloto = None
-        if user_input == 1:
-            piloto = menu_sesion.nueva_partida()
-        elif user_input == 2:
-            piloto = menu_sesion.cargar_partida()
-        elif user_input == 0:
-            menu_sesion.go_to(user_input)
-        if piloto:
-            sesion_loop = False
-            menu_actual = menu_sesion.go_to(user_input)(piloto)
+        clear()
+        print(menu_actual)
+        
+        user_input = menu_actual.recibir_input()
+        menu_actual = menu_actual.go_to(user_input)
+        if menu_actual:
             menus[type(menu_actual).__name__] = menu_actual
 
-    principal_loop = True
-    while principal_loop:
-        clear()
-        piloto = menu_actual.piloto
-
-        print(menu_actual)
-        print(f"Perso: {p.personalidad}")
-        print(f"Contextura : {p.contextura}")
-        print(f"equil: {p.equilibrio}")
-        print(f"exp: {p.experiencia}")
-        user_input = menu_actual.recibir_input()
-
-        principal_loop = False
     
-    main_loop = False
+    while menus["MenuPrincipal"].active:
+        menu_actual = menus["MenuPrincipal"]
+        piloto = menu_actual.piloto
+        
+        clear()
+        print(menu_actual)
+        
+        user_input = menu_actual.recibir_input()
+        menu_actual = menu_actual.go_to(user_input)
+        menus[type(menu_actual).__name__] = menu_actual
+            
 
 
