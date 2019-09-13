@@ -1,5 +1,5 @@
 import os
-from time import sleep
+import lib.parametros as pm
 
 def clear():
     """Clears console lines."""
@@ -9,13 +9,11 @@ def clear():
         os.system('clear')
 
 
-# HEADERS MIGHT CHANGE POSITIONS, USE KWARGS
-
 def get_vehiculos(name, tipos_vehiculo):
     """Returns a list containing vehicle objects, that belong to name."""
 
     lista_vehiculos = []
-    with open(os.path.join('databases', 'vehículos.csv'), 'r', 
+    with open(os.path.join(*pm.PATHS["VEHICULOS"]), 'r', 
     encoding='utf-8') as vehiculos:
         
         # HEADERS/COLUMNS MIGHT CHANGE ORDER!
@@ -42,7 +40,7 @@ def get_piloto(name, tipos_vehiculo, Piloto):
     Returns None otherwise.
     """
 
-    with open(os.path.join('databases', 'pilotos.csv'), 'r', 
+    with open(os.path.join(*pm.PATHS["PILOTOS"]), 'r', 
     encoding='utf-8') as pilotos:
         
         # HEADERS/COLUMNS MIGHT CHANGE ORDER!
