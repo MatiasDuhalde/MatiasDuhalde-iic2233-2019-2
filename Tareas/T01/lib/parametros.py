@@ -209,7 +209,7 @@ PATHS = {
     'PISTAS': ['databases', 'static', 'pistas.csv'],
     'CONTRINCANTES': ['databases', 'static', 'contrincantes.csv'],
     'PILOTOS': ['databases', 'pilotos.csv'],
-    'VEHICULOS': ['databases', 'vehiculos.csv']
+    'VEHICULOS': ['databases', 'vehículos.csv']
 }
 
 
