@@ -138,40 +138,45 @@ MEJORAS = {
 
 
 # Características de los pilotos de los diferentes equipos
+# PERSONALIDAD is list so it can be used in random.choice()
+# Values in Enunciado.pdf
+# Supuesto: se le colocó tilde a 'HÍBRIDOS' por consistencia con enunciado y 
+# savefiles
+
 
 EQUIPOS = {
     'TAREOS': {
         'CONTEXTURA': {
-            'MIN': None,
-            'MAX': None
+            'MIN': 26,
+            'MAX': 45
         },
         'EQUILIBRIO': {
-            'MIN': None,
-            'MAX': None
+            'MIN': 36,
+            'MAX': 55
         },
-        'PERSONALIDAD': None
+        'PERSONALIDAD': ['precavido']
     },
-    'HIBRIDOS': {
+    'HÍBRIDOS': {
         'CONTEXTURA': {
-            'MIN': None,
-            'MAX': None
+            'MIN': 35,
+            'MAX': 54
         },
         'EQUILIBRIO': {
-            'MIN': None,
-            'MAX': None
+            'MIN': 20,
+            'MAX': 34
         },
-        'PERSONALIDAD': None
+        'PERSONALIDAD': ['osado', 'precavido']
     },
     'DOCENCIOS': {
         'CONTEXTURA': {
-            'MIN': None,
-            'MAX': None
+            'MIN': 44,
+            'MAX': 60
         },
         'EQUILIBRIO': {
-            'MIN': None,
-            'MAX': None
+            'MIN': 4,
+            'MAX': 10
         },
-        'PERSONALIDAD': None
+        'PERSONALIDAD': ['osado']
     }
 }
 
@@ -199,12 +204,12 @@ BONIFICACION_OSADO = None
 
 
 # Paths de los archivos
-
+# Contain lists, to be used in os.path.join(*PATHS[index])
 PATHS = {
-    'PISTAS': None,
-    'CONTRINCANTES': None,
-    'PILOTOS': None,
-    'VEHICULOS': None,
+    'PISTAS': ['databases', 'static', 'pistas.csv'],
+    'CONTRINCANTES': ['databases', 'static', 'contrincantes.csv'],
+    'PILOTOS': ['databases', 'pilotos.csv'],
+    'VEHICULOS': ['databases', 'vehiculos.csv']
 }
 
 
