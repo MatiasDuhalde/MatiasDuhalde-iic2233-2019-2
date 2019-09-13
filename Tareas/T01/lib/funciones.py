@@ -1,4 +1,5 @@
 import os
+from time import sleep
 
 def clear():
     """Clears console lines."""
@@ -35,7 +36,7 @@ def get_vehiculos(name, tipos_vehiculo):
     return lista_vehiculos
 
 
-def get_piloto(name, lista_equipos, tipos_vehiculo):
+def get_piloto(name, tipos_vehiculo, Piloto):
     """
     Returns a pilot object from a name, given it exists in pilotos.csv.
     Returns None otherwise.
@@ -51,11 +52,12 @@ def get_piloto(name, lista_equipos, tipos_vehiculo):
         for line in pilotos:
             if name in line:
                 line = line.rstrip().split(",")
+                
                 vehículos = get_vehiculos(name, tipos_vehiculo)
                 kwargs = {headers[index].lower() : line[index] for index in range(len(line))}
                 kwargs.update({"vehículos" : vehículos})
-                team = kwargs.pop("equipo")
-                piloto = lista_equipos[team](**kwargs)
+                
+                piloto = Piloto(**kwargs)
                 if name == piloto.nombre:
                     return piloto
     return None

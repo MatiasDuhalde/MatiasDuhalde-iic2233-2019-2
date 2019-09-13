@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from random import randint, choice
 
+import lib.parametros as pm
 # CHECK PARAMETERS IN PARAMETROS.PY
 # THEY MUST BE USED IN HERE (CHECK randints)
 
@@ -96,94 +97,52 @@ class PistaSuprema(Pista):
 
     def __init__(self):
         super().__init__()
-        
 
 
-class Piloto(ABC):
+class Piloto:
     """
-    Pilot modeling class.
-    
-    Inherited by more specific subclasses (pilot team):
+    Pilot class.
+    Possible teams:
      - Tareo
      - Hibrido
      - Docencio
     
-    Pilots can only have one team.
-
+    Pilots must have one team (and only one).
     """
 
-    @abstractmethod
-    def __init__(self, nombre, dinero=0, experiencia=0, vehículos=[]):
+    def __init__(self, nombre, equipo, dinero=None, personalidad=None, contextura=None, 
+    equilibrio=None, experiencia=None, vehículos=[], new_pilot=False):
         """
-        Arguments are ordered according to pilotos.csv original data, i.e.:
-        
         Pilot characteristics:
          - Nombre: nombre (saved in pilotos.csv)
+         - Equipo: equipo (saved in pilotos.csv)
          - Dinero: dinero (saved in pilotos.csv) ****
          - Personalidad: personalidad (saved in pilotos.csv, bound to team except Hibrido)
          - Contextura: contextura (saved in pilotos.csv, range bound to team)
          - Equilibrio: equilibrio (saved in pilotos.csv, range bound to team)
          - Experiencia: experiencia (saved in pilotos.csv) ****
-         - Equipo: (saved in pilotos.csv, implicit in subclass)
          - Vehicle list: vehicles (saved in vehículos.csv) ****
+         . new_pilot: defines if pilot was just created of loaded
         Note: **** means this should be a property
 
         If a new pilot is created it should only receive a name and a team.
         New pilots start with dinero = 0, experiencia = 0, vehículos = []
         """
         self.nombre = nombre
-        self.dinero = dinero
-        self.experiencia = experiencia
-        self.vehículos = vehículos
+        self.equipo = equipo
 
-
-class Tareo(Piloto):
-    """Tareos team. Inherits from Piloto."""
-    
-    def __init__(self, nombre, dinero=0, personalidad='precavido', 
-    contextura=randint(26, 45), equilibrio=randint(36, 55), experiencia=0, vehículos = []):
-        """
-        Arguments are ordered according to pilotos.csv original data. i.e.:
-        Nombre, Dinero, Personalidad, Contextura, 
-        Equilibrio, Experiencia, Equipo,
-        Lista de Vehículos (obtained from vehículos.csv)
-        """
-        super().__init__(nombre, dinero, experiencia, vehículos)
-        self.contextura = contextura
-        self.equilibrio = equilibrio
-        self.personalidad = personalidad
-
-
-
-class Hibrido(Piloto):
-    """Híbridos team. Inherits from Piloto"""
-
-    def __init__(self, nombre, dinero=0, personalidad=choice(['precavido', 'osado']), 
-    contextura=randint(35, 54), equilibrio=randint(20, 34), experiencia=0, vehículos = []):
-        """
-        Arguments are ordered according to pilotos.csv original data. i.e.:
-        Nombre, Dinero, Personalidad, Contextura, 
-        Equilibrio, Experiencia, Equipo,
-        Lista de Vehículos (obtained from vehículos.csv)
-        """
-        super().__init__(nombre, dinero, experiencia, vehículos)
-        self.contextura = contextura
-        self.equilibrio = equilibrio
-        self.personalidad = personalidad
-
-
-class Docencio(Piloto):
-    """Docencios team. Inherits from Piloto"""
-        
-    def __init__(self, nombre, dinero=0, personalidad='osado', 
-    contextura=randint(44, 60), equilibrio=randint(4, 10), experiencia=0, vehículos = []):
-        """
-        Arguments are ordered according to pilotos.csv original data. i.e.:
-        Nombre, Dinero, Personalidad, Contextura, 
-        Equilibrio, Experiencia, Equipo,
-        Lista de Vehículos (obtained from vehículos.csv)
-        """
-        super().__init__(nombre, dinero, experiencia, vehículos)
-        self.contextura = contextura
-        self.equilibrio = equilibrio
-        self.personalidad = personalidad
+        if new_pilot: 
+            DEF_ARGS = pm.EQUIPOS[self.equipo.upper()]
+            self.dinero = 0
+            self.personalidad = choice(DEF_ARGS['PERSONALIDAD'])
+            self.contextura = randint(DEF_ARGS['CONTEXTURA']['MIN'], DEF_ARGS['CONTEXTURA']['MAX']) 
+            self.equilibrio = randint(DEF_ARGS['EQUILIBRIO']['MIN'], DEF_ARGS['EQUILIBRIO']['MAX'])
+            self.experiencia = 0
+            self.vehículos = []
+        else: 
+            self.dinero = dinero
+            self.personalidad = personalidad
+            self.contextura = contextura
+            self.equilibrio = equilibrio
+            self.experiencia = experiencia
+            self.vehículos = vehículos

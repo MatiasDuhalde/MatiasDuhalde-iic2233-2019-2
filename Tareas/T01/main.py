@@ -26,19 +26,23 @@ while main_loop:
             piloto = menu_sesion.nueva_partida()
         elif user_input == 2:
             piloto = menu_sesion.cargar_partida()
+        elif user_input == 0:
+            menu_sesion.go_to(user_input)
         if piloto:
             sesion_loop = False
             menu_actual = menu_sesion.go_to(user_input)(piloto)
-            print(type(menu_actual))
             menus[type(menu_actual).__name__] = menu_actual
 
     principal_loop = True
     while principal_loop:
         clear()
-        p = menu_actual.piloto
-        print(p.nombre, p.vehículos)
+        piloto = menu_actual.piloto
 
         print(menu_actual)
+        print(f"Perso: {p.personalidad}")
+        print(f"Contextura : {p.contextura}")
+        print(f"equil: {p.equilibrio}")
+        print(f"exp: {p.experiencia}")
         user_input = menu_actual.recibir_input()
 
         principal_loop = False

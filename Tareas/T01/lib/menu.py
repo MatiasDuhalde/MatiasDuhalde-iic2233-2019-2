@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 import lib.gametext as gametext
 from lib.funciones import clear, get_piloto
-from lib.carreras import Tareo, Docencio, Hibrido
+from lib.carreras import Piloto
 from lib.carreras import Automovil, Motocicleta, Troncomovil, Bicicleta
 from lib.carreras import PistaHelada, PistaRocosa, PistaSuprema
 
@@ -18,7 +18,6 @@ class Menu(ABC):
 
     # SUPUESTO: Híbridos se escribe con tilde en pilotos.csv, no hay ejemplo en 
     # datos originales.
-    LISTA_EQUIPOS = {"Tareos" : Tareo, "Híbridos" : Hibrido, "Docencios" : Docencio}
 
     # string based in original data form vehículos.csv
     TIPOS_VEHICULO = {"automóvil" : Automovil, "motocicleta" : Motocicleta, 
@@ -95,7 +94,7 @@ class MenuSesion(Menu):
             
             if name == "0":
                 break
-            piloto = get_piloto(name, self.LISTA_EQUIPOS, self.TIPOS_VEHICULO)
+            piloto = get_piloto(name, self.TIPOS_VEHICULO, Piloto)
             if piloto:
                 return piloto
             
@@ -122,7 +121,7 @@ class MenuSesion(Menu):
                 print(gametext.SEP + self.get_str({0 : "Volver"}))
                 print("Nombre de usuario muy largo! Intente con uno más corto.")
             else:
-                piloto = get_piloto(name, self.LISTA_EQUIPOS, self.TIPOS_VEHICULO)
+                piloto = get_piloto(name, self.TIPOS_VEHICULO, Piloto)
                 
                 # In case name is already registered
                 if piloto:
@@ -151,14 +150,10 @@ class MenuSesion(Menu):
             print(string)
 
             user_input = self.recibir_input(actions=actions, to_print=string)
-            if user_input == 1:
-                return Tareo(name)
-            elif user_input == 2:
-                return Hibrido(name)
-            elif user_input == 3:
-                return Docencio(name)
-            elif user_input == 0:
+            if user_input == 0:
                 break
+            else:
+                return Piloto(name, actions[user_input], new_pilot=True)
 
     def go_to(self, option):
         """
@@ -179,11 +174,15 @@ class MenuPrincipal(Menu):
     def __init__(self, piloto):
         super().__init__()
         self.piloto = piloto
-        self.actions.update({3 : "Guardar partida",
+        self.actions.update({1 : "Iniciar Carrera", 
+        2 : "Comprar vehículos",  
+        3 : "Guardar partida",
         0 : "Volver"})
 
     def go_to(self, option):
-        destinations = {0 : "MenuSesion"}
+        destinations = {0 : "MenuSesion", 
+        1 : "MenuPreparacionCarrera", 
+        2 : "MenuCompraVehiculos"}
         return destinations[option]
 
     def __str__(self):
