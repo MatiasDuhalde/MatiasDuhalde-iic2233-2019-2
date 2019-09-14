@@ -202,8 +202,6 @@ VELOCIDAD_PITS = None
 BONIFICACION_PRECAVIDO = None
 BONIFICACION_OSADO = None
 
-# Dinero que reciben pilotos al ser creados
-DINERO_INICIAL = 10000
 
 # Paths de los archivos
 # Contain lists, to be used in os.path.join(*PATHS[index])
