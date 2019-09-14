@@ -43,7 +43,17 @@ class Vehiculo(ABC):
             self.carrocería = int(carrocería)
             self.ruedas = int(ruedas)
             self.peso = int(peso)
-    
+
+        self.chasis_actual = self.chasis
+        self.tiempo_acumulado = 0
+
+    def reset_parameters(self):
+        self.chasis_actual = self.chasis
+        self.tiempo_acumulado = 0
+
+    def reparar(self):
+        self.chasis_actual = self.chasis
+
     def __str__(self, clase):
         # 15 chars to the left, limit 79
         string = "{:49.44}{:15}".format(self.nombre, clase)
@@ -63,6 +73,7 @@ class Automovil(Vehiculo):
             self.motor = int(motor)
         super().__init__(nombre, dueño, chasis, carrocería, ruedas, peso, DEF_ARGS)
     
+
     def __str__(self):
         return super().__str__("Automóvil")
 
@@ -260,3 +271,4 @@ class Contrincante:
         self.experiencia = int(experiencia)
         self.equipo = equipo
         self.vehículos = vehículos
+        self.vehiculo = None
