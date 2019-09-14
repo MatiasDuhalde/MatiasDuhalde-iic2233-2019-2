@@ -196,9 +196,9 @@ def velocidad_recomendada(piloto, vehiculo, pista):
     velocidad_base = vehiculo.motor if hasattr(vehiculo, 'motor') else vehiculo.zapatillas
     hielo_pista = pista.hielo if hasattr(pista, 'hielo') else 0
     rocas_pista = pista.hielo if hasattr(pista, 'hielo') else 0
-    return velocidad_base + (vehiculo.ruedas - hielo_pista) + \
-        (vehiculo.carrocería - rocas_pista) + \
-        (piloto.experiencia - pista.dificultad)
+    return velocidad_base + (vehiculo.ruedas - hielo_pista) * pm.POND_EFECT_HIELO + \
+        (vehiculo.carrocería - rocas_pista) * pm.POND_EFECT_ROCAS + \
+        (piloto.experiencia - pista.dificultad) * pm.POND_EFECT_DIFICULTAD
 
 def velocidad_intencional(piloto, vehiculo, pista):
     if piloto.personalidad == 'osado':

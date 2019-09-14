@@ -200,6 +200,11 @@ VELOCIDAD_PITS = 5
 BONIFICACION_PRECAVIDO = 2
 BONIFICACION_OSADO = 1
 
+# Ponderacion efectos
+POND_EFECT_HIELO = 2
+POND_EFECT_ROCAS = 2
+POND_EFECT_DIFICULTAD = 3
+
 
 # Paths de los archivos
 # Contain lists, to be used in os.path.join(*PATHS[index])
