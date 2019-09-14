@@ -220,19 +220,18 @@ class Piloto:
         self.nombre = nombre
         self.equipo = equipo
         self.__dinero = int(dinero)
+        self.__experiencia = int(experiencia)
 
         if new_pilot: 
             DEF_ARGS = pm.EQUIPOS[self.equipo.upper()]
             self.personalidad = choice(DEF_ARGS['PERSONALIDAD'])
             self.contextura = randint(DEF_ARGS['CONTEXTURA']['MIN'], DEF_ARGS['CONTEXTURA']['MAX']) 
             self.equilibrio = randint(DEF_ARGS['EQUILIBRIO']['MIN'], DEF_ARGS['EQUILIBRIO']['MAX'])
-            self.experiencia = 0
             self.vehículos = []
         else: 
             self.personalidad = personalidad
             self.contextura = int(contextura)
             self.equilibrio = int(equilibrio)
-            self.experiencia = int(experiencia)
             self.vehículos = vehículos
     
     @property
@@ -244,7 +243,16 @@ class Piloto:
         if value < 0:
             self.__dinero = 0
         else: 
-            self.__dinero = self.__dinero + value
+            self.__dinero = value
+
+    @property
+    def experiencia(self):
+        return self.__experiencia
+
+    @experiencia.setter
+    def experiencia(self, value):
+        if value > 0:
+            self.__experiencia = value
 
 
 class Contrincante:

@@ -8,14 +8,19 @@ def carrera(piloto, vehiculo, pista, menuCarrera, menuPits):
     contrincantes = pista.contrincantes
     destruido = False
     # Makes sure all vehicles start repaired
+    vehiculo.reset_parameters()
     for car in map(lambda x: x.vehiculo, contrincantes):
         car.reset_parameters()
+
+    # Contains all active vehicles
+    participantes = [vehiculo, *list(map(lambda x: x.vehiculo, contrincantes))]
 
     while vuelta <= pista.número_vueltas:
         f.clear()
         print(gametext.SEP)
         print("{:^79}".format(f"VUELTA {vuelta} de {pista.número_vueltas}\n"))
         print(gametext.SEP2)
+        # Contains disabled vehicles in THIS LAP
         accidentados = []
 
         # Get damage
@@ -31,23 +36,31 @@ def carrera(piloto, vehiculo, pista, menuCarrera, menuPits):
                 print("Sufriste muchos daños!")
                 destruido = True
                 accidentados.append(vehiculo)
-        
+                participantes.remove(vehiculo)
+        hipotermia = f.hipotermia(piloto, vehiculo, pista, vuelta)
+        if hipotermia != 0:
+            print(f"Estás sufriendo una hipotermia de grado {hipotermia}.")
+
+
         for contrinc in contrincantes:
             contrinc.vehiculo.chasis_actual -= f.calcular_daño( \
             contrinc.vehiculo, pista)
             if contrinc.vehiculo.chasis_actual <= 0:
                 print(f"{contrinc.nombre} ha sufrido muchos daños!")
-                accidentados.append(vehiculo)
+                accidentados.append(contrinc)
                 contrincantes.remove(contrinc)
+                participantes.remove(contrinc.vehiculo)
         
         print('\n' + gametext.SEP2 + '\n')
 
         # Calculate accident
+        print(f.probabilidad_accidentes(piloto, vehiculo, pista, vuelta))
         if random() < f.probabilidad_accidentes(piloto, vehiculo, pista, \
         vuelta) and not destruido:
             print("Has sufrido un accidente!")
             destruido = True
             accidentados.append(vehiculo)
+            participantes.remove(vehiculo)
 
         for contrinc in contrincantes:
             if random() < f.probabilidad_accidentes(contrinc, \
@@ -55,6 +68,7 @@ def carrera(piloto, vehiculo, pista, menuCarrera, menuPits):
                 print(f"Contrincante {contrinc.nombre} ha sufrido un accidente!")
                 accidentados.append(contrinc.vehiculo)
                 contrincantes.remove(contrinc)
+                participantes.remove(contrinc.vehiculo)
 
         # Get times
         if not destruido:
@@ -70,8 +84,6 @@ def carrera(piloto, vehiculo, pista, menuCarrera, menuPits):
         
         # Show positions
         if not destruido or contrincantes:
-            participantes = [vehiculo, *list(map(lambda x: x.vehiculo, \
-            contrincantes))]
             participantes.sort(key=lambda x: x.tiempo_acumulado)
             print("Posiciones:")
             # 9 chars
@@ -83,10 +95,17 @@ def carrera(piloto, vehiculo, pista, menuCarrera, menuPits):
                 participantes[index - 1].ultima_vuelta, \
                 participantes[index - 1].tiempo_acumulado))
             
+        print(gametext.SEP2 + '\n')
 
         # Get money
+        if not destruido:
+            participantes.sort(key=lambda x: x.ultima_vuelta)
+            if vehiculo.ultima_vuelta == participantes[0].ultima_vuelta:
+                ganancias = f.dinero_vuelta(pista, vuelta)
+                print(f"Vuelta más rápida! Obtuviste ${ganancias}")
+                piloto.dinero += ganancias
 
-        print('\n' + gametext.SEP2 + '\n')
+        print(gametext.SEP2 + '\n')
 
         # Show desqualified
         if not accidentados:
@@ -96,21 +115,52 @@ def carrera(piloto, vehiculo, pista, menuCarrera, menuPits):
             for car in accidentados:
                 print(f" - {car.dueño}")
         
+        print(gametext.SEP2 + '\n')
+        
         # go to pits option
-        if not destruido:
-            actions = {1 : "Siguiente vuelta", 
-            2 : "Entrar a los pits", 0 : "Volver al menú principal"}
-            string = menuCarrera.get_str(actions=actions)
-            print(string)
-            user_input = menuCarrera.recibir_input(actions=actions, to_print=string)
-            if user_input == 0:
-                menuCarrera.active = False
+        # END OF LAP HERE
+        if vuelta != pista.número_vueltas:
+            if not destruido:
+                actions = {1 : "Siguiente vuelta", 
+                2 : "Entrar a los pits", 0 : "Volver al menú principal"}
+                string = menuCarrera.get_str(actions=actions)
+                print(string)
+                user_input = menuCarrera.recibir_input(actions=actions, \
+                to_print=string)
+                if user_input == 0:
+                    menuCarrera.active = False
+                    return None
+                elif user_input == 2:
+                    print("GOING TO THE PITS!")
+                    pass
+            else:
+                print(gametext.LOSE_TITLE + '\n')
+                input("Presione ENTER para volver al menú principal...")
                 return None
-            elif user_input == 2:
-                print("GOING TO THE PITS!")
-                pass
         else:
-            print(gametext.LOSE_TITLE + '\n')
-            input("Presione ENTER para volver al menú principal...")
-            return None
+            participantes.sort(key=lambda x: x.tiempo_acumulado)
+            # Tie at first place also gives a win
+            if participantes[0].tiempo_acumulado != vehiculo.tiempo_acumulado \
+            or destruido:
+                print(gametext.LOSE_TITLE + '\n')
+                input("Presione ENTER para volver al menú principal...")
+                return None
+            else:
+                print(gametext.WIN_TITLE + '\n')
+
+                # Get prize money
+                ultimo_lugar = participantes[-1]
+                ganancias = f.dinero_ganador(pista)
+                piloto.dinero += ganancias
+
+                xp = f.experiencia_recibida(piloto, pista, \
+                primero=vehiculo, ultimo=ultimo_lugar)
+                piloto.experiencia += xp
+                print("Primer Lugar!")
+                print(f"Obtuviste ${ganancias} y {xp} puntos de experiencia")
+                input("Presione ENTER para volver al menú principal...")
+
+                return None
+            
+        
         vuelta += 1

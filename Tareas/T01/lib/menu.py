@@ -350,6 +350,7 @@ class MenuCarrera(Menu):
 
     def empezar_carrera(self, Pits):
         carrera(self.piloto, self.vehiculo, self.pista, self, Pits)
+        self.active = False
 
     def __str__(self):
         string = gametext.SEP3 + '\n' + \
