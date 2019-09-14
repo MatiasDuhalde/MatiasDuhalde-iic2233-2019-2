@@ -113,24 +113,24 @@ BICICLETA = {
 
 MEJORAS = {
     'CHASIS': {
-        'COSTO': None,
-        'EFECTO': None
+        'COSTO': 600,
+        'EFECTO': 2
     },
     'CARROCERIA': {
-        'COSTO': None,
-        'EFECTO': None
+        'COSTO': 260,
+        'EFECTO': 2
     },
     'RUEDAS': {
-        'COSTO': None,
-        'EFECTO': None
+        'COSTO': 320,
+        'EFECTO': 2
     },
     'MOTOR': {
-        'COSTO': None,
-        'EFECTO': None
+        'COSTO': 280,
+        'EFECTO': 2
     },
     'ZAPATILLAS': {
-        'COSTO': None,
-        'EFECTO': None
+        'COSTO': 280,
+        'EFECTO': 2
     }
 }
 
@@ -193,8 +193,8 @@ PESO_MEDIO = 80
 EQUILIBRIO_PRECAVIDO = 2
 
 # Tiempo pits
-TIEMPO_MINIMO_PITS = None
-VELOCIDAD_PITS = None
+TIEMPO_MINIMO_PITS = 5
+VELOCIDAD_PITS = 5
 
 # Experiencia por ganar
 BONIFICACION_PRECAVIDO = 2
