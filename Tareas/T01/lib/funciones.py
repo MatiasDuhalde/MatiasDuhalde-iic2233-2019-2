@@ -1,5 +1,7 @@
 import os
 import lib.parametros as pm
+from math import floor, ceil
+import parametros as pm
 
 # -----------------------------------------------------------------------------
 #                                AUX FUNCTIONS 
@@ -174,4 +176,86 @@ def guardar_partida(piloto, tipos_vehiculo):
 #                                FORMULAS
 # -----------------------------------------------------------------------------
 
+# Cálculo de velocidad
 
+def hipotermia(piloto, vehiculo, pista, numero_vuelta):
+    # DE DONDE SALE numero_vuelta ?
+    if not hasattr(pista, 'hielo'):
+        return 0
+    return min(0, numero_vuelta * (piloto.contextura - pista.hielo))
+
+def dificultad_control(piloto, vehiculo):
+    # Se asume que troncomóvil tiene 2 ruedas, aún cuando en los picapiedras 
+    # tiene claramente 2 :thinking:
+    if type(vehiculo).__name__ in ["Automovil", "Troncomovil"]:
+        return 0
+    efecto = 1 if piloto.personalidad == 'osado' else pm.EQUILIBRIO_PRECAVIDO
+    return min(0, piloto.equilibrio * efecto - floor(pm.PESO_MEDIO/vehiculo.peso))
+
+def velocidad_recomendada(piloto, vehiculo, pista):
+    velocidad_base = vehiculo.motor if hasattr(vehiculo, 'motor') else vehiculo.zapatillas
+    hielo_pista = pista.hielo if hasattr(pista, 'hielo') else 0
+    rocas_pista = pista.hielo if hasattr(pista, 'hielo') else 0
+    return velocidad_base + (vehiculo.ruedas - hielo_pista) + \
+        (vehiculo.carrocería - rocas_pista) + \
+        (piloto.experiencia - pista.dificultad)
+
+def velocidad_intencional(piloto, vehiculo, pista):
+    if piloto.personalidad == 'osado':
+        efecto = pm.EFECTO_OSADO 
+    elif piloto.personalidad == 'precavido':
+        efecto = pm.EFECTO_PRECAVIDO
+    return efecto * velocidad_recomendada(piloto, vehiculo, pista)
+
+def velocidad_real(piloto, vehiculo, pista, numero_vuelta):
+    return max(pm.VELOCIDAD_MINIMA, velocidad_intencional(piloto, vehiculo, pista) + \
+        dificultad_control(piloto, vehiculo) + \
+        hipotermia(piloto, vehiculo, pista, numero_vuelta))
+    
+
+
+# Sucesos durante la carrera
+
+def calcular_daño(vehiculo, pista):
+    # Esta fórmula no tiene mucho sentido
+    if not hasattr(pista, 'rocas'):
+        return max(0, vehiculo.carrocería - pista.rocas)
+    return 0
+
+
+# VER ESTO
+def tiempo_pits(vehiculo):
+    # DE DONDE SALE EL ESTADO ACTUAL DEL CHASIS?
+    return pm.TIEMPO_MINIMO_PITS + (vehiculo.chasis - CAMBIAR_ESTO) * pm.VELOCIDAD_PITS
+
+def dinero_vuelta(pista, numero_vuelta):
+    return numero_vuelta * pista.dificultad
+
+
+# VER ESTO
+def probabilidad_accidentes(piloto, vehiculo, pista, numero_vuelta):
+    vel_real = velocidad_real(piloto, vehiculo, pista, numero_vuelta)
+    vel_recomendada = velocidad_recomendada(piloto, vehiculo, pista)
+    return (vel_real - vel_recomendada)/vel_recomendada + \
+    floor((vehiculo.chasis - CAMBIAR_ESTO)/vehiculo.chasis)
+
+def tiempo_vuelta(piloto, vehiculo, pista, numero_vuelta):
+    return ceil(pista.largo_pista/velocidad_real(piloto, vehiculo, pista, \
+    numero_vuelta))
+
+# Ganador carrera
+
+def dinero_ganador(pista):
+    rocas = pista.rocas if hasattr(pista, 'rocas') else 0
+    hielo = pista.hielo if hasattr(pista, 'hielo') else 0
+    return pista.número_vueltas * (pista.dificultad + hielo + rocas)
+
+def ventaja_con_ultimo(primero, ultimo):
+    return primero - ultimo
+
+def experiencia_recibida(piloto, pista, primero, ultimo):
+    if piloto.personalidad == 'precavido':
+        bonus = pm.BONIFICACION_PRECAVIDO 
+    elif piloto.personalidad == 'osado':
+        bonus = pm.BONIFICACION_OSADO
+    return (ventaja_con_ultimo(primero, ultimo) + pista.dificultad) * bonus
