@@ -1,6 +1,10 @@
 import os
 import lib.parametros as pm
 
+# -----------------------------------------------------------------------------
+#                                AUX FUNCTIONS 
+# -----------------------------------------------------------------------------
+
 def clear():
     """Clears console lines."""
     if os.name == 'nt':
@@ -68,7 +72,6 @@ def get_contrincantes(names, tipos_vehiculo, Contrincante):
         Contrincante, player=False))
     return lista_contrincantes
 
-
 def get_pistas(tipos_pista, tipos_vehiculo, Contrincante):
     """Returns a list of the track objects stored in pilotos.csv."""
     lista_pistas = []
@@ -90,9 +93,6 @@ def get_pistas(tipos_pista, tipos_vehiculo, Contrincante):
         tipos_vehiculo, Contrincante)
         lista_pistas.append(tipos_pista[tipo_pista](**kwargs))
     return lista_pistas
-        
-
-
 
 def read_csv(path):
     """
@@ -104,6 +104,7 @@ def read_csv(path):
         for line in archivo:
             lineas.append(line.rstrip())
     return headers, lineas
+
 
 def guardar_partida(piloto, tipos_vehiculo):
         """
@@ -167,3 +168,10 @@ def guardar_partida(piloto, tipos_vehiculo):
         encoding='utf-8') as vehiculos:
             for line in lines:
                 vehiculos.write(line)
+
+
+# -----------------------------------------------------------------------------
+#                                FORMULAS
+# -----------------------------------------------------------------------------
+
+
