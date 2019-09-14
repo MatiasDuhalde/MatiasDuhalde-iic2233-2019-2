@@ -46,10 +46,12 @@ class Vehiculo(ABC):
 
         self.chasis_actual = self.chasis
         self.tiempo_acumulado = 0
+        self.tiempo_anterior = 0
 
     def reset_parameters(self):
         self.chasis_actual = self.chasis
         self.tiempo_acumulado = 0
+        self.tiempo_anterior = 0
 
     def reparar(self):
         self.chasis_actual = self.chasis

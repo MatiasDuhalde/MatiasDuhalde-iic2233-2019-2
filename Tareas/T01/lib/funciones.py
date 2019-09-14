@@ -216,8 +216,8 @@ def velocidad_real(piloto, vehiculo, pista, numero_vuelta):
 
 def calcular_daño(vehiculo, pista):
     # Esta fórmula no tiene mucho sentido
-    if not hasattr(pista, 'rocas'):
-        return max(0, vehiculo.carrocería - pista.rocas)
+    if hasattr(pista, 'rocas'):
+        return max(0, pista.rocas - vehiculo.carrocería)
     return 0
 
 def tiempo_pits(vehiculo):
@@ -230,8 +230,8 @@ def dinero_vuelta(pista, numero_vuelta):
 def probabilidad_accidentes(piloto, vehiculo, pista, numero_vuelta):
     vel_real = velocidad_real(piloto, vehiculo, pista, numero_vuelta)
     vel_recomendada = velocidad_recomendada(piloto, vehiculo, pista)
-    return (vel_real - vel_recomendada)/vel_recomendada + \
-    floor((vehiculo.chasis - vehiculo.chasis_actual)/vehiculo.chasis)
+    return min(1, max(0, (vel_real - vel_recomendada)/vel_recomendada) + \
+    floor((vehiculo.chasis - vehiculo.chasis_actual)/vehiculo.chasis))
 
 def tiempo_vuelta(piloto, vehiculo, pista, numero_vuelta):
     return ceil(pista.largo_pista/velocidad_real(piloto, vehiculo, pista, \
@@ -245,7 +245,7 @@ def dinero_ganador(pista):
     return pista.número_vueltas * (pista.dificultad + hielo + rocas)
 
 def ventaja_con_ultimo(primero, ultimo):
-    return primero - ultimo
+    return primero.tiempo_acumulado - ultimo.tiempo_acumulado
 
 def experiencia_recibida(piloto, pista, primero, ultimo):
     if piloto.personalidad == 'precavido':

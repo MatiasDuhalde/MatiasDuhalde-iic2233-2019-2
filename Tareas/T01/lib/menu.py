@@ -1,11 +1,12 @@
 import os
 import sys
 from abc import ABC, abstractmethod
-from random import random
+from random import random, sample, choice
 
 import lib.gametext as gametext
 import lib.parametros as pm
 import lib.funciones as f
+from lib.carrera import carrera
 from lib.entidades import Piloto, Contrincante
 from lib.entidades import Automovil, Motocicleta, Troncomovil, Bicicleta
 from lib.entidades import PistaHelada, PistaRocosa, PistaSuprema
@@ -208,7 +209,7 @@ class MenuPrincipal(Menu):
         if len(self.piloto.vehículos) == 0: 
             print("No tienes ningún vehículo! Prueba comprando alguno.")
             self.active = True
-            input("Presiona enter para volver...")
+            input("Presione enter para volver...")
             return False
         return True
 
@@ -337,22 +338,41 @@ class MenuCarrera(Menu):
         self.actions.update({1 : "Entrar a los pits",
         2 : "Siguiente vuelta",
         0 : "Volver"})
+        
+        if len(self.pista.contrincantes) > pm.NUMERO_CONTRINCANTES:
+            self.pista.contrincantes = sample(self.pista.contrincantes, \
+            pm.NUMERO_CONTRINCANTES)
+        for contrincante in self.pista.contrincantes:
+             contrincante.vehiculo = choice(contrincante.vehículos)
 
     def go_to(self, option):
         super().go_to(option)
 
+    def empezar_carrera(self, Pits):
+        carrera(self.piloto, self.vehiculo, self.pista, self, Pits)
 
     def __str__(self):
-        string = gametext.SEP3 + "\n{:^79}\n".format(self.pista.nombre) + \
-        gametext.SEP3 + '\n' + str(self.get_str())
+        string = gametext.SEP3 + '\n' + \
+        "    {:15.15}{:60.60}\n".format("Pista: ", self.pista.nombre) + \
+        "    {:15.15}{:60.60}\n".format("Piloto: ", self.piloto.nombre) + \
+        "    {:15.15}{:60.60}\n".format("Vehículo: ", self.vehiculo.nombre) + \
+        gametext.SEP3 + '\n'
         return string
 
 class MenuPits(Menu):
-    def __init__(self):
+    def __init__(self, piloto, pista, vehiculo):
         super().__init__()
+        self.piloto = piloto
+        self.pista = pista
+        self.vehiculo = vehiculo
+        self.actions.update({1 : "Mejora 1",
+        2 : "Mejora 2",
+        3 : "Mejora 3",
+        4 : "Volver"})
 
     def go_to(self, option):
         super().go_to(option)
 
     def __str__(self):
-        pass
+        string = gametext.PITS_TITLE + '\n' + str(self.get_str())
+        return string

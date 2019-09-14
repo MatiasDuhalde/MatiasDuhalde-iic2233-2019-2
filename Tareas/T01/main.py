@@ -75,20 +75,18 @@ if __name__ == "__main__":
 
         while menus["MenuCarrera"].active:
             menu_actual = menus["MenuCarrera"]
-            
+            piloto = menu_actual.piloto
+            vehiculo = menu_actual.vehiculo
+            pista = menu_actual.pista
+
             clear()
             print(menu_actual)
-            user_input = menu_actual.recibir_input()
-            menu_actual = menu_actual.go_to(user_input)
+            input("Presiona ENTER para comenzar la carrera...")
+            clear()
+            pits = MenuPits(piloto, vehiculo, pista)
+            menu_actual.empezar_carrera(pits)
+            
+            menu_actual = MenuPrincipal(piloto)
             if menu_actual:
                 menus[type(menu_actual).__name__] = menu_actual
 
-        while menus["MenuPits"].active:
-            menu_actual = menus["MenuPits"]
-            
-            clear()
-            print(menu_actual)
-            user_input = menu_actual.recibir_input()
-            menu_actual = menu_actual.go_to(user_input)
-            if menu_actual:
-                menus[type(menu_actual).__name__] = menu_actual
