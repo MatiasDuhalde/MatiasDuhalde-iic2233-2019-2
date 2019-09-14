@@ -27,16 +27,21 @@ def get_vehiculos(name, tipos_vehiculo):
             elif tipo in ["automóvil", "motocicleta"]:
                 power = "motor"
             kwargs[power] = kwargs.pop("motor o zapatillas")
-            lista_vehiculos.append(tipos_vehiculo[tipo](**kwargs))
+            vehiculo = tipos_vehiculo[tipo](**kwargs)
+            if vehiculo.dueño == name:
+                lista_vehiculos.append(vehiculo)
     return lista_vehiculos
 
 
-def get_piloto(name, tipos_vehiculo, Piloto):
+def get_piloto(name, tipos_vehiculo, objeto, player=True):
     """
     Returns a pilot object from a name, given it exists in pilotos.csv.
     Returns None otherwise.
     """
-    headers , pilotos = read_csv(pm.PATHS["PILOTOS"])
+    if player:
+        headers , pilotos = read_csv(pm.PATHS["PILOTOS"])
+    else:
+        headers , pilotos = read_csv(pm.PATHS["CONTRINCANTES"])
     # headers = [Nombre, Dinero, Personalidad, Contextura, Equilibrio, 
     # Experiencia, Equipo] // ORDER MIGHT CHANGE
     for line in pilotos:
@@ -47,17 +52,44 @@ def get_piloto(name, tipos_vehiculo, Piloto):
             kwargs = {headers[index].lower() : line[index] for index in range(len(line))}
             kwargs.update({"vehículos" : vehículos})
             
-            piloto = Piloto(**kwargs)
+            piloto = objeto(**kwargs)
             if name == piloto.nombre:
                 return piloto
     return None
 
-def get_pistas(name, tipos_pista):
+def get_contrincantes(names, tipos_vehiculo, Contrincante):
+    """
+    Receives a list containing names of contrincantes (obtained from pistas).
+    Returns a list of Contrincantes objects.
+    """
+    lista_contrincantes = []
+    for name in names:
+        lista_contrincantes.append(get_piloto(name, tipos_vehiculo, 
+        Contrincante, player=False))
+    return lista_contrincantes
+
+
+def get_pistas(tipos_pista, tipos_vehiculo, Contrincante):
     """Returns a list of the track objects stored in pilotos.csv."""
     lista_pistas = []
     headers, pistas = read_csv(pm.PATHS["PISTAS"])
     for line in pistas:
         line = line.rstrip().split(",")
+        
+        kwargs = {headers[index].lower() : line[index] for index in range(len(line))}
+        kwargs["número_vueltas"] = kwargs.pop("númerovueltas")
+        kwargs["largo_pista"] = kwargs.pop("largopista")
+
+        tipo_pista = kwargs.pop("tipo")
+        if tipo_pista == "pista hielo":
+            kwargs.pop("rocas")
+        if tipo_pista == "pista rocosa":
+            kwargs.pop("hielo")
+        contrincantes = kwargs.pop("contrincantes").split(";")
+        kwargs["contrincantes"] = get_contrincantes(contrincantes, 
+        tipos_vehiculo, Contrincante)
+        lista_pistas.append(tipos_pista[tipo_pista](**kwargs))
+    return lista_pistas
         
 
 
