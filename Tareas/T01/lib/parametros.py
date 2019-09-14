@@ -1,7 +1,5 @@
 # Valores máximos y mínimos de las partes y el peso de los vehículos
 
-# Agregar NUMERO_CONTRINCANTES (https://github.com/IIC2233/syllabus/issues/123)
-
 AUTOMOVIL = {
     'CHASIS': {
         'MIN': 154,
@@ -221,7 +219,8 @@ PRECIOS = {
     'BICICLETA' : 1050
 }
 
-
+# Cantidad contrincantes (https://github.com/IIC2233/syllabus/issues/123)
+NUMERO_CONTRINCANTES = 7
 
 # Power-ups
 
