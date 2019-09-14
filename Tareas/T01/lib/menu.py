@@ -267,6 +267,7 @@ class MenuCompraVehiculos(Menu):
                     self.piloto.vehículos.append(vehiculo(car_name, 
                     self.piloto.nombre, new_car = True))
                     self.piloto.dinero -= pm.PRECIOS[vehiculo.__name__.upper()]
+                    guardar_partida(self.piloto, self.TIPOS_VEHICULO)
                     break
 
     def __str__(self):
@@ -310,6 +311,12 @@ class MenuSelectVehiculo(Menu):
 
     def go_to(self, option):
         super().go_to(option)
+        destinations = {0 : MenuPreparacionCarrera, 1 : MenuCarrera}
+        if option == 0:
+            return destinations[option](self.piloto)
+        else:
+            return destinations[1](self.piloto, self.pista, 
+            self.piloto.vehículos[option - 1])
 
     def __str__(self):
         string = gametext.SEP + "{:^79}\n".format("Elige un vehículo") + \
@@ -318,9 +325,11 @@ class MenuSelectVehiculo(Menu):
         return string
 
 class MenuCarrera(Menu):
-    def __init__(self, piloto):
+    def __init__(self, piloto, pista, vehiculo):
         super().__init__()
         self.piloto = piloto
+        self.pista = pista
+        self.vehiculo = vehiculo
         self.actions.update({
         0 : "Volver"})
 
