@@ -245,6 +245,9 @@ def dinero_ganador(pista):
     return pista.número_vueltas * (pista.dificultad + hielo + rocas)
 
 def ventaja_con_ultimo(primero, ultimo):
+    # Si el primero es igual al último significa que solo el jugador llegó a la 
+    # meta y que todos los contrincantes fueron descalificados. Esto da una 
+    # ventaja de 0
     return primero.tiempo_acumulado - ultimo.tiempo_acumulado
 
 def experiencia_recibida(piloto, pista, primero, ultimo):
