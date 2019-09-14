@@ -212,8 +212,6 @@ def velocidad_real(piloto, vehiculo, pista, numero_vuelta):
         dificultad_control(piloto, vehiculo) + \
         hipotermia(piloto, vehiculo, pista, numero_vuelta))
     
-
-
 # Sucesos durante la carrera
 
 def calcular_daño(vehiculo, pista):
@@ -222,22 +220,18 @@ def calcular_daño(vehiculo, pista):
         return max(0, vehiculo.carrocería - pista.rocas)
     return 0
 
-
-# VER ESTO
 def tiempo_pits(vehiculo):
-    # DE DONDE SALE EL ESTADO ACTUAL DEL CHASIS?
-    return pm.TIEMPO_MINIMO_PITS + (vehiculo.chasis - CAMBIAR_ESTO) * pm.VELOCIDAD_PITS
+    return pm.TIEMPO_MINIMO_PITS + (vehiculo.chasis - vehiculo.chasis_actual) \
+    * pm.VELOCIDAD_PITS
 
 def dinero_vuelta(pista, numero_vuelta):
     return numero_vuelta * pista.dificultad
 
-
-# VER ESTO
 def probabilidad_accidentes(piloto, vehiculo, pista, numero_vuelta):
     vel_real = velocidad_real(piloto, vehiculo, pista, numero_vuelta)
     vel_recomendada = velocidad_recomendada(piloto, vehiculo, pista)
     return (vel_real - vel_recomendada)/vel_recomendada + \
-    floor((vehiculo.chasis - CAMBIAR_ESTO)/vehiculo.chasis)
+    floor((vehiculo.chasis - vehiculo.chasis_actual)/vehiculo.chasis)
 
 def tiempo_vuelta(piloto, vehiculo, pista, numero_vuelta):
     return ceil(pista.largo_pista/velocidad_real(piloto, vehiculo, pista, \
