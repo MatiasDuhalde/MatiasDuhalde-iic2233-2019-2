@@ -1,7 +1,7 @@
 from collections import namedtuple, defaultdict
 from lib.funciones import clear
 from lib.menu import MenuSesion, MenuPrincipal, MenuCarrera, \
-    MenuCompraVehiculos, MenuPits, MenuPreparacionCarrera
+    MenuCompraVehiculos, MenuPits, MenuPreparacionCarrera, MenuSelectVehiculo
 
 
 # -----------------------------------------------------------------------------
@@ -25,7 +25,6 @@ while main_loop:
         
         clear()
         print(menu_actual)
-        
         user_input = menu_actual.recibir_input()
         menu_actual = menu_actual.go_to(user_input)
         if menu_actual:
@@ -37,7 +36,6 @@ while main_loop:
         
         clear()
         print(menu_actual)
-        
         user_input = menu_actual.recibir_input()
         menu_actual = menu_actual.go_to(user_input)
         if menu_actual:
@@ -49,7 +47,18 @@ while main_loop:
         
         clear()
         print(menu_actual)
-        print("Acá se prepara la carrera!")
+        user_input = menu_actual.recibir_input()
+        menu_actual = menu_actual.go_to(user_input)
+        if menu_actual:
+            menus[type(menu_actual).__name__] = menu_actual
+            
+    while menus["MenuSelectVehiculo"].active:
+        menu_actual = menus["MenuSelectVehiculo"]
+        piloto = menu_actual.piloto
+        pista = menu_actual.pista
+        
+        clear()
+        print(menu_actual)
         user_input = menu_actual.recibir_input()
         menu_actual = menu_actual.go_to(user_input)
         if menu_actual:

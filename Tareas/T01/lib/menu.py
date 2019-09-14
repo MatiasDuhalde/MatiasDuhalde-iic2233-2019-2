@@ -4,8 +4,8 @@ from abc import ABC, abstractmethod
 
 import lib.gametext as gametext
 import lib.parametros as pm
-from lib.funciones import clear, get_piloto, read_csv, guardar_partida
-from lib.carreras import Piloto
+from lib.funciones import clear, get_piloto, get_pistas, read_csv, guardar_partida
+from lib.carreras import Piloto, Contrincante
 from lib.carreras import Automovil, Motocicleta, Troncomovil, Bicicleta
 from lib.carreras import PistaHelada, PistaRocosa, PistaSuprema
 
@@ -15,8 +15,8 @@ class Menu(ABC):
     # strings based in original data from vehículos.csv and pistas.csv
     TIPOS_VEHICULO = {"automóvil" : Automovil, "motocicleta" : Motocicleta, 
     "troncomóvil" : Troncomovil, "bicicleta" : Bicicleta}
-    TIPOS_PISTA = {"PistaHelada" : PistaHelada, "PistaRocosa" : PistaRocosa, 
-    "PistaSuprema" : PistaSuprema}
+    TIPOS_PISTA = {"pista hielo" : PistaHelada, "pista rocosa" : PistaRocosa, 
+    "pista suprema" : PistaSuprema}
 
     @abstractmethod
     def __init__(self):
@@ -53,7 +53,7 @@ class Menu(ABC):
         
         string += ">>>|  ┌───┐\n"
         for action in actions:
-            string += f">>>|  │ {action} │    {actions[action]}\n"
+            string += ">>>|  │{:^3}│    {}\n".format(action, actions[action])
             if action != 0:
                 string += ">>>|  ├───┤\n"
         string += ">>>|  └───┘\n"
@@ -252,12 +252,7 @@ class MenuCompraVehiculos(Menu):
 
     def comprar_vehiculos(self, option):
         clases_vehiculos = list(self.TIPOS_VEHICULO.values())
-        print(clases_vehiculos)
         vehiculo = {index : clases_vehiculos[index - 1] for index in range(1,5)}[option]
-        print(pm.PRECIOS)
-        print(type(self.piloto.dinero))
-        print(vehiculo.__name__.upper())
-        print(vehiculo)
         if self.piloto.dinero < pm.PRECIOS[vehiculo.__name__.upper()]:
             print("No tienes el dinero suficiente para comprar este vehículo.")
             input("Presione enter para continuar...")
@@ -285,14 +280,41 @@ class MenuPreparacionCarrera(Menu):
     def __init__(self, piloto):
         super().__init__()
         self.piloto = piloto
-        self.actions.update({
-        0 : "Volver"})
+        self.pistas = get_pistas(self.TIPOS_PISTA, self.TIPOS_VEHICULO, Contrincante)
+        self.actions = {index : str(self.pistas[index - 1]) for index in range(1, 
+        len(self.pistas) + 1)}
+        self.actions.update({0 : "Volver"})
+
+    def go_to(self, option):
+        super().go_to(option)
+        destinations = {0 : MenuPrincipal, 1 : MenuSelectVehiculo}
+        if option == 0:
+            return destinations[option](self.piloto)
+        else:
+            return destinations[1](self.piloto, self.pistas[option - 1])
+
+    def __str__(self):
+        string = gametext.SEP + "{:^79}\n".format("Elige una pista") + \
+        gametext.SEP2 + '\n' + ' '*15 + "{:38} {:14}{:15}\n".format("Nombre", \
+        "Tipo", "N vueltas") + str(self.get_str())
+        return string
+
+class MenuSelectVehiculo(Menu):
+    def __init__(self, piloto, pista):
+        super().__init__()
+        self.piloto = piloto
+        self.pista = pista
+        self.actions = {index : str(self.piloto.vehículos[index - 1]) for \
+            index in range(1, len(self.piloto.vehículos) + 1)}
+        self.actions.update({0 : "Volver"})
 
     def go_to(self, option):
         super().go_to(option)
 
     def __str__(self):
-        string = str(self.get_str())
+        string = gametext.SEP + "{:^79}\n".format("Elige un vehículo") + \
+        gametext.SEP2 + '\n' + ' '*15 + "{:49}{:15}\n".format("Nombre", \
+        "Clase") + str(self.get_str())
         return string
 
 class MenuCarrera(Menu):
