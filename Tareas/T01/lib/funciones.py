@@ -13,24 +13,21 @@ def get_vehiculos(name, tipos_vehiculo):
     """Returns a list containing vehicle objects, that belong to name."""
 
     lista_vehiculos = []
-    with open(os.path.join(*pm.PATHS["VEHICULOS"]), 'r', 
-    encoding='utf-8') as vehiculos:
-        
-        # HEADERS/COLUMNS MIGHT CHANGE ORDER!
-        headers = vehiculos.readline().rstrip().split(",")
-        # headers = [Nombre, Dueño, Categoría, Chasis, Carrocería, Ruedas, 
-        # Motor o Zapatillas, Peso] // ORDER MIGHT CHANGE
-        for line in vehiculos:
-            if name in line:
-                line = line.rstrip().split(",")
-                kwargs = {headers[index].lower() : line[index] for index in range(len(line))}
-                tipo = kwargs.pop("categoría")
-                if tipo in ["troncomóvil", "bicicleta"]:
-                    power = "zapatillas"
-                elif tipo in ["automóvil", "motocicleta"]:
-                    power = "motor"
-                kwargs[power] = kwargs.pop("motor o zapatillas")
-                lista_vehiculos.append(tipos_vehiculo[tipo](**kwargs))
+    headers, vehiculos = read_csv(pm.PATHS["VEHICULOS"])
+    # headers = [Nombre, Dueño, Categoría, Chasis, Carrocería, Ruedas, 
+    # Motor o Zapatillas, Peso] // ORDER MIGHT CHANGE
+    for line in vehiculos:
+        if name in line:
+            line = line.rstrip().split(",")
+
+            kwargs = {headers[index].lower() : line[index] for index in range(len(line))}
+            tipo = kwargs.pop("categoría")
+            if tipo in ["troncomóvil", "bicicleta"]:
+                power = "zapatillas"
+            elif tipo in ["automóvil", "motocicleta"]:
+                power = "motor"
+            kwargs[power] = kwargs.pop("motor o zapatillas")
+            lista_vehiculos.append(tipos_vehiculo[tipo](**kwargs))
     return lista_vehiculos
 
 
@@ -39,23 +36,102 @@ def get_piloto(name, tipos_vehiculo, Piloto):
     Returns a pilot object from a name, given it exists in pilotos.csv.
     Returns None otherwise.
     """
-
-    with open(os.path.join(*pm.PATHS["PILOTOS"]), 'r', 
-    encoding='utf-8') as pilotos:
-        
-        # HEADERS/COLUMNS MIGHT CHANGE ORDER!
-        headers = pilotos.readline().rstrip().split(",")
-        # headers = [Nombre, Dinero, Personalidad, Contextura, Equilibrio, 
-        # Experiencia, Equipo] // ORDER MIGHT CHANGE
-        for line in pilotos:
-            if name in line:
-                line = line.rstrip().split(",")
-                
-                vehículos = get_vehiculos(name, tipos_vehiculo)
-                kwargs = {headers[index].lower() : line[index] for index in range(len(line))}
-                kwargs.update({"vehículos" : vehículos})
-                
-                piloto = Piloto(**kwargs)
-                if name == piloto.nombre:
-                    return piloto
+    headers , pilotos = read_csv(pm.PATHS["PILOTOS"])
+    # headers = [Nombre, Dinero, Personalidad, Contextura, Equilibrio, 
+    # Experiencia, Equipo] // ORDER MIGHT CHANGE
+    for line in pilotos:
+        if name in line:
+            line = line.rstrip().split(",")
+            
+            vehículos = get_vehiculos(name, tipos_vehiculo)
+            kwargs = {headers[index].lower() : line[index] for index in range(len(line))}
+            kwargs.update({"vehículos" : vehículos})
+            
+            piloto = Piloto(**kwargs)
+            if name == piloto.nombre:
+                return piloto
     return None
+
+def get_pistas(name, tipos_pista):
+    """Returns a list of the track objects stored in pilotos.csv."""
+    lista_pistas = []
+    headers, pistas = read_csv(pm.PATHS["PISTAS"])
+    for line in pistas:
+        line = line.rstrip().split(",")
+        
+
+
+
+def read_csv(path):
+    """
+    Returns headers (list) and a list containing every line (without '\n')
+    """
+    lineas = []
+    with open(os.path.join(*path), 'r', encoding='utf-8') as archivo:
+        headers = archivo.readline().rstrip().split(",")
+        for line in archivo:
+            lineas.append(line.rstrip())
+    return headers, lineas
+
+def guardar_partida(piloto, tipos_vehiculo):
+        """
+        Overwrites pilotos.csv, vehículos.csv
+        A same pilot with the same name can't have 2 entries in pilotos.csv
+        Previous lines describing the pilot are deleted and replaced with new
+        ones based on the pilot's attributes.
+        """
+        # Delete old line(s) in pilotos.csv
+        lines = []
+        headers, pilotos = read_csv(pm.PATHS["PILOTOS"])
+        lines.append(",".join(headers) + '\n')
+        for line in pilotos:
+            lines.append(line + '\n')
+            line = line.rstrip().split(",")
+            kwargs = {headers[index].lower() : line[index] for index in range(len(line))}
+            if kwargs["nombre"] == piloto.nombre:
+                lines.pop()
+        
+        # Rewrite pilotos.csv
+        save_data = {"Nombre" : piloto.nombre, 
+        "Dinero" : piloto.dinero, "Personalidad" : piloto.personalidad, 
+        "Contextura" : piloto.contextura, "Equilibrio" : piloto.equilibrio, 
+        "Experiencia" : piloto.experiencia, "Equipo" : piloto.equipo}
+        order = {headers[index] : index for index in range(len(headers))}
+        save_data = [str(save_data[key]) for key in sorted(save_data, key=order.get)]
+        save_data = ",".join(save_data) + '\n'
+        lines.append(save_data)
+
+        with open(os.path.join(*pm.PATHS["PILOTOS"]), 'w', 
+        encoding='utf-8') as pilotos:
+            for line in lines:
+                pilotos.write(line)
+        
+        # Delete old line(s) in vehículos.csv
+        lines = []
+        headers, vehiculos = read_csv(pm.PATHS["VEHICULOS"])
+        lines.append(",".join(headers) + '\n')
+        for line in vehiculos:
+            lines.append(line + '\n')
+            line = line.rstrip().split(",")
+            kwargs = {headers[index].lower() : line[index] for index in range(len(line))}
+            if kwargs["dueño"] == piloto.nombre:
+                lines.pop()
+        
+        # Rewrite vehículos.csv
+        for vehiculo in piloto.vehículos:
+            save_data = {"Nombre" : vehiculo.nombre, "Dueño" : vehiculo.dueño, 
+            "Categoría" : list(tipos_vehiculo.keys())[list(
+                tipos_vehiculo.values()).index(type(vehiculo))], 
+            "Chasis" : vehiculo.chasis, "Carrocería" : vehiculo.carrocería, 
+            "Ruedas" : vehiculo.ruedas, "Motor o Zapatillas" : vehiculo.motor 
+            if type(vehiculo) in list(tipos_vehiculo.values())[:2] else vehiculo.zapatillas, 
+            "Peso" : vehiculo.peso}
+            
+            order = {headers[index] : index for index in range(len(headers))}
+            save_data = [str(save_data[key]) for key in sorted(save_data, key=order.get)]
+            save_data = ",".join(save_data) + '\n'
+            lines.append(save_data)
+        with open(os.path.join(*pm.PATHS["VEHICULOS"]), 'w', 
+        encoding='utf-8') as vehiculos:
+            for line in lines:
+                vehiculos.write(line)
