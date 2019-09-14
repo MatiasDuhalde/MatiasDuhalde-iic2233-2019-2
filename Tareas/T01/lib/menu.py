@@ -197,7 +197,6 @@ class MenuPrincipal(Menu):
             if self.iniciar_carrera():
                 return destinations[option](self.piloto)
         elif option == 2:
-            self.comprar_vehiculos()
             return destinations[option](self.piloto)
         elif option == 3:
             self.guardar()
@@ -211,9 +210,6 @@ class MenuPrincipal(Menu):
             input("Presiona enter para volver...")
             return False
         return True
-    
-    def comprar_vehiculos(self):
-        pass
 
     def guardar(self, show=True):
         guardar_partida(self.piloto, self.TIPOS_VEHICULO)
@@ -231,15 +227,21 @@ class MenuPrincipal(Menu):
         return string
 
 class MenuCompraVehiculos(Menu):
-    def __init__(self, piloto):
+    def __init__(self, piloto, gratis=True):
         super().__init__()
         self.piloto = piloto
+        self.__gratis = gratis
         self.actions.update({
         1 : f"Automóvil         ${pm.PRECIOS['AUTOMOVIL']}",
         2 : f"Motocicleta       ${pm.PRECIOS['MOTOCICLETA']}",
         3 : f"Troncomóvil       ${pm.PRECIOS['TRONCOMOVIL']}",
         4 : f"Bicicleta         ${pm.PRECIOS['BICICLETA']}",
         0 : "Volver"})
+    
+    @property
+    def gratis(self):
+        self.__gratis = len(self.piloto.vehículos) == 0
+        return self.__gratis
 
     def go_to(self, option):
         super().go_to(option)
@@ -253,7 +255,7 @@ class MenuCompraVehiculos(Menu):
     def comprar_vehiculos(self, option):
         clases_vehiculos = list(self.TIPOS_VEHICULO.values())
         vehiculo = {index : clases_vehiculos[index - 1] for index in range(1,5)}[option]
-        if self.piloto.dinero < pm.PRECIOS[vehiculo.__name__.upper()]:
+        if self.piloto.dinero < pm.PRECIOS[vehiculo.__name__.upper()] and not self.gratis:
             print("No tienes el dinero suficiente para comprar este vehículo.")
             input("Presione enter para continuar...")
         else:
@@ -274,7 +276,8 @@ class MenuCompraVehiculos(Menu):
         string = gametext.STORE_TITLE + '\n' + gametext.SEP2 + '\n' + \
         f"    Dinero: ${str(self.piloto.dinero)}\n" + \
         f"    Tienes {len(self.piloto.vehículos)} vehículos.\n" + str(self.get_str())
-            
+        if self.gratis:
+            string += "\nEl primer vehículo es gratis!"
         return string
 
 class MenuPreparacionCarrera(Menu):

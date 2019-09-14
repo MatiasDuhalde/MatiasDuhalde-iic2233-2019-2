@@ -186,8 +186,8 @@ class Piloto:
     Pilots must have one team (and only one).
     """
 
-    def __init__(self, nombre, equipo, dinero=None, personalidad=None, contextura=None, 
-    equilibrio=None, experiencia=None, vehículos=[], new_pilot=False):
+    def __init__(self, nombre, equipo, dinero=0, personalidad=None, contextura=None, 
+    equilibrio=None, experiencia=0, vehículos=[], new_pilot=False):
         """
         Pilot characteristics:
          - Nombre: nombre (saved in pilotos.csv)
@@ -206,22 +206,33 @@ class Piloto:
         """
         self.nombre = nombre
         self.equipo = equipo
+        self.__dinero = int(dinero)
 
         if new_pilot: 
             DEF_ARGS = pm.EQUIPOS[self.equipo.upper()]
-            self.dinero = pm.DINERO_INICIAL
             self.personalidad = choice(DEF_ARGS['PERSONALIDAD'])
             self.contextura = randint(DEF_ARGS['CONTEXTURA']['MIN'], DEF_ARGS['CONTEXTURA']['MAX']) 
             self.equilibrio = randint(DEF_ARGS['EQUILIBRIO']['MIN'], DEF_ARGS['EQUILIBRIO']['MAX'])
             self.experiencia = 0
             self.vehículos = []
         else: 
-            self.dinero = int(dinero)
             self.personalidad = personalidad
             self.contextura = int(contextura)
             self.equilibrio = int(equilibrio)
             self.experiencia = int(experiencia)
             self.vehículos = vehículos
+    
+    @property
+    def dinero(self):
+        return self.__dinero
+
+    @dinero.setter
+    def dinero(self, value):
+        if value < 0:
+            self.__dinero = 0
+        else: 
+            self.__dinero = self.__dinero - value
+
 
 class Contrincante:
 
