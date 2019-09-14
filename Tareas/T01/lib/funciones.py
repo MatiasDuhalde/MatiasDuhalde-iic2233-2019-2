@@ -215,7 +215,6 @@ def velocidad_real(piloto, vehiculo, pista, numero_vuelta):
 # Sucesos durante la carrera
 
 def calcular_daño(vehiculo, pista):
-    # Esta fórmula no tiene mucho sentido
     if hasattr(pista, 'rocas'):
         return max(0, pista.rocas - vehiculo.carrocería)
     return 0
@@ -230,6 +229,7 @@ def dinero_vuelta(pista, numero_vuelta):
 def probabilidad_accidentes(piloto, vehiculo, pista, numero_vuelta):
     vel_real = velocidad_real(piloto, vehiculo, pista, numero_vuelta)
     vel_recomendada = velocidad_recomendada(piloto, vehiculo, pista)
+    # En la pauta se pide hacer un floor lo que no tiene mucho sentido
     return min(1, max(0, (vel_real - vel_recomendada)/vel_recomendada) + \
     floor((vehiculo.chasis - vehiculo.chasis_actual)/vehiculo.chasis))
 

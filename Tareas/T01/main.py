@@ -83,7 +83,7 @@ if __name__ == "__main__":
             print(menu_actual)
             input("Presiona ENTER para comenzar la carrera...")
             clear()
-            pits = MenuPits(piloto, vehiculo, pista)
+            pits = MenuPits(piloto, pista, vehiculo)
             menu_actual.empezar_carrera(pits)
             
             menu_actual = MenuPrincipal(piloto)

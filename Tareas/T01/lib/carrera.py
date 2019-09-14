@@ -1,7 +1,62 @@
 import lib.gametext as gametext
 import lib.funciones as f
+import lib.parametros as pm
 from random import random
 from math import floor, ceil
+from lib.entidades import Automovil, Motocicleta, Troncomovil, Bicicleta
+
+def pits(piloto, vehiculo, menuPits):
+    f.clear()
+    # Se agrega el tiempo que tardan los pits
+    vehiculo.ultima_vuelta += f.tiempo_pits(vehiculo)
+
+    vehiculo.reparar()
+    print(gametext.SEP3 + "\n{:^79}\n".format("VEHÍCULO REPARADO!") + gametext.SEP3)
+    input("Presione ENTER para continuar...")
+    power = "ZAPATILLAS" if type(vehiculo) in [Troncomovil, Bicicleta] else "MOTOR"
+    while True:
+        f.clear()
+        print(menuPits)
+        user_input = menuPits.recibir_input()
+        if user_input == 1:
+            if piloto.dinero < pm.MEJORAS['CHASIS']['COSTO']:
+                print("No tienes el dinero suficiente para esta mejora.")
+                input("Presione ENTER para continuar...")
+            else:
+                piloto.dinero -= pm.MEJORAS['CHASIS']['COSTO']
+                vehiculo.zapatillas *= pm.MEJORAS['CHASIS']['EFECTO']
+
+        elif user_input == 2:
+            if piloto.dinero < pm.MEJORAS['CARROCERIA']['COSTO']:
+                print("No tienes el dinero suficiente para esta mejora.")
+                input("Presione ENTER para continuar...")
+            else:
+                piloto.dinero -= pm.MEJORAS['CARROCERIA']['COSTO']
+                vehiculo.zapatillas *= pm.MEJORAS['CARROCERIA']['EFECTO']
+
+        elif user_input == 3:
+            if piloto.dinero < pm.MEJORAS['RUEDAS']['COSTO']:
+                print("No tienes el dinero suficiente para esta mejora.")
+                input("Presione ENTER para continuar...")
+            else:
+                piloto.dinero -= pm.MEJORAS['RUEDAS']['COSTO']
+                vehiculo.zapatillas *= pm.MEJORAS['RUEDAS']['EFECTO']
+
+        elif user_input == 4:
+            if piloto.dinero < pm.MEJORAS[power]['COSTO']:
+                print("No tienes el dinero suficiente para esta mejora.")
+                input("Presione ENTER para continuar...")
+            else:
+                piloto.dinero -= pm.MEJORAS[power]['COSTO']
+                if power == "MOTOR":
+                    vehiculo.motor *= pm.MEJORAS[power]['EFECTO']
+                elif power == "ZAPATILLAS":
+                    vehiculo.zapatillas *= pm.MEJORAS[power]['EFECTO']
+
+        elif user_input == 0:
+            break
+    vehiculo.reparar()
+
 
 def carrera(piloto, vehiculo, pista, menuCarrera, menuPits):
     vuelta = 1
@@ -47,14 +102,13 @@ def carrera(piloto, vehiculo, pista, menuCarrera, menuPits):
             contrinc.vehiculo, pista)
             if contrinc.vehiculo.chasis_actual <= 0:
                 print(f"{contrinc.nombre} ha sufrido muchos daños!")
-                accidentados.append(contrinc)
+                accidentados.append(contrinc.vehiculo)
                 contrincantes.remove(contrinc)
                 participantes.remove(contrinc.vehiculo)
         
         print('\n' + gametext.SEP2 + '\n')
 
         # Calculate accident
-        print(f.probabilidad_accidentes(piloto, vehiculo, pista, vuelta))
         if random() < f.probabilidad_accidentes(piloto, vehiculo, pista, \
         vuelta) and not destruido:
             print("Has sufrido un accidente!")
@@ -72,7 +126,7 @@ def carrera(piloto, vehiculo, pista, menuCarrera, menuPits):
 
         # Get times
         if not destruido:
-            vehiculo.ultima_vuelta = f.tiempo_vuelta(piloto, vehiculo, pista, \
+            vehiculo.ultima_vuelta += f.tiempo_vuelta(piloto, vehiculo, pista, \
             vuelta)
             vehiculo.tiempo_acumulado += vehiculo.ultima_vuelta
         for contrinc in contrincantes:
@@ -127,12 +181,16 @@ def carrera(piloto, vehiculo, pista, menuCarrera, menuPits):
                 print(string)
                 user_input = menuCarrera.recibir_input(actions=actions, \
                 to_print=string)
+                vehiculo.ultima_vuelta = 0
                 if user_input == 0:
                     menuCarrera.active = False
                     return None
                 elif user_input == 2:
-                    print("GOING TO THE PITS!")
-                    pass
+                    
+                    # PITS
+
+                    pits(piloto, vehiculo, menuPits)
+
             else:
                 print(gametext.LOSE_TITLE + '\n')
                 input("Presione ENTER para volver al menú principal...")
