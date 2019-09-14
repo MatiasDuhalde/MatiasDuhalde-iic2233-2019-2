@@ -300,10 +300,9 @@ class MenuCarrera(Menu):
         return string
 
 class MenuPits(Menu):
-    def __init__(self, piloto, pista, vehiculo):
+    def __init__(self, piloto, vehiculo):
         super().__init__()
         self.piloto = piloto
-        self.pista = pista
         self.vehiculo = vehiculo
         power = "Zapatillas" if type(self.vehiculo) in [Troncomovil, Bicicleta] \
             else "Motor"
