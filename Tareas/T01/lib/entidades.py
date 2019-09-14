@@ -244,7 +244,7 @@ class Piloto:
         if value < 0:
             self.__dinero = 0
         else: 
-            self.__dinero = self.__dinero - value
+            self.__dinero = self.__dinero + value
 
 
 class Contrincante:
