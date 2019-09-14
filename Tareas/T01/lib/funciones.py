@@ -1,7 +1,7 @@
 import os
 import lib.parametros as pm
 from math import floor, ceil
-import parametros as pm
+import lib.parametros as pm
 
 # -----------------------------------------------------------------------------
 #                                AUX FUNCTIONS 

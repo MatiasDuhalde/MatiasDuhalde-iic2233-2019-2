@@ -138,7 +138,7 @@ class Pista(ABC):
     @abstractmethod
     def __str__(self, tipo):
         # 15 chars to the left, limit 79
-        string = "{:38.33} {:13} {:13}".format(self.nombre, 
+        string = "{:38.33} {:13.10} {}".format(self.nombre, 
         tipo, self.número_vueltas)
         return string
 

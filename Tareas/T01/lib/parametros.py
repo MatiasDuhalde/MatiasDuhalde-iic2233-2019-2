@@ -184,23 +184,23 @@ EQUIPOS = {
 # Las constantes de las formulas
 
 # Velocidad real
-VELOCIDAD_MINIMA = None
+VELOCIDAD_MINIMA = 30
 
 # Velocidad intencional
-EFECTO_OSADO = None
-EFECTO_PRECAVIDO = None
+EFECTO_OSADO = 2
+EFECTO_PRECAVIDO = 1
 
 # Dificultad de control del vehículo
-PESO_MEDIO = None
-EQUILIBRIO_PRECAVIDO = None
+PESO_MEDIO = 80
+EQUILIBRIO_PRECAVIDO = 2
 
 # Tiempo pits
 TIEMPO_MINIMO_PITS = None
 VELOCIDAD_PITS = None
 
 # Experiencia por ganar
-BONIFICACION_PRECAVIDO = None
-BONIFICACION_OSADO = None
+BONIFICACION_PRECAVIDO = 2
+BONIFICACION_OSADO = 1
 
 
 # Paths de los archivos

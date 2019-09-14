@@ -1,13 +1,14 @@
 import os
 import sys
 from abc import ABC, abstractmethod
+from random import random
 
 import lib.gametext as gametext
 import lib.parametros as pm
-from lib.funciones import clear, get_piloto, get_pistas, read_csv, guardar_partida
-from lib.carreras import Piloto, Contrincante
-from lib.carreras import Automovil, Motocicleta, Troncomovil, Bicicleta
-from lib.carreras import PistaHelada, PistaRocosa, PistaSuprema
+import lib.funciones as f
+from lib.entidades import Piloto, Contrincante
+from lib.entidades import Automovil, Motocicleta, Troncomovil, Bicicleta
+from lib.entidades import PistaHelada, PistaRocosa, PistaSuprema
 
 class Menu(ABC):
     """Abstract class. Inherited by more specific menu classes."""
@@ -33,7 +34,7 @@ class Menu(ABC):
                 number = int(number)
                 if number in actions.keys():
                     return number
-            clear()
+            f.clear()
             if not to_print:
                 print(self)
             else:
@@ -78,7 +79,7 @@ class MenuSesion(Menu):
 
     def cargar_partida(self):
         """Return Piloto object based on user input. Loads from pilotos.csv"""
-        clear()
+        f.clear()
         print(gametext.LOAD_TITLE)
         print(gametext.SEP + self.get_str({0 : "Volver"}))
         
@@ -87,18 +88,18 @@ class MenuSesion(Menu):
             
             if name == "0":
                 break
-            piloto = get_piloto(name, self.TIPOS_VEHICULO, Piloto)
+            piloto = f.get_piloto(name, self.TIPOS_VEHICULO, Piloto)
             if piloto:
                 return piloto
             
-            clear()
+            f.clear()
             print(gametext.LOAD_TITLE)
             print(gametext.SEP + self.get_str({0 : "Volver"}))
             print(f"No existen partidas guardadas para el nombre '{name}'.")
 
     def nueva_partida(self):
         """Return Piloto object based on user input."""
-        clear()
+        f.clear()
         print(gametext.NEW_TITLE)
         print(gametext.SEP + self.get_str({0 : "Volver"}))
         
@@ -109,17 +110,17 @@ class MenuSesion(Menu):
                 name = False
                 break
             elif len(name) > 40:
-                clear()
+                f.clear()
                 print(gametext.NEW_TITLE)
                 print(gametext.SEP + self.get_str({0 : "Volver"}))
                 print("Nombre de usuario muy largo! Intente con uno más corto.")
             elif name == "":
-                clear()
+                f.clear()
                 print(gametext.NEW_TITLE)
                 print(gametext.SEP + self.get_str({0 : "Volver"}))
                 print("Debes ingresar un nombre.")
             else:
-                piloto = get_piloto(name, self.TIPOS_VEHICULO, Piloto)
+                piloto = f.get_piloto(name, self.TIPOS_VEHICULO, Piloto)
                 
                 if piloto: # In case name is already registered
                     actions = {1 : f"Crear nueva partida con nombre {name}",
@@ -128,7 +129,7 @@ class MenuSesion(Menu):
                         '{:^79}'.format("El nombre de usuario ya existe!") + '\n' + \
                         self.get_str(actions=actions)
                     
-                    clear()
+                    f.clear()
                     print(string)
                     
                     user_input = self.recibir_input(actions=actions, to_print=string)
@@ -142,7 +143,7 @@ class MenuSesion(Menu):
                 '{:^79}'.format("Elije un equipo:") + '\n' + \
                 self.get_str(actions=actions)
             
-            clear()
+            f.clear()
             print(string)
 
             user_input = self.recibir_input(actions=actions, to_print=string)
@@ -166,7 +167,7 @@ class MenuSesion(Menu):
         elif option == 2:
             piloto = self.cargar_partida()
         if piloto:
-            guardar_partida(piloto, self.TIPOS_VEHICULO)
+            f.guardar_partida(piloto, self.TIPOS_VEHICULO)
             return destinations[option](piloto)
         self.active = True
         return None
@@ -212,10 +213,10 @@ class MenuPrincipal(Menu):
         return True
 
     def guardar(self, show=True):
-        guardar_partida(self.piloto, self.TIPOS_VEHICULO)
+        f.guardar_partida(self.piloto, self.TIPOS_VEHICULO)
         self.active = True
         if show:
-            clear()
+            f.clear()
             print(gametext.SAVE_TITLE)
             print(gametext.SEP)
             input("Presione enter para volver...")
@@ -269,7 +270,7 @@ class MenuCompraVehiculos(Menu):
                     self.piloto.vehículos.append(vehiculo(car_name, 
                     self.piloto.nombre, new_car = True))
                     self.piloto.dinero -= pm.PRECIOS[vehiculo.__name__.upper()]
-                    guardar_partida(self.piloto, self.TIPOS_VEHICULO)
+                    f.guardar_partida(self.piloto, self.TIPOS_VEHICULO)
                     break
 
     def __str__(self):
@@ -284,7 +285,7 @@ class MenuPreparacionCarrera(Menu):
     def __init__(self, piloto):
         super().__init__()
         self.piloto = piloto
-        self.pistas = get_pistas(self.TIPOS_PISTA, self.TIPOS_VEHICULO, Contrincante)
+        self.pistas = f.get_pistas(self.TIPOS_PISTA, self.TIPOS_VEHICULO, Contrincante)
         self.actions = {index : str(self.pistas[index - 1]) for index in range(1, 
         len(self.pistas) + 1)}
         self.actions.update({0 : "Volver"})
@@ -333,14 +334,17 @@ class MenuCarrera(Menu):
         self.piloto = piloto
         self.pista = pista
         self.vehiculo = vehiculo
-        self.actions.update({
+        self.actions.update({1 : "Entrar a los pits",
+        2 : "Siguiente vuelta",
         0 : "Volver"})
 
     def go_to(self, option):
         super().go_to(option)
 
+
     def __str__(self):
-        string = str(self.get_str())
+        string = gametext.SEP3 + "\n{:^79}\n".format(self.pista.nombre) + \
+        gametext.SEP3 + '\n' + str(self.get_str())
         return string
 
 class MenuPits(Menu):
