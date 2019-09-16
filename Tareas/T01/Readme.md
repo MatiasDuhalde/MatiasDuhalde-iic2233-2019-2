@@ -63,9 +63,10 @@ El módulo principal de la tarea a ejecutar es  [```main.py```](main.py).
 
 La lista de librerías externas que utilicé fue la siguiente:
 
-1. ```random```: ```sample()```
-2. ```os```: ```system(), listdir(), name``` 
-3. ```math```: ```ceil()```
+1. ```random```: ```random()```, ```choice()```, ```sample()```, ```randint()```
+2. ```os```: ```system()```
+3. ```math```: ```ceil()```, ```floor()```
+4. ```abc```: ```ABC```, ```abstractmethod()```
 4. ```sys```: ```exit()```
 
 ### Librerías propias
@@ -78,18 +79,20 @@ Por otro lado, los módulos que fueron creados fueron los siguientes (todos se e
 5. [```carrera```](lib/carrera.py)-> Contiene el flujo de la carrera y los pits.
 6. [```entidades```](lib/entidades.py)-> Contiene las entidades/clases que usa el programa (```Vehiculo```, ```Pista```, ```Piloto```, ```Contrincante```).
 7. [```parametros```](lib/parametros.py)-> Contiene los parámetros/constantes que se usan en el programa según el enunciado.
-4. [```__init__```](lib/__init__.py)-> Está vacío, permite usar la carpeta [lib](./lib) como un package.
+8. [```__init__```](lib/__init__.py)-> Está vacío, permite usar la carpeta [lib](./lib) como un package.
 
 
 ## Supuestos y consideraciones adicionales :thinking:
 Los supuestos que realicé durante la tarea son los siguientes:
 
-1. <Descripción/consideración 1 y justificación del por qué es válido/a> 
-2. <Descripción/consideración 2 y justificación del por qué es válido/a>
-
-...
-
-PD: <una última consideración (de ser necesaria) o comentario hecho anteriormente que se quiera **recalcar**>
+1. Los headers de los csv pueden cambiar de orden según el issue [#180](https://github.com/IIC2233/syllabus/issues/180), pero no contemplan que un atributo tenga el tipo incorrecto de dato. Por ejemplo, un ```string``` en la columna ```Dinero``` (esto daría un error de tipo dentro de la clase Piloto al cargar el dato).
+2. El piloto puede realizar mejoras ilimitadas (cuanto le alcance el dinero) durante un *Pit Stop*, todas tomando un tiempo constante.
+3. :warning: El módulo [```funciones```](./lib/funciones.py) no solo contiene las fórmulas, sino que también otras funciones auxiliares (estas son ```clear``` y otras de *csv handling*), para no haber tenido que crear un módulo extra.
+4. :warning: La fórmula para calcular probabilidades dentro de [```funciones```](./lib/funciones.py) usa un ```floor``` según el último enunciado esperado, lo que es bastante extraño dado que se está calculando una probabilidad (es decir, un número entre 0 y 1).
+5. Los parámetros de [```parametros.py```](./lib/parametros.py) se encuentran relativamente desbalanceados entre si. Es recomendable que al testear se hagan las modificaciones que estimen necesarias. Si usan otro archivo, cabe destacar que el incluido en este repositorio tiene parámetros extra y cambios en la acentuación de los strings (revisar comentarios).
+6. :warning: En el **menú principal**, se pedía agregar la opción de **salir del juego**. En lugar de esta opción, se implementó la opción **volver**, que lleva al usuario de vuelta al **menú sesión**, dentro del cual se encuentra implementada la opción **salir del juego**. Esto se hizo porque encontré que tener la posibilidad de volver al menú sesión hacía más sentido que no poder hacerlo. Además, esto hizo más fácil el testear las *features* de guardado, cargado, y creación de una partida, dado que no era necesario volver a ejecutar el programa.
+7. Luego de cargar la partida, se pedía dar a elegir al usuario un vehículo. En lugar de esta opción, al usuario se le lleva al **menú principal**, pero se le impide iniciar una carrera sin vehículos, y se le da la posibilidad de entrar a la tienda y **elegir el primer vehículo sin costo** (sólo el primero). De igual manera, el usuario comienza con **$0**.
+8. Un vehículo puede tener de nombre un string vacío ```""```. Debo admitir que se me pasó y lo descubrí al testear antes de la entrega final, por lo cual no tuve tiempo de solucionarlo. Sin embargo, esto no  se prohíbe en ninguna parte del enunciado, ni debería ocasionar problemas en ningún momento.
 
 
 -------
