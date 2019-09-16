@@ -95,6 +95,8 @@ Los supuestos que realicé durante la tarea son los siguientes:
 8. Un vehículo puede tener de nombre un string vacío ```""```. Debo admitir que se me pasó y lo descubrí al testear antes de la entrega final, por lo cual no tuve tiempo de solucionarlo. Sin embargo, esto no  se prohíbe en ninguna parte del enunciado, ni debería ocasionar problemas en ningún momento.
 
 
+Cabe destacar que existen más consideraciones en los comentarios del código, por lo que es importante poner atencion a ellos.
+
 -------
 
 
