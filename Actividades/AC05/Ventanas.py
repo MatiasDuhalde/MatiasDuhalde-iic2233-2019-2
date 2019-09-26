@@ -33,39 +33,32 @@ class VentanaJuego(QWidget):
     def __init__(self):
         super().__init__()
         self.setGeometry(200,300, 300,300)
-        self.show()
         self.letra = ""
+
+        # Base grid
         self.grilla = QGridLayout()
-        vbox = QVBoxLayout()
-        vbox.addLayout(self.grilla)
-        self.setLayout(vbox)
 
-    def recibir_senal(self, datos):
-        self.datos = datos
-
-        print(self.datos)
-        self.label_palabra = QLabel("PALABRA: " + self.datos["palabra"], self)
-        self.label_msg = QLabel(self.datos["msg"], self)
-        self.label_letra = QLabel(self.letra.upper(), self)
+        # Initializing labels
+        self.label_palabra = QLabel(self)
+        self.label_msg = QLabel(self)
+        self.label_letra = QLabel(self)
 
 
-        self.label_msg = QLabel(self.datos["msg"], self)
+        self.label_msg = QLabel(self)
 
-        self.label_letras_usadas = \
-            QLabel(f'Letras usadas: \n{self.datos["usadas"]}', self)
-        self.label_letras_disponibles = \
-            QLabel(f'Letras disponibles: \n{self.datos["disponibles"]}', self)
-        
+        self.label_letras_usadas = QLabel(self)
+        self.label_letras_disponibles = QLabel(self)
 
+        # Image
+        self.imagen = QLabel(self)
+
+        # Buttons!        
         self.boton_enviar = QPushButton('Ingresar Letra', self)
         self.boton_enviar.clicked.connect(self.enviar_letra)
         self.boton_nuevo = QPushButton('Nuevo Juego', self)
         self.boton_nuevo.clicked.connect(self.reiniciar_signal)
 
-        self.imagen = QLabel(self)
-        self.pixmap_imagen = QPixmap(self.datos["imagen"])
-        self.imagen.setPixmap(self.pixmap_imagen)
-
+        # Adding elements
         self.grilla.addWidget(self.imagen, *(0,0))
         self.grilla.addWidget(self.label_palabra, *(1,0))
         self.grilla.addWidget(self.label_msg, *(2,0))
@@ -75,11 +68,38 @@ class VentanaJuego(QWidget):
         self.grilla.addWidget(self.label_letras_usadas, *(0,1))
         self.grilla.addWidget(self.label_letras_disponibles, *(1,1))
 
+        # Add layout and show
+        vbox = QVBoxLayout()
+        vbox.addLayout(self.grilla)
+        self.setLayout(vbox)
+        self.show()
+
+    def recibir_senal(self, datos):
+        self.datos = datos
+
+        print(self.datos)
+        self.label_palabra.setText("PALABRA: " + self.datos["palabra"])
+        self.label_msg.setText(self.datos["msg"])
+        self.label_letra.setText(self.letra.upper())
+
+
+        self.label_msg.setText(self.datos["msg"])
+
+        self.label_letras_usadas.setText( \
+            f'Letras usadas: \n{self.datos["usadas"]}')
+        self.label_letras_disponibles.setText( \
+            f'Letras disponibles: \n{self.datos["disponibles"]}')
+        
+
+        self.pixmap_imagen = QPixmap(self.datos["imagen"])
+        self.imagen.setPixmap(self.pixmap_imagen)
+
+
 
     def enviar_letra(self):
         dict_letra = {
             "letra": self.letra.upper(),
-            "palabra": None
+            "palabra": ""
         }
         self.enviar_letra_signal.emit(dict_letra)
 
