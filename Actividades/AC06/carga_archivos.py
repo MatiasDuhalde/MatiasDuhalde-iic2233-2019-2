@@ -34,5 +34,12 @@ def cargar_datos(archivo_registro_oficial, archivo_conductores):
     '''
     registro_oficial = None
     conductores = None
-
+    try:
+        registro_oficial = cargar_registro_oficial(archivo_registro_oficial)
+    except FileNotFoundError as err:
+        print(f"Error: el archivo {err.filename} no existe.")
+    try:
+        conductores = cargar_conductores(archivo_conductores)
+    except FileNotFoundError as err:
+        print(f"Error: el archivo {err.filename} no existe.")
     return registro_oficial, conductores
