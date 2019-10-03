@@ -21,15 +21,16 @@ class DCConductor:
         el formato correcto
         '''
         if "." in conductor.rut:
-            raise TypeError(f"El rut {conductor.rut} no debe contener dígitos.")
+            raise ValueError(f"El rut {conductor.rut} no debe contener puntos.")
         if conductor.rut.count('-') != 1:
-            raise TypeError(f"El rut {conductor.rut} debe contener un solo guión.")
+            raise ValueError(f"El rut {conductor.rut} debe contener un solo guión.")
         numero, digito_verificador = conductor.rut.split('-')
-        if not (len(digito_verificador) == 1 and digito_verificador.isdecimal()):
-            raise TypeError(f"El dígito verificador {digito_verificador} \
-                no es válido.")
+        if not (len(digito_verificador) == 1 and 
+        (digito_verificador.isdecimal() or digito_verificador.upper() is "K")):
+            raise ValueError(f"El dígito verificador {digito_verificador} " +
+                "no es válido.")
         if not(numero.isdecimal() and int(numero) >= 10000000):
-            raise TypeError(f"El número {numero} no es válido.")
+            raise ValueError(f"El número {numero} no es válido.")
 
 
 
@@ -49,7 +50,7 @@ class DCConductor:
         '''
         if len(conductor.celular) != 9:
             raise ValueError(f"El teléfono {conductor.celular} debe tener 9 dígitos.")
-        if conductor.celular.isdecimal():
+        if not conductor.celular.isdecimal():
             raise ValueError(f"El teléfono {conductor.celular} no es válido.")
         if conductor.celular[0] != "9":
             raise ValueError(f"El teléfono {conductor.celular} debe comenzar por un 9.")
@@ -60,5 +61,6 @@ class DCConductor:
         Recibe un conductor y levanta una excepción en caso de que su patente no
         coincida con la información del registro oficial.
         '''
-        if self.registro_oficial[conductor.nombre] != conductor.patente:
-            raise ErrorPatente("HOLA")
+        patente_oficial = self.registro_oficial[conductor.nombre]
+        if patente_oficial != conductor.patente:
+            raise ErrorPatente(conductor, patente_oficial)
