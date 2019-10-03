@@ -21,8 +21,35 @@ Editar desde aquí
 if registro_oficial and conductores:
     contador = 0
     for conductor in dcconductor.conductores:
-        dcconductor.chequear_celular(conductor)
-        dcconductor.chequear_rut(conductor)
-        dcconductor.chequear_nombre(conductor)
-        dcconductor.chequear_patente(conductor)
-        dcconductor.seleccionados.append(conductor)
+        is_valid = True
+        
+        try:
+            dcconductor.chequear_celular(conductor)
+        except ValueError as err:
+            print(f"Error: {err}")
+            is_valid = False
+            contador += 1
+        
+        try:
+            dcconductor.chequear_rut(conductor)
+        except:
+            print(f"Error: {err}")
+            is_valid = False
+            contador += 1
+        
+        try:
+            dcconductor.chequear_nombre(conductor)
+        except:
+            print(f"Error: {err}")
+            is_valid = False
+            contador += 1
+        
+        try:
+            dcconductor.chequear_patente(conductor)
+        except ErrorPatente as err:
+            print(f"Error: {err}")
+            is_valid = False
+            contador += 1
+        
+        if is_valid:
+            dcconductor.seleccionados.append(conductor)
