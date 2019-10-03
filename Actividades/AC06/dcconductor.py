@@ -26,7 +26,7 @@ class DCConductor:
             raise ValueError(f"El rut {conductor.rut} debe contener un solo guión.")
         numero, digito_verificador = conductor.rut.split('-')
         if not (len(digito_verificador) == 1 and 
-        (digito_verificador.isdecimal() or digito_verificador.upper() is "K")):
+        (digito_verificador.isdecimal() or digito_verificador.upper() == "K")):
             raise ValueError(f"El dígito verificador {digito_verificador} " +
                 "no es válido.")
         if not(numero.isdecimal() and int(numero) >= 10000000):
