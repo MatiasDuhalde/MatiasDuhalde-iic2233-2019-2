@@ -5,6 +5,6 @@ class ErrorPatente(Exception):
         '''
         self.conductor = conductor
         self.patente_oficial = patente_oficial
-        self.msg = (f"La patente {self.conductor.patente} no coincide con " + 
-        f"la del registro oficial ({self.patente_oficial}).")
+        super().__init__((f"La patente {self.conductor.patente} no coincide con " + 
+        f"la del registro oficial ({self.patente_oficial})."))
 
