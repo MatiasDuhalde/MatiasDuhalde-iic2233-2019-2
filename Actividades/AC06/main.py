@@ -47,7 +47,7 @@ if registro_oficial and conductores:
         try:
             dcconductor.chequear_patente(conductor)
         except ErrorPatente as err:
-            print(f"Error: {err.msg}")
+            print(f"Error: {err}")
             is_valid = False
             contador += 1
         except KeyError as err:
