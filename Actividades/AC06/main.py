@@ -32,14 +32,14 @@ if registro_oficial and conductores:
         
         try:
             dcconductor.chequear_rut(conductor)
-        except:
+        except ValueError as err:
             print(f"Error: {err}")
             is_valid = False
             contador += 1
         
         try:
             dcconductor.chequear_nombre(conductor)
-        except:
+        except NameError as err:
             print(f"Error: {err}")
             is_valid = False
             contador += 1
@@ -47,9 +47,12 @@ if registro_oficial and conductores:
         try:
             dcconductor.chequear_patente(conductor)
         except ErrorPatente as err:
-            print(f"Error: {err}")
+            print(f"Error: {err.msg}")
             is_valid = False
             contador += 1
+        except KeyError as err:
+            # Se asume que esto no deberia suceder
+            pass
         
         if is_valid:
             dcconductor.seleccionados.append(conductor)
