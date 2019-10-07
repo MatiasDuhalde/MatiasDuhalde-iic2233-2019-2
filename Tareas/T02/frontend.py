@@ -71,7 +71,7 @@ class WidgetCargar(QWidget):
         # Feedback Label
         hbox = QHBoxLayout()
         hbox.addStretch(1)
-        self.feedback_label = QLabel("Thest")
+        self.feedback_label = QLabel("")
         hbox.addWidget(self.feedback_label)
         hbox.addStretch(1)
         main_vbox.addLayout(hbox)
