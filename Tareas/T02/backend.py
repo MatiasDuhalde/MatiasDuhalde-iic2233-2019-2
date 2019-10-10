@@ -4,6 +4,7 @@ Este modulo contiene el backend del programa
 
 import os
 from PyQt5.QtCore import QObject, pyqtSignal
+from player import Player
 from mapa import Mapa
 
 
@@ -56,3 +57,10 @@ class BackendInicio(QObject):
             except FileNotFoundError as err:
                 msg = f"ERROR: {err.filename} no existe."
                 self.feedback_signal.emit(msg)
+
+class BackendGame(QObject):
+
+    def __init__(self, mapa):
+        super().__init__()
+        self.mapa = mapa
+        # self.player = Player(mapa)

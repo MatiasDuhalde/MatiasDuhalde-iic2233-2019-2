@@ -4,13 +4,14 @@ Este modulo contiene el frontend del programa
 
 import sys
 import os
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget,
                              QHBoxLayout, QVBoxLayout, QGridLayout,
                              QLabel, QPushButton, QLineEdit)
 from PyQt5.QtGui import QPixmap
-from backend import BackendInicio
-from mapa import Mapa
+from backend import BackendInicio, BackendGame
+from mapa import Mapa, Inventario, StatusBar
+from parametros_generales import N
 
 # -----------------------------------------------------------------------------
 #                             VENTANA DE INICIO
@@ -51,8 +52,7 @@ class VenanaInicio(QMainWindow):
         Esconde la ventana de inicio y abre la principal.
         """
         self.hide()
-        self.ventana_principal.mapa = mapa
-        self.ventana_principal.init_gui()
+        self.ventana_principal.init_window(mapa)
         self.ventana_principal.show()
 
 
@@ -154,16 +154,17 @@ class VentanaPrincipal(QMainWindow):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Inicializa atributos a ser definidos después
-        self.mapa = None
-        self.juego = None
+
+    def init_window(self, mapa):
+        self.mapa = mapa
+        self.backend = BackendGame(self.mapa)
+        self.juego = MainGame(self.mapa)
+        self.init_gui()
 
     def init_gui(self):
         """
         Inicializa los elementos gráficos y funcionales del widget.
         """
-        self.juego = MainGame(self.mapa)
-
         # Prepara layout inicial
         self.setCentralWidget(self.juego)
 
@@ -189,7 +190,34 @@ class MainGame(QWidget):
             - ...
             - ...
         """
-        self.setLayout(self.grilla_mapa)
+        # Main Layout
+        self.main_vbox = QVBoxLayout()
+        self.main_vbox.setSpacing(0)
+
+        # Status Bar
+        hbox = QHBoxLayout()
+        hbox.addStretch(1)
+        self.status_bar = StatusBar(N*self.mapa.ancho)
+        hbox.addWidget(self.status_bar)
+        hbox.addStretch(1)
+        self.main_vbox.addLayout(hbox)
+        
+        # Mapa
+        hbox = QHBoxLayout()
+        hbox.addStretch(1)
+        hbox.addLayout(self.grilla_mapa)
+        hbox.addStretch(1)
+        self.main_vbox.addLayout(hbox)
+        
+        # Inventario
+        hbox = QHBoxLayout()
+        hbox.addStretch(1)
+        self.inventory = Inventario(N*self.mapa.ancho)
+        hbox.addWidget(self.inventory)
+        hbox.addStretch(1)
+        self.main_vbox.addLayout(hbox)
+
+        self.setLayout(self.main_vbox)
 
     def cargar_mapa(self):
         """

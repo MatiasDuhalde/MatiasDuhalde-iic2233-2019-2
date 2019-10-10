@@ -19,7 +19,7 @@ DURACION_LENA = None        # Duración de la leña antes de desaparecer
 DURACION_ORO = None         # Duración del oro antes de desaparecer
 
 # Mapa
-N = 32                      # Dimensión del tile en mapa
+N = 30                      # Dimensión del tile en mapa
 
 # Pesca
 LARGO_RECTANGULO = None     # Porcentaje, fracción del rectángulo verde respecto al rectángulo azul
@@ -27,6 +27,12 @@ LARGO_PESCADO = None        # Porcentaje, fracción del pescado respecto al rect
 VEL_PESCADO = None          # Velocidad de movimiento del pescado
 TIEMPO_PESCADO = None       # Tiempo máximo para cambiar de sentido
 PRECIO_PESCADO = None       # Dinero ganado por pescado capturado
+
+# Paths sprites
+
+SPRITE_INVENTARIO = os.path.join("sprites", "otros", "invetary_template.jpg")
+SPRITE_WINDOW = os.path.join("sprites", "otros", "window_template.jpg")
+
 
 SPRITES_MAPA = {
     'O9' : [os.path.join("sprites", "mapa", "tile036.png")],

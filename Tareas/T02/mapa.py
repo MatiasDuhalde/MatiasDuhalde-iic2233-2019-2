@@ -4,21 +4,22 @@ manejo de sus instancias:
 """
 from random import choice
 from abc import ABC, abstractmethod
-from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QGridLayout, QLabel
+from PyQt5.QtCore import QObject, Qt, QPoint
+from PyQt5.QtWidgets import QGridLayout, QLabel, QWidget
 from PyQt5.QtGui import QPixmap, QPainter
-from parametros_generales import SPRITES_MAPA, N
+from parametros_generales import SPRITES_MAPA, N, SPRITE_INVENTARIO, SPRITE_WINDOW
 
-class Tile(QObject):
+
+class Tile(QLabel):
     """
-    Objeto tile. Corresponde a un QLabel
+    Objeto tile. Corresponde a un QObject. Contiene labels
     """
-    @abstractmethod
-    def __init__(self, pos, *args, **kwargs):
+    def __init__(self, pos, pixmap_base, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.i = pos[0]
         self.j = pos[1]
-        self.base_label = None
+        self.setFixedSize(N, N)
+        self.pixmap_base = pixmap_base
 
 
 class Libre(Tile):
@@ -28,7 +29,14 @@ class Libre(Tile):
     def __init__(self, pos, *args, **kwargs):
         self.tipo = 'O'
         super().__init__(pos, *args, *kwargs)
-        
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.drawPixmap(QPoint(0,0), self.pixmap_base.scaled(N, N))
+        painter.end()
+    
+    def mousePressEvent(self, event):
+        pass
 
 class Cultivable(Tile):
     """
@@ -38,6 +46,13 @@ class Cultivable(Tile):
         self.tipo = 'C'
         super().__init__(pos, *args, *kwargs)
 
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.drawPixmap(QPoint(0,0), self.pixmap_base.scaled(N, N))
+        painter.end()
+
+    def mousePressEvent(self, event):
+        pass
 
 class Piedra(Tile):
     """
@@ -46,8 +61,16 @@ class Piedra(Tile):
     def __init__(self, pos, *args, **kwargs):
         self.tipo = 'R'
         super().__init__(pos, *args, *kwargs)
-        self.label = None
 
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        self.pixmap_objeto = QPixmap(choice(SPRITES_MAPA[self.tipo]))
+        painter.drawPixmap(QPoint(0,0), self.pixmap_base.scaled(N, N))
+        painter.drawPixmap(QPoint(0,0), self.pixmap_objeto.scaled(N, N))
+        painter.end()
+
+    def mousePressEvent(self, event):
+        pass
 
 class Tienda(Tile):
     """
@@ -56,7 +79,11 @@ class Tienda(Tile):
     def __init__(self, pos, *args, **kwargs):
         self.tipo = 'T'
         super().__init__(pos, *args, *kwargs)
-        self.label = None
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.drawPixmap(QPoint(0,0), self.pixmap_base.scaled(N, N))
+        painter.end()
 
 
 class Casa(Tile):
@@ -66,7 +93,12 @@ class Casa(Tile):
     def __init__(self, pos, *args, **kwargs):
         self.tipo = 'H'
         super().__init__(pos, *args, *kwargs)
-        self.label = None
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.drawPixmap(QPoint(0,0), self.pixmap_base.scaled(N, N))
+        painter.end()
+
 
 
 class Mapa(QObject):
@@ -106,44 +138,35 @@ class Mapa(QObject):
         grilla_mapa.setHorizontalSpacing(0)
         grilla_mapa.setVerticalSpacing(0)
         grid_top = []
+        house_found = False
+        store_found = False
         for i in range(self.largo):
             for j in range(self.ancho):
                 tile_type = self.mapa[i][j]
-                tile = self.tile_types[tile_type]((i, j))
+                pixmap_base = QPixmap(choice(SPRITES_MAPA[self.get_tipo(i,j)]))
+                tile = self.tile_types[tile_type]((i, j), pixmap_base)
+                grilla_mapa.addWidget(tile, i, j)
+                if tile_type == 'H' and not house_found:
+                    coords_house = (i, j)
+                    print(coords_house)
+                    house_found = True
+                if tile_type == 'T' and not store_found:
+                    coords_store = (i, j)
+                    store_found = True
+        label_casa = QLabel()
+        label_casa.setFixedSize(2*N, 2*N)
+        pixmap_casa = QPixmap(choice(SPRITES_MAPA['H']))
+        label_casa.setPixmap(pixmap_casa.scaled(2*N, 2*N))
+        i, j = coords_house
+        grilla_mapa.addWidget(label_casa, i, j, 2, 2)
 
-                tile_base_label = QLabel()
-                tile_base_pixmap = QPixmap(choice(SPRITES_MAPA[self.get_tipo(i, j)]))
-                tile_base_label.setPixmap(tile_base_pixmap.scaled(N,N))
-                # Put label in class
-                tile.base_label = tile_base_label
-                # Put label in grid
-                grilla_mapa.addWidget(tile.base_label, i, j)
-
-                if not tile_type in ['O', 'C']:
-                    if (tile_type in ['H', 'T'] and 
-                        (i < (self.largo - 1) and j < (self.ancho - 1))):
-                        if (self.mapa[i][j] == self.mapa[i + 1][j] == 
-                            self.mapa[i][j + 1] == self.mapa[i + 1][j + 1]):
-                            tile_label = QLabel()
-                            tile_pixmap = QPixmap(choice(SPRITES_MAPA[tile_type]))
-                            tile_label.setPixmap(tile_pixmap.scaled(N*2,N*2))
-                            # Put label in class
-                            tile.label = tile_label
-                            # Put label in grid
-                            grid_top.append((tile.label, i, j, i + 1, j + 1))
-                                
-
-                    else:
-                        tile_label = QLabel()
-                        tile_pixmap = QPixmap(choice(SPRITES_MAPA[tile_type]))
-                        tile_label.setPixmap(tile_pixmap.scaled(N,N))
-                        # Put label in class
-                        tile.label = tile_label
-                        # Put label in grid
-                        grilla_mapa.addWidget(tile.label, i, j)
-        for element in grid_top:
-            grilla_mapa.addWidget(*element)
-                
+        label_store = QLabel()
+        label_store.setFixedSize(2*N, 2*N)
+        pixmap_store = QPixmap(choice(SPRITES_MAPA['T']))
+        label_store.setPixmap(pixmap_store.scaled(2*N, 2*N))
+        i, j = coords_store
+        grilla_mapa.addWidget(label_store, i, j, 2, 2)
+        
         return grilla_mapa
 
     def get_tipo(self, fil, col):
@@ -195,3 +218,27 @@ class Mapa(QObject):
                 if 0 <= n + fil < self.largo and 0 <= m + col < self.ancho:
                     adjacent[n + 1][m + 1] = self.mapa[n + fil][m + col]
         return adjacent
+
+
+class Inventario(QLabel):
+    
+    def __init__(self, ancho):
+        super().__init__()
+        self.ancho = ancho
+        self.init_gui()
+        
+    def init_gui(self):
+        self.base_pixmap = QPixmap(SPRITE_INVENTARIO)
+        self.setPixmap(self.base_pixmap.scaled(self.ancho, self.ancho, Qt.KeepAspectRatio))
+
+
+class StatusBar(QLabel):
+
+    def __init__(self, ancho):
+        super().__init__()
+        self.ancho = ancho
+        self.init_gui()
+        
+    def init_gui(self):
+        self.base_pixmap = QPixmap(SPRITE_WINDOW)
+        self.setPixmap(self.base_pixmap.scaled(self.ancho, 80))
