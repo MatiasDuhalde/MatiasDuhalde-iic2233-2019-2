@@ -10,11 +10,51 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget,
                              QLabel, QPushButton, QLineEdit)
 from PyQt5.QtGui import QPixmap
 from backend import BackendInicio
+from mapa import Mapa
 
+# -----------------------------------------------------------------------------
+#                             VENTANA DE INICIO
+# -----------------------------------------------------------------------------
 
-# VENTANA DE INICIO
-# VENTANA DE JUEGO
-# TIENDA
+class VenanaInicio(QMainWindow):
+    """
+    Main Window de la ventana de inicio.
+    Funciona como base para tener consistencia con la estructura, no tiene
+    función real aparte de contener al widget central (WidgetCargar)
+    """
+    goto_principal_signal = pyqtSignal(Mapa)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setWindowTitle("Ventana de Carga")
+
+        # Instancia ventana principal (para activar desde self.goto_principal)
+        self.ventana_principal = None
+        # Instanciar elementos
+        self.ventana_cargar = WidgetCargar()
+        self.backend = BackendInicio()
+        # Conectar Señales
+        self.goto_principal_signal.connect(self.goto_principal)
+        self.backend.feedback_signal = self.ventana_cargar.feedback_signal
+        self.ventana_cargar.path_signal = self.backend.path_signal
+        self.backend.goto_signal = self.goto_principal_signal
+
+        # Determina Tamaño y posición
+        self.setGeometry(780, 415, 420, 250)
+
+        # Agregar widget a Main Window
+        self.setCentralWidget(self.ventana_cargar)
+
+    def goto_principal(self, mapa):
+        """
+        Método ejecutado al cargar mapa correctamente desde backend.
+        Esconde la ventana de inicio y abre la principal.
+        """
+        self.hide()
+        self.ventana_principal.mapa = mapa
+        self.ventana_principal.init_gui()
+        self.ventana_principal.show()
+
 
 class WidgetCargar(QWidget):
     """
@@ -61,13 +101,16 @@ class WidgetCargar(QWidget):
         # Label, texto, y botón
         grilla = QGridLayout()
         self.prompt = QLabel("Ingresa el archivo del mapa a cargar: ")
-        self.input_path = QLineEdit("")
+        self.input_path = QLineEdit("mapa_1.txt") # Testing default value
         self.boton_empezar = QPushButton("Jugar")
         self.boton_empezar.clicked.connect(self.enviar_path)
+        self.boton_salir = QPushButton("Salir")
+        self.boton_salir.clicked.connect(sys.exit)
 
         grilla.addWidget(self.prompt, 0, 0)
         grilla.addWidget(self.input_path, 0, 1)
         grilla.addWidget(self.boton_empezar, 1, 1)
+        grilla.addWidget(self.boton_salir, 2, 1)
 
         hbox = QHBoxLayout()
         hbox.addStretch(1)
@@ -99,69 +142,9 @@ class WidgetCargar(QWidget):
         """
         self.feedback_label.setText(texto)
 
-
-class MainGame(QWidget):
-    """
-    Widget central de la ventana principal. Aquí se desarrolla el juego y se
-    muestran los elementos gráficos.
-    Conecta directamente con el backend a través de señales.
-    También conecta con la ventana principal (MainGame), la ventana de tienda y
-    la ventana de la casa.
-    """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.init_gui()
-
-    def init_gui(self):
-        """
-        Inicializa los elementos gráficos y funcionales del widget:
-            - ...
-            - ...
-        """
-        main_vbox = QVBoxLayout()
-
-        self.label = QLabel("Testing")
-        main_vbox.addWidget(self.label)
-        self.setLayout(main_vbox)
-
-
-class VenanaInicio(QMainWindow):
-    """
-    Main Window de la ventana de inicio.
-    Funciona como base para tener consistencia con la estructura, no tiene
-    función real aparte de contener al widget central (WidgetCargar)
-    """
-    goto_principal_signal = pyqtSignal()
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.setWindowTitle("Ventana de Carga")
-
-        # Instancia ventana principal (para activar desde self.goto_principal)
-        self.ventana_principal = None
-        # Instanciar elementos
-        self.ventana_cargar = WidgetCargar()
-        self.backend = BackendInicio()
-        # Conectar Señales
-        self.goto_principal_signal.connect(self.goto_principal)
-        self.backend.feedback_signal = self.ventana_cargar.feedback_signal
-        self.ventana_cargar.path_signal = self.backend.path_signal
-        self.backend.goto_signal = self.goto_principal_signal
-
-        # Determina Tamaño y posición
-        self.setGeometry(780, 415, 420, 250)
-
-        # Agregar widget a Main Window
-        self.setCentralWidget(self.ventana_cargar)
-
-    def goto_principal(self):
-        """
-        Método ejecutado al cargar mapa correctamente desde backend.
-        Esconde la ventana de inicio y abre la principal.
-        """
-        self.hide()
-        self.ventana_principal.show()
-
+# -----------------------------------------------------------------------------
+#                              VENTANA DE JUEGO
+# -----------------------------------------------------------------------------
 
 class VentanaPrincipal(QMainWindow):
     """
@@ -171,8 +154,52 @@ class VentanaPrincipal(QMainWindow):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.juego = MainGame()
+        # Inicializa atributos a ser definidos después
+        self.mapa = None
+        self.juego = None
+
+    def init_gui(self):
+        """
+        Inicializa los elementos gráficos y funcionales del widget.
+        """
+        self.juego = MainGame(self.mapa)
+
+        # Prepara layout inicial
         self.setCentralWidget(self.juego)
+
+
+
+class MainGame(QWidget):
+    """
+    Widget central de la ventana principal. Aquí se desarrolla el juego y se
+    muestran los elementos gráficos.
+    Conecta directamente con el backend a través de señales.
+    También conecta con la ventana principal (MainGame), la ventana de tienda y
+    la ventana de la casa.
+    """
+    def __init__(self, mapa, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.mapa = mapa
+        self.cargar_mapa()
+        self.init_gui()
+
+    def init_gui(self):
+        """
+        Inicializa los elementos gráficos y funcionales del widget:
+            - ...
+            - ...
+        """
+        self.setLayout(self.grilla_mapa)
+
+    def cargar_mapa(self):
+        """
+        Guarda en self.grilla_mapa el QGridLayout correspondiente a self.mapa
+        """
+        self.grilla_mapa = self.mapa.get_map_grid()
+
+# -----------------------------------------------------------------------------
+#                                 TIENDA
+# -----------------------------------------------------------------------------
 
 
 if __name__ == '__main__':

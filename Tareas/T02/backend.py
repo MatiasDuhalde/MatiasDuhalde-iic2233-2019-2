@@ -4,6 +4,7 @@ Este modulo contiene el backend del programa
 
 import os
 from PyQt5.QtCore import QObject, pyqtSignal
+from mapa import Mapa
 
 
 class BackendInicio(QObject):
@@ -15,7 +16,6 @@ class BackendInicio(QObject):
      - feedback_signal : emite un string hacia el frontend, para actualizar el
                          label de feedback de este (self.feedback_label)
     """
-
     path_signal = pyqtSignal(str)
 
     def __init__(self):
@@ -44,10 +44,14 @@ class BackendInicio(QObject):
         else:
             path_mapa = ["mapas"] + path_mapa.split("/")
             try:
-                with open(os.path.join(*path_mapa)) as mapa:
-                    self.goto_signal.emit()
+                with open(os.path.join(*path_mapa)) as archivo_mapa:
+                    lista_mapa = []
+                    for linea in archivo_mapa.read().splitlines():
+                        lista_mapa.append(linea.split(" "))
+                    mapa = Mapa(lista_mapa)
                     # procesar...
                     # Agregar error de formato en mapa
+                    self.goto_signal.emit(mapa)
 
             except FileNotFoundError as err:
                 msg = f"ERROR: {err.filename} no existe."
