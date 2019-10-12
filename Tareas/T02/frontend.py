@@ -102,7 +102,7 @@ class MainGame(QWidget):
         # Map stuff
         self.mapa = mapa
         # Player stuff
-        self.player = Player(TOP_OFFSET - 15, N) # Y, X
+        self.player = Player(TOP_OFFSET, 0, self.mapa) # Y, X
         self.player_label = None
         self.current_sprite = None
         # Map stuff
@@ -117,6 +117,8 @@ class MainGame(QWidget):
         self.player.update_window_signal = self.update_window_signal
         self.cheat_signal = self.player.cheat_signal
         self.update_character_signal = self.player.update_character_signal
+        self.player.collision_request_signal = self.mapa.collision_request_signal
+        self.mapa.collision_response_signal = self.player.collision_response_signal
 
     def init_gui(self):
         """
@@ -190,7 +192,7 @@ class MainGame(QWidget):
         self.player_label = QLabel(self)
         self.current_sprite = QPixmap(SPRITES_PLAYER['D1'])
         self.player_label.setPixmap(self.current_sprite)
-        self.player_label.move(N, TOP_OFFSET - 15) # 
+        self.player_label.move(0, TOP_OFFSET) # 
 
 
     def move_player(self, event):

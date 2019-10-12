@@ -9,20 +9,28 @@ class Player(QObject):
 
     update_character_signal = pyqtSignal(str)
     cheat_signal = pyqtSignal(str)
+    collision_response_signal = pyqtSignal(bool)
 
-    def __init__(self, i, j):
+    def __init__(self, i, j, mapa):
         super().__init__()
         # Datos iniciales
         self.direction = 'R'
         self._i = i # Y
         self._j = j # X
+        self.min_i = mapa.top_offset
+        self.max_i = mapa.top_offset + N*(mapa.largo - 1)
+        self.min_j = 0
+        self.max_j = N*(mapa.ancho - 1)
         self._monedas = MONEDAS_INICIALES
         self._energia = ENERGIA_JUGADOR
         self.inventario = []
+        self.collision = False
 
         # Signals init and connect
         self.update_window_signal = None
         self.update_status_labels_signal = None
+        self.collision_request_signal = None
+        self.collision_response_signal.connect(self.get_collision)
         self.update_character_signal.connect(self.move)
         self.cheat_signal.connect(self.cheat_code)
 
@@ -121,17 +129,36 @@ class Player(QObject):
     def move(self, event):
         if event == 'R':
             self.direction = 'R'
-            for _ in range(VEL_MOVIMIENTO):
-                self.j += 1
+            if (self.min_j <= self.j + VEL_MOVIMIENTO <= self.max_j):
+                self.detect_collision(self.i, self.j + VEL_MOVIMIENTO)
+                if not self.collision:
+                    for _ in range(VEL_MOVIMIENTO):
+                        self.j += 1
         elif event == 'L':
             self.direction = 'L'
-            for _ in range(VEL_MOVIMIENTO):
-                self.j -= 1
+            if (self.min_j <= self.j - VEL_MOVIMIENTO <= self.max_j):
+                self.detect_collision(self.i, self.j - VEL_MOVIMIENTO)
+                if not self.collision:
+                    for _ in range(VEL_MOVIMIENTO):
+                        self.j -= 1
         elif event == 'U':
             self.direction = 'U'
-            for _ in range(VEL_MOVIMIENTO):
-                self.i -= 1
+            if (self.min_i <= self.i - VEL_MOVIMIENTO <= self.max_i):
+                self.detect_collision(self.i - VEL_MOVIMIENTO, self.j)
+                if not self.collision:
+                    for _ in range(VEL_MOVIMIENTO):
+                        self.i -= 1
         elif event == 'D':
             self.direction = 'D'
-            for _ in range(VEL_MOVIMIENTO):
-                self.i += 1
+            if (self.min_i <= self.i + VEL_MOVIMIENTO <= self.max_i):
+                self.detect_collision(self.i + VEL_MOVIMIENTO, self.j)
+                if not self.collision:
+                    for _ in range(VEL_MOVIMIENTO):
+                        self.i += 1
+        self.collision = False
+
+    def detect_collision(self, i, j):
+        self.collision_request_signal.emit(i, j)
+
+    def get_collision(self, event):
+        self.collision = event

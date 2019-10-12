@@ -3,8 +3,7 @@ Este módulo incluye la clase Mapa, además de todas las funciones para el
 manejo de sus instancias:
 """
 from random import choice
-from abc import ABC, abstractmethod
-from PyQt5.QtCore import QObject, Qt, QPoint
+from PyQt5.QtCore import QObject, Qt, QPoint, pyqtSignal
 from PyQt5.QtWidgets import QGridLayout, QLabel, QWidget
 from PyQt5.QtGui import QPixmap, QPainter
 from parametros_generales import (SPRITES_MAPA, N, SPRITE_INVENTARIO, 
@@ -104,6 +103,7 @@ class Mapa(QObject):
      - H : Casa
      - T : Tienda
     """
+    collision_request_signal = pyqtSignal(int, int)
 
     tile_types = {
         'O' : Libre,
@@ -123,6 +123,9 @@ class Mapa(QObject):
         self.ancho = len(self.mapa[0]) # max X
         self.top_offset = TOP_OFFSET
         self.game_widget = None
+        self.collision_objects = []
+        self.collision_response_signal = None
+        self.collision_request_signal.connect(self.send_collision_objects)
 
     def inicializar_map_layout(self, parent):
         self.game_widget = parent
@@ -138,7 +141,9 @@ class Mapa(QObject):
                 else:
                     Libre((i, j), self.top_offset, pixmap, self.game_widget)
                 if tile_type == "R":
-                    self.tile_types[tile_type]((i, j), self.top_offset, self.game_widget)
+                    roca = self.tile_types[tile_type]((i, j), self.top_offset,
+                    self.game_widget)
+                    self.collision_objects.append(roca)
                 elif tile_type == "H":
                     house_count += 1
                     if house_count == 4:
@@ -152,7 +157,9 @@ class Mapa(QObject):
                         self.tile_types[tile_type]((i-1, j-1), self.top_offset, 
                         self.game_widget)
 
-
+    def send_collision_objects(self, i, j):
+        collision = (j, i) in (map(lambda x: (x.x(), x.y()), self.collision_objects))
+        self.collision_response_signal.emit(collision)        
 
 
     def get_tipo(self, fil, col):
