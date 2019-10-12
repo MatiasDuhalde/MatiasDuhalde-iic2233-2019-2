@@ -49,6 +49,25 @@ SPRITES_TIENDA = {
     'Ticket' : os.path.join("sprites", "otros", "ticket.png")
 }
 
+SPRITES_ALCACHOFA = {
+    1 : os.path.join("sprites", "cultivos", "alcachofa", "stage_1.png"),
+    2 : os.path.join("sprites", "cultivos", "alcachofa", "stage_2.png"),
+    3 : os.path.join("sprites", "cultivos", "alcachofa", "stage_3.png"),
+    4 : os.path.join("sprites", "cultivos", "alcachofa", "stage_4.png"),
+    5 : os.path.join("sprites", "cultivos", "alcachofa", "stage_5.png"),
+    6 : os.path.join("sprites", "cultivos", "alcachofa", "stage_6.png")
+}
+
+SPRITES_CHOCLO = {
+    1 : os.path.join("sprites", "cultivos", "choclo", "stage_1.png"),
+    2 : os.path.join("sprites", "cultivos", "choclo", "stage_2.png"),
+    3 : os.path.join("sprites", "cultivos", "choclo", "stage_3.png"),
+    4 : os.path.join("sprites", "cultivos", "choclo", "stage_4.png"),
+    5 : os.path.join("sprites", "cultivos", "choclo", "stage_5.png"),
+    6 : os.path.join("sprites", "cultivos", "choclo", "stage_6.png"),
+    7 : os.path.join("sprites", "cultivos", "choclo", "stage_7.png")  # Cultivado
+}
+
 SPRITE_INVENTARIO = os.path.join("sprites", "otros", "invetary_template.jpg")
 SPRITE_WINDOW = os.path.join("sprites", "otros", "window_template.jpg")
 

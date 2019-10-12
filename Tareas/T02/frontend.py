@@ -21,9 +21,10 @@ from parametros_generales import (N, SPRITES_PLAYER, SPRITE_WINDOW,
 
 # https://stackoverflow.com/questions/50232639/drag-and-drop-qlabels-with-pyqt5
 class DraggableLabel(QLabel):
-    def __init__(self,parent,image):
+    def __init__(self,parent,image, name):
         super(QLabel,self).__init__(parent)
-        self.setPixmap(QPixmap(image))    
+        self.setPixmap(QPixmap(image))
+        self.name = name
         self.show()
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -36,6 +37,7 @@ class DraggableLabel(QLabel):
             return
         drag = QDrag(self)
         mimedata = QMimeData()
+        mimedata.name = self.name
         mimedata.setText(self.text())
         mimedata.setImageData(self.pixmap().toImage())
 
@@ -241,7 +243,7 @@ class MainGame(QWidget):
     def create_inventory_labels(self):
         for i, thing in enumerate(list(self.player.inventario.keys()), start = 0):
             if thing in ["SemillaChoclo", "SemillaAlcachofa"]:
-                thing_label = DraggableLabel(self, SPRITES_TIENDA[thing])
+                thing_label = DraggableLabel(self, SPRITES_TIENDA[thing], thing)
                 thing_label.move(30 + 45*i, TOP_OFFSET + self.mapa.largo*N + 35)
             else:
                 thing_label = QLabel(thing, self)
