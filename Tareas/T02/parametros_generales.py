@@ -15,8 +15,8 @@ PROB_ORO = 0.5             # Probabilidad de aparición de oro
 
 # Tiempo
 # DEFINIR PARÁMETRO QUE CONTROLE QUE TAN RÁPIDO PASA EL TIEMPO (seccion 4.1)
-DURACION_LENA = None        # Duración de la leña antes de desaparecer
-DURACION_ORO = None         # Duración del oro antes de desaparecer
+DURACION_LENA = 20        # Duración de la leña antes de desaparecer
+DURACION_ORO = 20         # Duración del oro antes de desaparecer
 
 # Mapa
 N = 30                      # Dimensión del tile en mapa
@@ -25,7 +25,7 @@ N = 30                      # Dimensión del tile en mapa
 DINERO_TRAMPA = 100
 
 # Pesca
-LARGO_RECTANGULO = None     # Porcentaje, fracción del rectángulo verde respecto al rectángulo azul
+LARGO_RECTANGULO = None     # Porcentaje, fracción del rectángulo verde 
 LARGO_PESCADO = None        # Porcentaje, fracción del pescado respecto al rectángulo azul
 VEL_PESCADO = None          # Velocidad de movimiento del pescado
 TIEMPO_PESCADO = None       # Tiempo máximo para cambiar de sentido
