@@ -73,7 +73,6 @@ class Tienda(BaseTile):
     def __init__(self, pos, top_offset, parent, *args, **kwargs):
         self.tipo = 'T'
         size = 2*N
-        print(pos, size, top_offset)
         super().__init__(pos, size, top_offset, parent, *args, *kwargs)
         pixmap = QPixmap(choice(SPRITES_MAPA[self.tipo])).scaled(2*N, 2*N)
         self.setPixmap(pixmap)
@@ -87,7 +86,6 @@ class Casa(BaseTile):
     def __init__(self, pos, top_offset, parent, *args, **kwargs):
         self.tipo = 'H'
         size = 2*N
-        print(pos, size, top_offset)
         super().__init__(pos, size, top_offset, parent, *args, *kwargs)
         pixmap = QPixmap(choice(SPRITES_MAPA[self.tipo])).scaled(2*N, 2*N)
         self.setPixmap(pixmap)
@@ -142,14 +140,12 @@ class Mapa(QObject):
                     self.tile_types[tile_type]((i, j), self.top_offset, self.game_widget)
                 elif tile_type == "H":
                     house_count += 1
-                    print(i, j, house_count)
                     if house_count == 4:
                         house_count += 1
                         self.tile_types[tile_type]((i-1, j-1), self.top_offset, 
                         self.game_widget)
                 elif tile_type == "T":
                     store_count += 1
-                    print(i, j, store_count)
                     if store_count == 4:
                         store_count += 1
                         self.tile_types[tile_type]((i-1, j-1), self.top_offset, 

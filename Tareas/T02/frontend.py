@@ -17,7 +17,7 @@ from parametros_generales import N
 #                             VENTANA DE INICIO
 # -----------------------------------------------------------------------------
 
-class VenanaInicio(QMainWindow):
+class VentanaInicio(QMainWindow):
     """
     Main Window de la ventana de inicio.
     Funciona como base para tener consistencia con la estructura, no tiene
@@ -160,6 +160,10 @@ class VentanaPrincipal(QMainWindow):
         self.mapa = mapa
         self.backend = BackendGame(self.mapa)
         self.juego = MainGame(self.mapa)
+        # Max X
+        self.ancho_ventana = max(N*self.mapa.ancho, 600)
+        # Max Y
+        self.largo_ventana = max(N*self.mapa.largo + 80 + 284, 0)
         self.init_gui()
 
     def init_gui(self):
@@ -167,6 +171,8 @@ class VentanaPrincipal(QMainWindow):
         Inicializa los elementos gráficos y funcionales del widget.
         """
         # Prepara layout inicial
+        self.setGeometry(300, 200, self.ancho_ventana, self.largo_ventana)
+        self.setFixedSize(self.ancho_ventana, self.largo_ventana)
         self.setCentralWidget(self.juego)
 
 
@@ -192,8 +198,6 @@ class MainGame(QWidget):
             - ...
         """
         # # Main Layout
-        # self.main_vbox = QVBoxLayout()
-        # self.main_vbox.setSpacing(0)
 
         # # Status Bar
         # hbox = QHBoxLayout()
@@ -223,19 +227,3 @@ class MainGame(QWidget):
 #                                 TIENDA
 # -----------------------------------------------------------------------------
 
-
-if __name__ == '__main__':
-    app = QApplication([])
-
-    # Creación de ventanas
-    ventana_inicio = VenanaInicio()
-    ventana_principal = VentanaPrincipal()
-    ventana_tienda = None
-
-    # Conectar ventana inicio con ventana principal
-    ventana_inicio.ventana_principal = ventana_principal
-
-    # start
-    ventana_inicio.show()
-
-    sys.exit(app.exec_())
