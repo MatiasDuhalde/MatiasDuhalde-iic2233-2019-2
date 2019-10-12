@@ -154,6 +154,7 @@ class VentanaPrincipal(QMainWindow):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.setWindowTitle("DCCAMPO")
 
     def init_window(self, mapa):
         self.mapa = mapa
@@ -190,40 +191,33 @@ class MainGame(QWidget):
             - ...
             - ...
         """
-        # Main Layout
-        self.main_vbox = QVBoxLayout()
-        self.main_vbox.setSpacing(0)
+        # # Main Layout
+        # self.main_vbox = QVBoxLayout()
+        # self.main_vbox.setSpacing(0)
 
-        # Status Bar
-        hbox = QHBoxLayout()
-        hbox.addStretch(1)
-        self.status_bar = StatusBar(N*self.mapa.ancho)
-        hbox.addWidget(self.status_bar)
-        hbox.addStretch(1)
-        self.main_vbox.addLayout(hbox)
+        # # Status Bar
+        # hbox = QHBoxLayout()
+        # hbox.addStretch(1)
+        # self.status_bar = StatusBar(N*self.mapa.ancho)
+        # hbox.addWidget(self.status_bar)
+        # hbox.addStretch(1)
+        # self.main_vbox.addLayout(hbox)
         
-        # Mapa
-        hbox = QHBoxLayout()
-        hbox.addStretch(1)
-        hbox.addLayout(self.grilla_mapa)
-        hbox.addStretch(1)
-        self.main_vbox.addLayout(hbox)
-        
-        # Inventario
-        hbox = QHBoxLayout()
-        hbox.addStretch(1)
-        self.inventory = Inventario(N*self.mapa.ancho)
-        hbox.addWidget(self.inventory)
-        hbox.addStretch(1)
-        self.main_vbox.addLayout(hbox)
+        # # Inventario
+        # hbox = QHBoxLayout()
+        # hbox.addStretch(1)
+        # self.inventory = Inventario(N*self.mapa.ancho)
+        # hbox.addWidget(self.inventory)
+        # hbox.addStretch(1)
+        # self.main_vbox.addLayout(hbox)
 
-        self.setLayout(self.main_vbox)
+        # self.setLayout(self.main_vbox)
 
     def cargar_mapa(self):
         """
         Guarda en self.grilla_mapa el QGridLayout correspondiente a self.mapa
         """
-        self.grilla_mapa = self.mapa.get_map_grid()
+        self.mapa.inicializar_map_layout(self)
 
 # -----------------------------------------------------------------------------
 #                                 TIENDA
