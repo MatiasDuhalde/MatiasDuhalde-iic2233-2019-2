@@ -34,6 +34,7 @@ class VentanaPrincipal(QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setWindowTitle("DCCAMPO")
+        self.pressed_keys = set()
 
         # Signal handling
         self.p_to_t_signal = None
@@ -71,12 +72,20 @@ class VentanaPrincipal(QMainWindow):
         apretarse una tecla chequeamos si está dentro de las teclas del
         control del juego y de ser así, se envía una señal al backend
         con la acción además de actualizar el sprite.
-        :param event: QKeyEvent
-        :return: None
         """
-        if event.key() in self.key_event_dict and not event.isAutoRepeat():
-            action = self.key_event_dict[event.key()]
-            self.juego.update_character_signal.emit(action)
+        self.pressed_keys.add(event.key())
+        if not event.isAutoRepeat():
+            if self.pressed_keys == set([Qt.Key_K, Qt.Key_I, Qt.Key_P]):
+                self.juego.cheat_signal.emit("KIP")
+            if self.pressed_keys == set([Qt.Key_M, Qt.Key_N, Qt.Key_Y]):
+                self.juego.cheat_signal.emit("MNY")
+            if event.key() in self.key_event_dict:
+                action = self.key_event_dict[event.key()]
+                self.juego.update_character_signal.emit(action)
+
+    def keyReleaseEvent(self, event):
+        self.pressed_keys.remove(event.key())
+
 
 
 class MainGame(QWidget):
@@ -86,6 +95,7 @@ class MainGame(QWidget):
     """
 
     update_window_signal = pyqtSignal(dict)
+    update_status_labels_signal = pyqtSignal(dict)
 
     def __init__(self, mapa, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -102,7 +112,10 @@ class MainGame(QWidget):
 
         # Connecting signals
         self.update_window_signal.connect(self.move_player)
+        self.update_status_labels_signal.connect(self.update_status_labels)
+        self.player.update_status_labels_signal = self.update_status_labels_signal
         self.player.update_window_signal = self.update_window_signal
+        self.cheat_signal = self.player.cheat_signal
         self.update_character_signal = self.player.update_character_signal
 
     def init_gui(self):
@@ -167,6 +180,11 @@ class MainGame(QWidget):
         self.inventory.setPixmap(inventory_pixmap)
         self.inventory.setScaledContents(True)
 
+    def update_status_labels(self, values):
+        self.label_dinero.setText(f"Dinero: ${values['dinero']}")
+        self.label_dinero.resize(self.label_dinero.sizeHint())
+        self.barra_energia.setValue(values['energia'])
+
 
     def init_player_visuals(self):
         self.player_label = QLabel(self)
@@ -180,32 +198,19 @@ class MainGame(QWidget):
         Función que recibe un diccionario con la información del
         personaje y las actualiza en el front-end.
         """
-        if event['direction'] in ['R', 'L']:
-            if event['direction'] == 'R':
-                dir_ = 1
-                sprites = self.player.r_pool
-            else:
-                dir_ = -1
-                sprites = self.player.l_pool
-            for j in range(event['old_j'], event['j'] + 1, dir_):
-                self.current_sprite = QPixmap(SPRITES_PLAYER[next(sprites)])
-                self.player_label.setPixmap(self.current_sprite)
-                self.player_label.move(j, event['i'])
-                self.player_label.raise_()
-                QTest.qWait(5)
-        elif event['direction'] in ['U', 'D']:
-            if event['direction'] == 'D':
-                dir_ = 1
-                sprites = self.player.d_pool
-            else:
-                dir_ = -1
-                sprites = self.player.u_pool
-            for i in range(event['old_i'], event['i'] + 1, dir_):
-                self.current_sprite = QPixmap(SPRITES_PLAYER[next(sprites)])
-                self.player_label.setPixmap(self.current_sprite)
-                self.player_label.move(event['j'], i)
-                self.player_label.raise_()
-                QTest.qWait(5)
+        if event['direction'] == 'R':
+            sprites = self.player.r_pool
+        elif event['direction'] == 'L':
+            sprites = self.player.l_pool
+        elif event['direction'] == 'D':
+            sprites = self.player.d_pool
+        elif event['direction'] == 'U':
+            sprites = self.player.u_pool
+        self.current_sprite = QPixmap(SPRITES_PLAYER[next(sprites)])
+        self.player_label.setPixmap(self.current_sprite)
+        self.player_label.move(event['j'], event['i'])
+        self.player_label.raise_()
+        QTest.qWait(2)
 
 
 # -----------------------------------------------------------------------------

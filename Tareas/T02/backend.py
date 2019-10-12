@@ -4,7 +4,6 @@ Este modulo contiene el backend de la ventana inicial
 
 import os
 from PyQt5.QtCore import QObject, pyqtSignal
-from player import Player
 from mapa import Mapa
 
 

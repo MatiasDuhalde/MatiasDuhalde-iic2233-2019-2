@@ -21,6 +21,9 @@ DURACION_ORO = None         # Duración del oro antes de desaparecer
 # Mapa
 N = 30                      # Dimensión del tile en mapa
 
+# Cheats
+DINERO_TRAMPA = 100
+
 # Pesca
 LARGO_RECTANGULO = None     # Porcentaje, fracción del rectángulo verde respecto al rectángulo azul
 LARGO_PESCADO = None        # Porcentaje, fracción del pescado respecto al rectángulo azul
