@@ -5,7 +5,7 @@ manejo de sus instancias:
 from random import choice
 from PyQt5.QtCore import QObject, Qt, QPoint, pyqtSignal
 from PyQt5.QtWidgets import QGridLayout, QLabel, QWidget
-from PyQt5.QtGui import QPixmap, QPainter
+from PyQt5.QtGui import QPixmap, QPainter, QImage
 from parametros_generales import (SPRITES_MAPA, N, SPRITE_INVENTARIO, 
                                   SPRITE_WINDOW, TOP_OFFSET)
 
@@ -58,6 +58,20 @@ class Cultivable(BaseTile):
         super().__init__(pos, size, top_offset, mapa, parent, *args, *kwargs)
         pixmap = QPixmap(choice(SPRITES_MAPA[self.tipo])).scaled(N, N)
         self.setPixmap(pixmap)
+        self.setAcceptDrops(True)
+
+    # https://stackoverflow.com/questions/50232639/drag-and-drop-qlabels-with-pyqt5
+    def dragEnterEvent(self,event):
+        if event.mimeData().hasImage():
+            print("event accepted")
+            event.accept()
+        else:
+            print("event rejected")
+            event.ignore()
+    def dropEvent(self,event):
+        if event.mimeData().hasImage():
+            self.setPixmap(QPixmap.fromImage(QImage(event.mimeData().imageData())))
+
 
 
 class Piedra(BaseTile):

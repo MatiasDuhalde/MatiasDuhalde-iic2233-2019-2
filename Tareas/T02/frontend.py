@@ -5,12 +5,12 @@ Este modulo contiene el frontend del programa
 import sys
 import os
 from time import sleep
-from PyQt5.QtCore import pyqtSignal, Qt, QThread, QMutex
+from PyQt5.QtCore import pyqtSignal, Qt, QThread, QMutex, QMimeData
 from PyQt5.Qt import QTest
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget,
                              QHBoxLayout, QVBoxLayout, QProgressBar,
                              QLabel, QPushButton, QLineEdit)
-from PyQt5.QtGui import QPixmap, QFont
+from PyQt5.QtGui import QPixmap, QFont, QDrag, QPainter, QCursor
 from backend import BackendInicio
 from mapa import Mapa
 from player import Player
@@ -18,6 +18,37 @@ from parametros_generales import (N, SPRITES_PLAYER, SPRITE_WINDOW,
                                   SPRITE_INVENTARIO, TOP_OFFSET, 
                                   MONEDAS_INICIALES, ENERGIA_JUGADOR,
                                   SPRITES_TIENDA)
+
+# https://stackoverflow.com/questions/50232639/drag-and-drop-qlabels-with-pyqt5
+class DraggableLabel(QLabel):
+    def __init__(self,parent,image):
+        super(QLabel,self).__init__(parent)
+        self.setPixmap(QPixmap(image))    
+        self.show()
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.drag_start_position = event.pos()
+
+    def mouseMoveEvent(self, event):
+        if not (event.buttons() & Qt.LeftButton):
+            return
+        if (event.pos() - self.drag_start_position).manhattanLength() < QApplication.startDragDistance():
+            return
+        drag = QDrag(self)
+        mimedata = QMimeData()
+        mimedata.setText(self.text())
+        mimedata.setImageData(self.pixmap().toImage())
+
+        drag.setMimeData(mimedata)
+        pixmap = QPixmap(self.size())
+        painter = QPainter(pixmap)
+        painter.drawPixmap(self.rect(), self.grab())
+        painter.end()
+        drag.setPixmap(pixmap)
+        drag.setHotSpot(event.pos())
+        drag.exec_(Qt.CopyAction | Qt.MoveAction)
+
+
 
 # -----------------------------------------------------------------------------
 #                              VENTANA DE JUEGO
@@ -209,10 +240,14 @@ class MainGame(QWidget):
 
     def create_inventory_labels(self):
         for i, thing in enumerate(list(self.player.inventario.keys()), start = 0):
-            thing_label = QLabel(thing, self)
-            thing_pixmap = QPixmap(SPRITES_TIENDA[thing])
-            thing_label.setPixmap(thing_pixmap.scaled(40, 40))
-            thing_label.move(30 + 45*i, TOP_OFFSET + self.mapa.largo*N + 35)
+            if thing in ["SemillaChoclo", "SemillaAlcachofa"]:
+                thing_label = DraggableLabel(self, SPRITES_TIENDA[thing])
+                thing_label.move(30 + 45*i, TOP_OFFSET + self.mapa.largo*N + 35)
+            else:
+                thing_label = QLabel(thing, self)
+                thing_pixmap = QPixmap(SPRITES_TIENDA[thing])
+                thing_label.setPixmap(thing_pixmap.scaled(40, 40))
+                thing_label.move(30 + 45*i, TOP_OFFSET + self.mapa.largo*N + 35)
 
 
     def init_player_visuals(self):
