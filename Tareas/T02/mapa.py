@@ -43,7 +43,8 @@ class Libre(BaseTile):
         if event.button() == Qt.LeftButton:
             self.mapa.request_inventario_signal.emit()
             if self.mapa.inventario["Azada"] >= 1:
-                new_tile = Cultivable((self.i, self.j), self.top_offset, self.parent)
+                new_tile = Cultivable((self.i, self.j), self.top_offset, 
+                self.mapa, self.parent)
                 new_tile.raise_()
                 new_tile.show()
 
@@ -109,7 +110,7 @@ class Mapa(QObject):
      - T : Tienda
     """
     collision_request_signal = pyqtSignal(int, int)
-    get_inventario_signal = pyqtSignal(list)
+    get_inventario_signal = pyqtSignal(dict)
 
     tile_types = {
         'O' : Libre,

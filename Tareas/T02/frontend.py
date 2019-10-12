@@ -16,7 +16,8 @@ from mapa import Mapa
 from player import Player
 from parametros_generales import (N, SPRITES_PLAYER, SPRITE_WINDOW,
                                   SPRITE_INVENTARIO, TOP_OFFSET, 
-                                  MONEDAS_INICIALES, ENERGIA_JUGADOR)
+                                  MONEDAS_INICIALES, ENERGIA_JUGADOR,
+                                  SPRITES_TIENDA)
 
 # -----------------------------------------------------------------------------
 #                              VENTANA DE JUEGO
@@ -199,11 +200,19 @@ class MainGame(QWidget):
         inventory_pixmap = QPixmap(SPRITE_INVENTARIO)
         self.inventory.setPixmap(inventory_pixmap)
         self.inventory.setScaledContents(True)
+        self.create_inventory_labels()
 
     def update_status_labels(self, values):
         self.label_dinero.setText(f"Dinero: ${values['dinero']}")
         self.label_dinero.resize(self.label_dinero.sizeHint())
         self.barra_energia.setValue(values['energia'])
+
+    def create_inventory_labels(self):
+        for i, thing in enumerate(list(self.player.inventario.keys()), start = 0):
+            thing_label = QLabel(thing, self)
+            thing_pixmap = QPixmap(SPRITES_TIENDA[thing])
+            thing_label.setPixmap(thing_pixmap.scaled(40, 40))
+            thing_label.move(30 + 45*i, TOP_OFFSET + self.mapa.largo*N + 35)
 
 
     def init_player_visuals(self):
@@ -234,7 +243,3 @@ class MainGame(QWidget):
         self.player_label.raise_()
         QTest.qWait(2)
 
-
-# -----------------------------------------------------------------------------
-#                                 TIENDA
-# -----------------------------------------------------------------------------
