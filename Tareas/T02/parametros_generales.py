@@ -33,6 +33,19 @@ TOP_OFFSET = 120 # Largo status bar
 
 # Paths sprites
 
+
+SPRITES_TIENDA = {
+    'Azada' : os.path.join("sprites", "otros", "hoe.png"),
+    'Hacha' : os.path.join("sprites", "otros", "axe.png"),
+    'SemillaChoclo' : os.path.join("sprites", "cultivos", "choclo", "seeds.png"),
+    'SemillaAlcachofa' : os.path.join("sprites", "cultivos", "alcachofa", "seeds.png"),
+    'Alcachofa' : os.path.join("sprites", "recursos", "artichoke.png"),
+    'Choclo' : os.path.join("sprites", "recursos", "corn.png"),
+    'Madera' : os.path.join("sprites", "recursos", "wood.png"),
+    'Oro' : os.path.join("sprites", "recursos", "gold.png"),
+    'Ticket' : os.path.join("sprites", "otros", "ticket.png")
+}
+
 SPRITE_INVENTARIO = os.path.join("sprites", "otros", "invetary_template.jpg")
 SPRITE_WINDOW = os.path.join("sprites", "otros", "window_template.jpg")
 

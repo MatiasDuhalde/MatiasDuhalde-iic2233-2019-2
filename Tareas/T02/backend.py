@@ -1,5 +1,5 @@
 """
-Este modulo contiene el backend del programa
+Este modulo contiene el backend de la ventana inicial
 """
 
 import os
@@ -57,10 +57,3 @@ class BackendInicio(QObject):
             except FileNotFoundError as err:
                 msg = f"ERROR: {err.filename} no existe."
                 self.feedback_signal.emit(msg)
-
-class BackendGame(QObject):
-
-    def __init__(self, mapa):
-        super().__init__()
-        self.mapa = mapa
-        # self.player = Player(mapa)

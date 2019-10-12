@@ -1,6 +1,6 @@
 from itertools import cycle
 from PyQt5.QtCore import QObject, pyqtSignal
-from parametros_generales import N, VEL_MOVIMIENTO
+from parametros_generales import N, VEL_MOVIMIENTO, MONEDAS_INICIALES
 
 
 class Player(QObject):
@@ -14,15 +14,35 @@ class Player(QObject):
         self.direction = 'R'
         self._i = i # Y
         self._j = j # X
-        self.u_pool = cycle(['U1', 'U2', 'U3', 'U4'])
-        self.r_pool = cycle(['R1', 'R2', 'R3', 'R4'])
-        self.d_pool = cycle(['D1', 'D2', 'D3', 'D4'])
-        self.l_pool = cycle(['L1', 'L2', 'L3', 'L4'])
-
+        self._monedas = MONEDAS_INICIALES
+        self.inventario = []
 
         # Signals init and connect
         self.update_window_signal = None
         self.update_character_signal.connect(self.move)
+
+        self.create_sprite_pools()
+
+
+    @property
+    def monedas(self):
+        return self._monedas
+
+    @monedas.setter
+    def monedas(self, value):
+        if value < 0:
+            print("what")
+        self._monedas = value
+
+
+    #--------------------------------------------------------------------------
+    #                  Movement Methods and Properties
+    #--------------------------------------------------------------------------
+    def create_sprite_pools(self):
+        self.u_pool = cycle(['U1', 'U2', 'U3', 'U4'])
+        self.r_pool = cycle(['R1', 'R2', 'R3', 'R4'])
+        self.d_pool = cycle(['D1', 'D2', 'D3', 'D4'])
+        self.l_pool = cycle(['L1', 'L2', 'L3', 'L4'])
 
     def update_window_character(self, old_i, old_j):
         """
@@ -88,4 +108,3 @@ class Player(QObject):
         elif event == 'D':
             self.direction = 'U'
             self.i += VEL_MOVIMIENTO
-

@@ -11,11 +11,12 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget,
                              QHBoxLayout, QVBoxLayout, QProgressBar,
                              QLabel, QPushButton, QLineEdit)
 from PyQt5.QtGui import QPixmap, QFont
-from backend import BackendInicio, BackendGame
+from backend import BackendInicio
 from mapa import Mapa
 from player import Player
 from parametros_generales import (N, SPRITES_PLAYER, SPRITE_WINDOW,
-                                  SPRITE_INVENTARIO, TOP_OFFSET, MONEDAS_INICIALES)
+                                  SPRITE_INVENTARIO, TOP_OFFSET, 
+                                  MONEDAS_INICIALES, ENERGIA_JUGADOR)
 
 # -----------------------------------------------------------------------------
 #                              VENTANA DE JUEGO
@@ -28,19 +29,25 @@ class VentanaPrincipal(QMainWindow):
     función real aparte de contener al widget central (Maingame)
     """
 
+    t_to_p_signal = pyqtSignal()
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setWindowTitle("DCCAMPO")
 
+        # Signal handling
+        self.p_to_t_signal = None
+        self.t_to_p_signal.connect(self.show)
+
     def init_window(self, mapa):
         self.mapa = mapa
-        self.backend = BackendGame(self.mapa)
         self.juego = MainGame(self.mapa)
         # Max X
         self.ancho_ventana = max(N*self.mapa.ancho, 600)
         # Max Y
         self.largo_ventana = max(N*self.mapa.largo + TOP_OFFSET + 200, 0)
         self.init_gui()
+
 
     def init_gui(self):
         """
@@ -89,7 +96,7 @@ class MainGame(QWidget):
         self.player_label = None
         self.current_sprite = None
         # Map stuff
-        self.cargar_mapa()
+        self.mapa.inicializar_map_layout(self)
         self.init_gui()
         self.init_player_visuals()
 
@@ -134,7 +141,8 @@ class MainGame(QWidget):
         self.label_energia.setFont(self.status_font_1)
         self.barra_energia = QProgressBar(self)
         self.barra_energia.setGeometry(260, 10, 200, 25)
-        self.barra_energia.setMaximum(100)
+        self.barra_energia.setMaximum(ENERGIA_JUGADOR)
+        self.barra_energia.setValue(ENERGIA_JUGADOR)
 
         # Dinero
         self.label_dinero = QLabel(f"Dinero: ${MONEDAS_INICIALES}", self)
@@ -158,11 +166,6 @@ class MainGame(QWidget):
         inventory_pixmap = QPixmap(SPRITE_INVENTARIO)
         self.inventory.setPixmap(inventory_pixmap)
         self.inventory.setScaledContents(True)
-        # hbox.addWidget(self.inventory)
-        # hbox.addStretch(1)
-        # self.main_vbox.addLayout(hbox)
-
-        # self.setLayout(self.main_vbox)
 
 
     def init_player_visuals(self):
@@ -176,8 +179,6 @@ class MainGame(QWidget):
         """
         Función que recibe un diccionario con la información del
         personaje y las actualiza en el front-end.
-        :param event: dict
-        :return: None
         """
         if event['direction'] in ['R', 'L']:
             if event['direction'] == 'R':
@@ -206,13 +207,7 @@ class MainGame(QWidget):
                 self.player_label.raise_()
                 QTest.qWait(5)
 
-    def cargar_mapa(self):
-        """
-        Guarda en self.grilla_mapa el QGridLayout correspondiente a self.mapa
-        """
-        self.mapa.inicializar_map_layout(self)
 
 # -----------------------------------------------------------------------------
 #                                 TIENDA
 # -----------------------------------------------------------------------------
-
