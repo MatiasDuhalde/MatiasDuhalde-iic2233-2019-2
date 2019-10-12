@@ -39,6 +39,7 @@ class VentanaPrincipal(QMainWindow):
 
         # Signal handling
         self.p_to_t_signal = None
+        self.tienda = None
         self.t_to_p_signal.connect(self.show)
         self.check_goto_signal.connect(self.check_goto)
 
@@ -53,6 +54,9 @@ class VentanaPrincipal(QMainWindow):
 
         # Player signal
         self.juego.player.check_goto_signal = self.check_goto_signal
+        self.juego.player.get_attribs_signal = self.tienda.get_attribs_signal
+        self.tienda.request_attribs_signal = self.juego.player.request_attribs_signal
+        self.tienda.inventario_back_signal = self.juego.player.inventario_back_signal
 
 
     def init_gui(self):

@@ -12,8 +12,9 @@ if __name__ == '__main__':
     ventana_principal = VentanaPrincipal()
     ventana_tienda = VentanaTienda()
 
-    # Conectar ventana inicio con ventana principal
+    # Conectar ventana inicio y tienda con ventana principal
     ventana_inicio.ventana_principal = ventana_principal
+    ventana_principal.tienda = ventana_tienda
 
     # Conectar señal tienda
     ventana_principal.p_to_t_signal = ventana_tienda.p_to_t_signal

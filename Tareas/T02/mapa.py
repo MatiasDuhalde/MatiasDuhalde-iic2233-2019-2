@@ -42,7 +42,7 @@ class Libre(BaseTile):
         
         if event.button() == Qt.LeftButton:
             self.mapa.request_inventario_signal.emit()
-            if "Azada" in self.mapa.inventario:
+            if self.mapa.inventario["Azada"] >= 1:
                 new_tile = Cultivable((self.i, self.j), self.top_offset, self.parent)
                 new_tile.raise_()
                 new_tile.show()

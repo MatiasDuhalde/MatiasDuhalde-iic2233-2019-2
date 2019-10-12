@@ -11,6 +11,8 @@ class Player(QObject):
     cheat_signal = pyqtSignal(str)
     collision_response_signal = pyqtSignal(bool)
     request_inventario_signal = pyqtSignal()
+    request_attribs_signal = pyqtSignal()
+    inventario_back_signal = pyqtSignal(dict)
 
     def __init__(self, i, j, mapa):
         super().__init__()
@@ -24,7 +26,17 @@ class Player(QObject):
         self.max_j = N*(mapa.ancho - 1)
         self._monedas = MONEDAS_INICIALES
         self._energia = ENERGIA_JUGADOR
-        self.inventario = []
+        self._inventario = {
+            "Azada" : 0,
+            "Hacha" : 0,
+            "SemillaChoclo" : 0,
+            "SemillaAlcachofa" : 0,
+            "Ticket" : 0,
+            "Alcachofa" : 0,
+            "Choclo" : 0,
+            "Madera" : 0,
+            "Oro" : 0
+            }
         self.collision = False
 
         # Signals init and connect
@@ -33,15 +45,36 @@ class Player(QObject):
         self.collision_request_signal = None
         self.check_goto_signal = None
         self.get_inventario_signal = None
+        self.get_attribs_signal = None
+        self.request_attribs_signal.connect(self.send_attribs)
         self.request_inventario_signal.connect(self.send_inventario)
         self.collision_response_signal.connect(self.get_collision)
         self.update_character_signal.connect(self.move)
+        self.inventario_back_signal.connect(self.get_inventario_tienda)
         self.cheat_signal.connect(self.cheat_code)
 
         self.create_sprite_pools()
 
     def send_inventario(self):
         self.get_inventario_signal.emit(self.inventario)
+        
+    def send_attribs(self):
+        self.get_attribs_signal.emit({
+            "inventario" : self.inventario,
+            "monedas" : self.monedas
+            })
+
+    def get_inventario_tienda(self, event):
+        self.inventario = event["inventario"]
+        self.monedas = event["monedas"]
+
+    @property
+    def inventario(self):
+        return self._inventario
+
+    @inventario.setter
+    def inventario(self, value):
+        pass
 
     @property
     def monedas(self):
