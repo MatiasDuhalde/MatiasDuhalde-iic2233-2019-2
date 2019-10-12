@@ -10,8 +10,8 @@ ENERGIA_JUGADOR = 100      # Energía máxima
 ENERGIA_DORMIR = 60       # Energía recuperada al dormir
 
 # Generación
-PROB_ARBOL = None           # Probabilidad de aparición de un árbol
-PROB_ORO = None             # Probabilidad de aparición de oro
+PROB_ARBOL = 0.01           # Probabilidad de aparición de un árbol
+PROB_ORO = 0.5             # Probabilidad de aparición de oro
 
 # Tiempo
 # DEFINIR PARÁMETRO QUE CONTROLE QUE TAN RÁPIDO PASA EL TIEMPO (seccion 4.1)

@@ -10,7 +10,7 @@ if __name__ == '__main__':
     # Creación de ventanas
     ventana_inicio = VentanaInicio()
     ventana_principal = VentanaPrincipal()
-    ventana_tienda = VentanaTienda
+    ventana_tienda = VentanaTienda()
 
     # Conectar ventana inicio con ventana principal
     ventana_inicio.ventana_principal = ventana_principal

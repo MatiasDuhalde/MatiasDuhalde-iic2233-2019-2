@@ -10,6 +10,7 @@ class Player(QObject):
     update_character_signal = pyqtSignal(str)
     cheat_signal = pyqtSignal(str)
     collision_response_signal = pyqtSignal(bool)
+    request_inventario_signal = pyqtSignal()
 
     def __init__(self, i, j, mapa):
         super().__init__()
@@ -30,12 +31,17 @@ class Player(QObject):
         self.update_window_signal = None
         self.update_status_labels_signal = None
         self.collision_request_signal = None
+        self.check_goto_signal = None
+        self.get_inventario_signal = None
+        self.request_inventario_signal.connect(self.send_inventario)
         self.collision_response_signal.connect(self.get_collision)
         self.update_character_signal.connect(self.move)
         self.cheat_signal.connect(self.cheat_code)
 
         self.create_sprite_pools()
 
+    def send_inventario(self):
+        self.get_inventario_signal.emit(self.inventario)
 
     @property
     def monedas(self):
@@ -156,6 +162,7 @@ class Player(QObject):
                     for _ in range(VEL_MOVIMIENTO):
                         self.i += 1
         self.collision = False
+        self.check_goto_signal.emit(self.i, self.j)
 
     def detect_collision(self, i, j):
         self.collision_request_signal.emit(i, j)

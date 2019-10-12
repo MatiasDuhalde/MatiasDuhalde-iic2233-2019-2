@@ -30,6 +30,7 @@ class VentanaPrincipal(QMainWindow):
     """
 
     t_to_p_signal = pyqtSignal()
+    check_goto_signal = pyqtSignal(int, int)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -39,6 +40,7 @@ class VentanaPrincipal(QMainWindow):
         # Signal handling
         self.p_to_t_signal = None
         self.t_to_p_signal.connect(self.show)
+        self.check_goto_signal.connect(self.check_goto)
 
     def init_window(self, mapa):
         self.mapa = mapa
@@ -48,6 +50,9 @@ class VentanaPrincipal(QMainWindow):
         # Max Y
         self.largo_ventana = max(N*self.mapa.largo + TOP_OFFSET + 200, 0)
         self.init_gui()
+
+        # Player signal
+        self.juego.player.check_goto_signal = self.check_goto_signal
 
 
     def init_gui(self):
@@ -65,6 +70,13 @@ class VentanaPrincipal(QMainWindow):
         Qt.Key_W : 'U',
         Qt.Key_S : 'D'
     }
+
+    def check_goto(self, i, j):
+        if (j, i) in map(lambda x: (x.x(), x.y()), self.mapa.tiles_tienda):
+            self.hide()
+            self.p_to_t_signal.emit()
+        elif (j, i) in map(lambda x: (x.x(), x.y()), self.mapa.tiles_casa):
+            print("EN CASA")
 
     def keyPressEvent(self, event):
         """
@@ -84,7 +96,7 @@ class VentanaPrincipal(QMainWindow):
                 self.juego.update_character_signal.emit(action)
 
     def keyReleaseEvent(self, event):
-        self.pressed_keys.remove(event.key())
+        self.pressed_keys.discard(event.key())
 
 
 
@@ -102,7 +114,7 @@ class MainGame(QWidget):
         # Map stuff
         self.mapa = mapa
         # Player stuff
-        self.player = Player(TOP_OFFSET, 0, self.mapa) # Y, X
+        self.player = Player(TOP_OFFSET + N*0, 0, self.mapa) # Y, X IMPORTANTE
         self.player_label = None
         self.current_sprite = None
         # Map stuff
@@ -118,6 +130,8 @@ class MainGame(QWidget):
         self.cheat_signal = self.player.cheat_signal
         self.update_character_signal = self.player.update_character_signal
         self.player.collision_request_signal = self.mapa.collision_request_signal
+        self.mapa.request_inventario_signal = self.player.request_inventario_signal
+        self.player.get_inventario_signal = self.mapa.get_inventario_signal
         self.mapa.collision_response_signal = self.player.collision_response_signal
 
     def init_gui(self):
@@ -170,7 +184,7 @@ class MainGame(QWidget):
         self.exit_button.clicked.connect(sys.exit)
         self.pause_button = QPushButton("Pausa", self)
         self.pause_button.setGeometry(460, 80, 100, 25)
-        self.pause_button.clicked.connect(print)
+        self.pause_button.clicked.connect(self.pause)
 
 
 
@@ -192,8 +206,10 @@ class MainGame(QWidget):
         self.player_label = QLabel(self)
         self.current_sprite = QPixmap(SPRITES_PLAYER['D1'])
         self.player_label.setPixmap(self.current_sprite)
-        self.player_label.move(0, TOP_OFFSET) # 
+        self.player_label.move(0*N, TOP_OFFSET + 0*N) # X, Y IMPORTANTE
 
+    def pause(self):
+        pass
 
     def move_player(self, event):
         """

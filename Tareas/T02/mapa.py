@@ -14,42 +14,47 @@ class BaseTile(QLabel):
     """
     Objeto tile. Corresponde a un QObject. Contiene labels
     """
-    def __init__(self, pos, size, top_offset, parent, *args, **kwargs):
+
+    def __init__(self, pos, size, top_offset, mapa, parent, *args, **kwargs):
         self.parent = parent
+        self.mapa = mapa
         super().__init__(parent, *args, **kwargs)
         self.i = pos[0]
         self.j = pos[1]
         self.top_offset = top_offset
         self.setGeometry(N*self.j, N*self.i + top_offset, size, size)
         self.setFixedSize(size, size)
+        self.request_inventario_signal = mapa.request_inventario_signal
 
 
 class Libre(BaseTile):
     """
     Tile tipo 'O'
     """
-    def __init__(self, pos, top_offset, pixmap, parent, *args, **kwargs):
+    def __init__(self, pos, top_offset, pixmap, mapa, parent, *args, **kwargs):
         self.tipo = 'O'
         # Tiene pixmap porque distintos tipos hacen variar sprite
         size = N
-        super().__init__(pos, size, top_offset, parent, *args, *kwargs)
+        super().__init__(pos, size, top_offset, mapa, parent, *args, *kwargs)
         self.setPixmap(pixmap)
     
     def mousePressEvent(self, event):
-        # Check for hoe
+        
         if event.button() == Qt.LeftButton:
-            new_tile = Cultivable((self.i, self.j), self.top_offset, self.parent)
-            new_tile.raise_()
-            new_tile.show()
+            self.mapa.request_inventario_signal.emit()
+            if "Azada" in self.mapa.inventario:
+                new_tile = Cultivable((self.i, self.j), self.top_offset, self.parent)
+                new_tile.raise_()
+                new_tile.show()
 
 class Cultivable(BaseTile):
     """
     Tile tipo 'C'
     """
-    def __init__(self, pos, top_offset, parent, *args, **kwargs):
+    def __init__(self, pos, top_offset, mapa, parent, *args, **kwargs):
         self.tipo = 'C'
         size = N
-        super().__init__(pos, size, top_offset, parent, *args, *kwargs)
+        super().__init__(pos, size, top_offset, mapa, parent, *args, *kwargs)
         pixmap = QPixmap(choice(SPRITES_MAPA[self.tipo])).scaled(N, N)
         self.setPixmap(pixmap)
 
@@ -58,10 +63,10 @@ class Piedra(BaseTile):
     """
     Tile tipo 'R'
     """
-    def __init__(self, pos, top_offset, parent, *args, **kwargs):
+    def __init__(self, pos, top_offset, mapa, parent, *args, **kwargs):
         self.tipo = 'R'
         size = N
-        super().__init__(pos, size, top_offset, parent, *args, *kwargs)
+        super().__init__(pos, size, top_offset, mapa, parent, *args, *kwargs)
         pixmap = QPixmap(choice(SPRITES_MAPA[self.tipo])).scaled(N, N)
         self.setPixmap(pixmap)
 
@@ -70,10 +75,10 @@ class Tienda(BaseTile):
     """
     Tile tipo 'T'
     """
-    def __init__(self, pos, top_offset, parent, *args, **kwargs):
+    def __init__(self, pos, top_offset, mapa, parent, *args, **kwargs):
         self.tipo = 'T'
         size = 2*N
-        super().__init__(pos, size, top_offset, parent, *args, *kwargs)
+        super().__init__(pos, size, top_offset, mapa, parent, *args, *kwargs)
         pixmap = QPixmap(choice(SPRITES_MAPA[self.tipo])).scaled(2*N, 2*N)
         self.setPixmap(pixmap)
         self.raise_()
@@ -83,10 +88,10 @@ class Casa(BaseTile):
     """
     Tile tipo 'H'
     """
-    def __init__(self, pos, top_offset, parent, *args, **kwargs):
+    def __init__(self, pos, top_offset, mapa, parent, *args, **kwargs):
         self.tipo = 'H'
         size = 2*N
-        super().__init__(pos, size, top_offset, parent, *args, *kwargs)
+        super().__init__(pos, size, top_offset, mapa, parent, *args, *kwargs)
         pixmap = QPixmap(choice(SPRITES_MAPA[self.tipo])).scaled(2*N, 2*N)
         self.setPixmap(pixmap)
         self.raise_()
@@ -104,6 +109,7 @@ class Mapa(QObject):
      - T : Tienda
     """
     collision_request_signal = pyqtSignal(int, int)
+    get_inventario_signal = pyqtSignal(list)
 
     tile_types = {
         'O' : Libre,
@@ -123,9 +129,18 @@ class Mapa(QObject):
         self.ancho = len(self.mapa[0]) # max X
         self.top_offset = TOP_OFFSET
         self.game_widget = None
+        self.inventario = []
         self.collision_objects = []
+        self.tiles_casa = []
+        self.tiles_tienda = []
         self.collision_response_signal = None
+        self.request_inventario_signal = None
         self.collision_request_signal.connect(self.send_collision_objects)
+        self.get_inventario_signal.connect(self.get_inventario)
+
+    def get_inventario(self, event):
+        self.inventario = event
+
 
     def inicializar_map_layout(self, parent):
         self.game_widget = parent
@@ -137,25 +152,30 @@ class Mapa(QObject):
                 tile_type = self.mapa[i][j]
                 pixmap = QPixmap(choice(SPRITES_MAPA[self.get_tipo(i, j)])).scaled(N, N)
                 if tile_type == 'C':
-                    Cultivable((i, j), self.top_offset, self.game_widget)
+                    Cultivable((i, j), self.top_offset, self, self.game_widget)
                 else:
-                    Libre((i, j), self.top_offset, pixmap, self.game_widget)
+                    new = Libre((i, j), self.top_offset, pixmap, self, self.game_widget)
+                    if tile_type == "H":
+                        self.tiles_casa.append(new)
+                    elif tile_type == "T":
+                        self.tiles_tienda.append(new)
                 if tile_type == "R":
                     roca = self.tile_types[tile_type]((i, j), self.top_offset,
-                    self.game_widget)
+                    self, self.game_widget)
                     self.collision_objects.append(roca)
                 elif tile_type == "H":
                     house_count += 1
                     if house_count == 4:
                         house_count += 1
-                        self.tile_types[tile_type]((i-1, j-1), self.top_offset, 
-                        self.game_widget)
+                        casa = self.tile_types[tile_type]((i-1, j-1), 
+                        self.top_offset, self, self.game_widget)
+
                 elif tile_type == "T":
                     store_count += 1
                     if store_count == 4:
                         store_count += 1
-                        self.tile_types[tile_type]((i-1, j-1), self.top_offset, 
-                        self.game_widget)
+                        tienda = self.tile_types[tile_type]((i-1, j-1),
+                        self.top_offset, self, self.game_widget)
 
     def send_collision_objects(self, i, j):
         collision = (j, i) in (map(lambda x: (x.x(), x.y()), self.collision_objects))
