@@ -4,10 +4,10 @@ Contiene constantes para usar en el juego, según el enunciado.
 import os
 
 # Jugador
-MONEDAS_INICIALES = None    # Monedas con las que se parte
-VEL_MOVIMIENTO = None       # Pixeles avanzados por button press
-ENERGIA_JUGADOR = None      # Energía máxima
-ENERGIA_DORMIR = None       # Energía recuperada al dormir
+MONEDAS_INICIALES = 80    # Monedas con las que se parte
+VEL_MOVIMIENTO = 30         # Pixeles avanzados por button press
+ENERGIA_JUGADOR = 100      # Energía máxima
+ENERGIA_DORMIR = 60       # Energía recuperada al dormir
 
 # Generación
 PROB_ARBOL = None           # Probabilidad de aparición de un árbol
@@ -28,10 +28,32 @@ VEL_PESCADO = None          # Velocidad de movimiento del pescado
 TIEMPO_PESCADO = None       # Tiempo máximo para cambiar de sentido
 PRECIO_PESCADO = None       # Dinero ganado por pescado capturado
 
+
+TOP_OFFSET = 120 # Largo status bar
+
 # Paths sprites
 
 SPRITE_INVENTARIO = os.path.join("sprites", "otros", "invetary_template.jpg")
 SPRITE_WINDOW = os.path.join("sprites", "otros", "window_template.jpg")
+
+SPRITES_PLAYER = {
+    'U1' : os.path.join("sprites", "personaje", "up_1.png"),
+    'U2' : os.path.join("sprites", "personaje", "up_2.png"),
+    'U3' : os.path.join("sprites", "personaje", "up_3.png"),
+    'U4' : os.path.join("sprites", "personaje", "up_4.png"),
+    'D1' : os.path.join("sprites", "personaje", "down_1.png"),
+    'D2' : os.path.join("sprites", "personaje", "down_2.png"),
+    'D3' : os.path.join("sprites", "personaje", "down_3.png"),
+    'D4' : os.path.join("sprites", "personaje", "down_4.png"),
+    'R1' : os.path.join("sprites", "personaje", "right_1.png"),
+    'R2' : os.path.join("sprites", "personaje", "right_2.png"),
+    'R3' : os.path.join("sprites", "personaje", "right_3.png"),
+    'R4' : os.path.join("sprites", "personaje", "right_4.png"),
+    'L1' : os.path.join("sprites", "personaje", "left_1.png"),
+    'L2' : os.path.join("sprites", "personaje", "left_2.png"),
+    'L3' : os.path.join("sprites", "personaje", "left_3.png"),
+    'L4' : os.path.join("sprites", "personaje", "left_4.png")
+}
 
 
 SPRITES_MAPA = {

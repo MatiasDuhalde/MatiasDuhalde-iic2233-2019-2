@@ -1,6 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication
-from frontend import VentanaInicio, VentanaPrincipal
+from ventana_inicio import VentanaInicio
+from frontend import VentanaPrincipal
 
 if __name__ == '__main__':
     app = QApplication([])

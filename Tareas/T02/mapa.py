@@ -7,7 +7,8 @@ from abc import ABC, abstractmethod
 from PyQt5.QtCore import QObject, Qt, QPoint
 from PyQt5.QtWidgets import QGridLayout, QLabel, QWidget
 from PyQt5.QtGui import QPixmap, QPainter
-from parametros_generales import SPRITES_MAPA, N, SPRITE_INVENTARIO, SPRITE_WINDOW
+from parametros_generales import (SPRITES_MAPA, N, SPRITE_INVENTARIO, 
+                                  SPRITE_WINDOW, TOP_OFFSET)
 
 
 class BaseTile(QLabel):
@@ -112,7 +113,7 @@ class Mapa(QObject):
         'T' : Tienda
     }
 
-    def __init__(self, mapa, top_offset = 80):
+    def __init__(self, mapa):
         """
         Recibe como parámetro lista con las filas del mapa.
         """
@@ -120,7 +121,7 @@ class Mapa(QObject):
         self.mapa = mapa # Lista de listas, forma de matriz
         self.largo = len(self.mapa) # max Y
         self.ancho = len(self.mapa[0]) # max X
-        self.top_offset = top_offset
+        self.top_offset = TOP_OFFSET
         self.game_widget = None
 
     def inicializar_map_layout(self, parent):
@@ -203,27 +204,3 @@ class Mapa(QObject):
                 if 0 <= n + fil < self.largo and 0 <= m + col < self.ancho:
                     adjacent[n + 1][m + 1] = self.mapa[n + fil][m + col]
         return adjacent
-
-
-class Inventario(QLabel):
-    
-    def __init__(self, ancho):
-        super().__init__()
-        self.ancho = ancho
-        self.init_gui()
-        
-    def init_gui(self):
-        self.base_pixmap = QPixmap(SPRITE_INVENTARIO)
-        self.setPixmap(self.base_pixmap.scaled(self.ancho, self.ancho, Qt.KeepAspectRatio))
-
-
-class StatusBar(QLabel):
-
-    def __init__(self, ancho):
-        super().__init__()
-        self.ancho = ancho
-        self.init_gui()
-        
-    def init_gui(self):
-        self.base_pixmap = QPixmap(SPRITE_WINDOW)
-        self.setPixmap(self.base_pixmap.scaled(self.ancho, 80))
