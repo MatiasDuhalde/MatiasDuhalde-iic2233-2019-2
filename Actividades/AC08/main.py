@@ -1,5 +1,6 @@
 from cargar import cargar_archivos
 from os import path
+from collections import deque
 
 
 class Usuario:
@@ -59,22 +60,38 @@ class Pintogram:
                 n_seguidores += 1
         return n_seguidores
 
-    def distancia_social(self, id_usuario_1, id_usuario_2):
+    def distancia_social(self, start, end, path = []):
         # Método que retorna la "distancia social" de dos usuarios
-        revisados = []
-        stack = [id_usuario_1]
+        path = path + [start]
+        if start == end:
+            return path
+        if not start in self.usuarios:
+            return None
+        shortest = None
+        for node in self.usuarios[start].seguidos:
+            if node not in path:
+                newpath = self.distancia_social(node, end, path)
+                if newpath:
+                    if not shortest or len(newpath) < len(shortest):
+                        shortest = newpath
+        return shortest
 
-        while len(stack) > 0:
-            id_actual = stack.pop()
 
-            if id_actual not in revisados:
-                revisados.append(id_actual)
-                for usuario_seguido in self.usuarios[id_actual].seguidos:
-                    if usuario_seguido == id_usuario_2:
-                        return len(stack) + 1
-                    if usuario_seguido not in revisados:
-                        stack.append(usuario_seguido)
-        return float("inf")
+
+
+        # path = path + [id_usuario_1]
+        # if id_usuario_1 == id_usuario_2:
+        #     return path
+        # if not id_usuario_1 in self.usuarios[id_usuario_1].seguidos:
+        #     return None
+        # shortest = None
+        # for node in self.usuarios[id_usuario_1].seguidos:
+        #     if node not in path:
+        #         newpath = self.distancia_social(node, id_usuario_2, path)
+        #         if newpath:
+        #             if not shortest or len(newpath) < len(shortest):
+        #                 shortest = newpath
+        # return shortest
 
 
 if __name__ == "__main__":
@@ -82,6 +99,6 @@ if __name__ == "__main__":
     pintogram.cargar_red(path.join("archivos", "simple.txt"))
     print(pintogram.mis_seguidos("1"))
     print(pintogram.mis_seguidos("3"))
-    print(pintogram.distancia_social("3", "5"))
+    print(len(pintogram.distancia_social(start="3", end="5")))
 
 # Puedes agregar más consultas y utilizar los demás archivos para probar tu código
