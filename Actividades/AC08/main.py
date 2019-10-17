@@ -13,35 +13,68 @@ class Usuario:
 class Pintogram:
     def __init__(self):
         # Recuerda que debes almacenar todos los usuarios dentro de la red
-        self.usuarios = set()
+        self.usuarios = {}
 
     def nuevo_usuario(self, id_usuario, nombre):
         # Método que se encarga de agregar un usuario a la red
         usuario = Usuario(id_usuario, nombre)
-
-        self.usuarios.add(usuario)
+        self.usuarios[id_usuario] = usuario
 
     def follow(self, id_seguidor, id_seguido):
         # Método que permite a un usuario seguir a otro
-        
+        try: 
+            if id_seguidor == id_seguido:
+                raise ValueError(f"No te puedes seguir a ti mismo.")
+            if id_seguido in self.usuarios[id_seguidor].seguidos:
+                raise ValueError(f"El usuario {id_seguidor} ya sigue al usuario {id_seguido}.")
+            else: 
+                self.usuarios[id_seguidor].seguidos.append(id_seguido)
+        except ValueError as err:
+            print(err)
 
     def cargar_red(self, ruta_red):
         # Método que se encarga de generar la red social, cargando y
         # guardando cada uno de los usuarios. Quizás otras funciones de
         # Pintogram sean útiles.
-        pass
+        for id_usuario, nombre, seguidos in cargar_archivos(ruta_red):
+            self.nuevo_usuario(id_usuario, nombre)
+            for usuario_seguido in seguidos:
+                self.follow(id_usuario, usuario_seguido)
+            
 
     def unfollow(self, id_seguidor, id_seguido):
         # Método que pertmite a un usuario dejar de seguir a otro
-        pass
+        try:
+            if id_seguidor == id_seguido:
+                raise ValueError(f"No te puedes dejar de seguir a ti mismo.")
+            self.usuarios[id_seguidor].seguidos.remove(id_seguido)
+        except ValueError:
+            print(f"El usuario {id_seguidor} no sigue al usuario {id_seguido}.")
 
     def mis_seguidos(self, id_usuario):
         # Método que retorna los seguidores de un usuario
-        pass
+        n_seguidores = 0
+        for key in self.usuarios:
+            if id_usuario in self.usuarios[key].seguidos:
+                n_seguidores += 1
+        return n_seguidores
 
     def distancia_social(self, id_usuario_1, id_usuario_2):
         # Método que retorna la "distancia social" de dos usuarios
-        pass
+        revisados = []
+        stack = [id_usuario_1]
+
+        while len(stack) > 0:
+            id_actual = stack.pop()
+
+            if id_actual not in revisados:
+                revisados.append(id_actual)
+                for usuario_seguido in self.usuarios[id_actual].seguidos:
+                    if usuario_seguido == id_usuario_2:
+                        return len(stack) + 1
+                    if usuario_seguido not in revisados:
+                        stack.append(usuario_seguido)
+        return float("inf")
 
 
 if __name__ == "__main__":
