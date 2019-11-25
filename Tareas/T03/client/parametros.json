@@ -1,0 +1,5 @@
+{
+    "host": "localhost",
+    "port": 42069,
+    "velocidad movimiento": 2
+}
