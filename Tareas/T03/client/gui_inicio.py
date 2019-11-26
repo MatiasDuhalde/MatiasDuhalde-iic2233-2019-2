@@ -1,3 +1,7 @@
+"""
+Interfaz gráfica de la ventana de inicio (primera ventana)
+"""
+
 import os
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import (QWidget, QLabel, QHBoxLayout,
@@ -30,7 +34,7 @@ class VentanaInicio(QWidget):
         self.setGeometry(50, 50, 500, 500)
 
         # Logo
-        path_logo = os.path.join('sprites', 'personajes', 'robot', 'fallDown.png')
+        path_logo = os.path.join('sprites', 'logo.png')
         logo_pixmap = QPixmap(path_logo)
         self.logo = QLabel(self)
         self.logo.setPixmap(logo_pixmap)
@@ -39,7 +43,7 @@ class VentanaInicio(QWidget):
         self.prompt_label = QLabel('Nombre de usuario: ', self)
         self.text_box = QLineEdit(self)
         self.start_button = QPushButton('Iniciar Sesión', self)
-        self.start_button.clicked.connect(self.boton_clickeado)
+        self.start_button.clicked.connect(self.start_click)
         self.feedback_label = QLabel(self)
 
         # Object Placement
@@ -76,5 +80,19 @@ class VentanaInicio(QWidget):
 
         self.setLayout(main_vbox)
 
+    def start_click(self):
+        """
+        Envía una señal al backend para enviar el nombre de usuario introducido
+        al servidor.
+        """
+        nombre = self.text_box.text().strip()
+        if self.username_signal is None:
+            raise NotImplementedError
+        self.username_signal.emit(nombre)
+
     def update_feedback(self, msg):
+        """
+        Cambia el valor del label de feedback, en caso de que no se haya
+        haya admitido el nombre de usuario (ver casos arriba).
+        """
         self.feedback_label.setText(msg)
