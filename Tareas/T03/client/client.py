@@ -6,6 +6,8 @@ import socket
 import os
 import json
 import time
+from backend import Backend
+from gui_inicio import VentanaInicio
 from parametros import PARAMETROS
 
 class Client():
@@ -23,6 +25,11 @@ class Client():
         self.port = PARAMETROS["port"]
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+        # Functional attributes
+        self.backend = Backend()
+        self.ventana_inicio = None
+        self.venana_principal = None
+
         # Other attributes
         self.username = None
         self.connected = False
@@ -32,7 +39,9 @@ class Client():
             self.log(f"Cliente conectado exitosamente al servidor en {self.host}:{self.port}")
             self.connected = True
 
-            # Thread para interactuar con el servidor
+            self.ventana_inicio = VentanaInicio()
+            self.log("Iniciando GUI...")
+
             thread = threading.Thread(target=self.listen_thread, daemon=True)
             thread.start()
             self.log("Escuchando al servidor...")
