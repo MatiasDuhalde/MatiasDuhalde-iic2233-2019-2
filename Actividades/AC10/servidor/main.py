@@ -1,6 +1,7 @@
 import socket
 import json
 import pickle
+import re
 from juego import Juego
 
 
@@ -13,11 +14,16 @@ class Servidor:
         # -----------------------------------------
         # Completar y agregar argumentos desde aquí
 
-        self.host = None
-        self.port = None
-        self.socket_servidor = None
+        # PAUTA - Host y Port
+        self.host = "localhost"
+        self.port = 14502
+        self.socket_servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         # Aqui deberas preparar el socket para que escuche una conexion
+        # PAUTA - Se inicia el socket
+        self.socket_servidor.bind((self.host, self.port))
+        # PAUTA - El socket escucha conexiones
+        self.socket_servidor.listen()
 
         # Completar y agregar argumentos hasta aquí
         # -----------------------------------------
@@ -30,8 +36,9 @@ class Servidor:
         print("Esperando cliente...")
         # --------------------
         # Completar desde aquí
-
         # Debes actualizar el valor de self.socket_cliente al conectar
+        # PAUTA - Se conecta y guarda el socket
+        self.socket_cliente, _ = self.socket_servidor.accept()
 
         # Completar hasta aquí
         # --------------------
@@ -60,7 +67,18 @@ class Servidor:
         # -----------------------------------------------------
         # Completar y usar un metodo para todo largo de mensaje
 
-        mensaje_codificado = None
+        dict_ = {
+            "mensaje": mensaje,
+            "continuar": continuar
+        }
+
+        # PAUTA - Se usa pickle para serializar (BONUS)
+        mensaje_codificado = pickle.dumps(dict_)
+        bytes_length = len(mensaje_codificado).to_bytes(4, byteorder="little")
+
+        # PAUTA - Se envía el mensaje
+        self.socket_cliente.send(bytes_length)
+        self.socket_cliente.send(mensaje_codificado)
 
         # Completar hasta aquí
         # --------------------
@@ -70,9 +88,19 @@ class Servidor:
         # -----------------------------------------------------
         # Completar y usar un metodo para todo largo de mensaje
 
-        bytes_recibidos = self.socket_cliente.recv(100)  # Rayos, esto es demasiado po
+        # PAUTA - Se recibe el mensaje
+        bytes_length = self.socket_cliente.recv(4)
+        msg_length = int.from_bytes(bytes_length, byteorder="little")
+        bytes_recibidos = self.socket_cliente.recv(msg_length)
+        # En caso de que se cierre la conexión con el cliente
+        if not bytes_length:
+            print("Ha ocurrido un error de conexión con el cliente")
+            return None
 
-        accion = None  # Respuesta resultante
+        # PAUTA - Se usa JSON para deserializar (BONUS)
+        dict_recibido = json.loads(bytes_recibidos.decode(encoding="utf-8"))
+
+        accion = dict_recibido["accion"]  # Respuesta resultante
 
         # Completar hasta aquí
         # --------------------
@@ -84,8 +112,21 @@ class Servidor:
         # --------------------
         # Completar desde aquí
 
-        tipo = None  # Obtener el tipo de acción que envió el cliente.
-
+        # Obtener el tipo de acción que envió el cliente.
+        # PAUTA - Se obtiene el comando del cliente (1/2)
+        if accion is None:
+            self.socket_cliente.close()
+            print('Cliente desconectado.\n')
+            self.socket_cliente = None
+            return
+        if re.match(r'\\juego_nuevo$', accion):
+            tipo = '\\juego_nuevo'
+        elif re.match(r'\\salir$', accion):
+            tipo = '\\salir'
+        elif re.match(r'\\jugada [0-9]+$', accion):
+            tipo = '\\jugada'
+        else:
+            raise ValueError("QUE PAAAASOO")
         # Completar hasta aquí
         # --------------------
         if tipo == '\\juego_nuevo':
@@ -106,7 +147,8 @@ class Servidor:
                 # Completar desde aquí
 
                 # Obtener la jugada que envió el cliente.
-                jugada = None
+                # PAUTA - Se obtiene el comando del cliente (2/2)
+                jugada = int(re.search(r'[0-9]+', accion).group())
 
                 # Completar hasta aquí
                 # --------------------
