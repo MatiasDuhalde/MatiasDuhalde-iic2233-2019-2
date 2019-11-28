@@ -2,7 +2,6 @@
 Este módulo se encarga de leer los parámetros del servidor, ubicados en el
 archivo parametros.json.
 """
-
 import json
 import os
 

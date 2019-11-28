@@ -1,4 +1,6 @@
 {
     "host": "localhost",
-    "port": 42069
+    "port": 42069,
+    "path usuarios": "usuarios.json",
+    "path amigos": "amigos.json"
 }
