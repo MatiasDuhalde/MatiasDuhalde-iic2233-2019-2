@@ -22,14 +22,14 @@ class Client():
         # Communication attributes
         self.host = PARAMETROS["host"]
         self.port = PARAMETROS["port"]
-        self.socket_cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         # Other attributes
         self.username = None
         self.connected = False
 
         try:
-            self.socket_cliente.connect((self.host, self.port))
+            self.client_socket.connect((self.host, self.port))
             self.log(f"Cliente conectado exitosamente al servidor en {self.host}:{self.port}")
             self.connected = True
 
@@ -40,7 +40,7 @@ class Client():
         except ConnectionRefusedError:
             self.log(f"No se encontró un servidor en {self.host}:{self.port}")
             self.log("Cerrando cliente")
-            self.socket_cliente.close()
+            self.client_socket.close()
             exit()
 
     def listen_thread(self):
@@ -57,7 +57,7 @@ class Client():
         # Si desean que un usuario pueda desconectarse
         while self.connected:
             # Primero recibimos los 4 bytes del largo
-            response_bytes_length = self.socket_cliente.recv(4)
+            response_bytes_length = self.client_socket.recv(4)
             # Los decodificamos
             response_length = int.from_bytes(response_bytes_length, byteorder="little")
 
@@ -68,7 +68,7 @@ class Client():
             # indicados en los primeros 4 bytes recibidos.
             while len(response_bytes) < response_length:
                 largo_por_recibir = min(response_length - len(response_bytes), 256)
-                response_bytes += self.socket_cliente.recv(largo_por_recibir)
+                response_bytes += self.client_socket.recv(largo_por_recibir)
 
             # Una vez que tenemos todos los bytes, entonces ahí decodificamos
             response = response_bytes.decode()
@@ -113,8 +113,7 @@ class Client():
             chunk_bytes = msg_bytes[i:80+i]
             if len(chunk_bytes) < 124:
                 chunk_bytes += b"\x00"*(124 - len(chunk_bytes))
-            blocks.append(n_chunk_bytes)
-            blocks.append(chunk_bytes)
+            blocks.append(n_chunk_bytes + chunk_bytes)
         return blocks
 
     def send(self, username=None, action="nothing"):
@@ -136,7 +135,7 @@ class Client():
 
         msg_encoded = Client.encode_message(dict_)
         for chunk in msg_encoded:
-            self.socket_cliente.send(chunk)
+            self.client_socket.send(chunk)
 
     @staticmethod
     def decode_message(msg):
@@ -156,22 +155,17 @@ class Client():
 
     def receive(self):
         """
-        Este método se encarga de comunicarse con el servidor. La información
-        es indexada dentro de un diccionario, el cual se codifica y se manda.
-
-        Parámetros:
-         - username: Nombre de usuario
+        Este método se encarga de recibir los mensajes del servidor.
 
         Retorna el objeto recibido y decodificado.
         """
-        # Recibir largo del mensaje (bytes)
-        msg_length_bytes = self.socket_cliente.recv(4)
+        msg_length_bytes = self.client_socket.recv(4)
         msg_length = int.from_bytes(msg_length_bytes, byteorder="little")
 
         msg = bytearray()
         proof_counter = 1
         while len(msg) < msg_length:
-            bytes_msg = self.socket_cliente.recv(128)
+            bytes_msg = self.client_socket.recv(128)
             index = int.from_bytes(bytes_msg[0:4], byteorder="big")
             if proof_counter != index:
                 error_msg = "Mensaje no recibido correctamente"
