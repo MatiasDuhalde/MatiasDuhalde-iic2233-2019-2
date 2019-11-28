@@ -6,7 +6,6 @@ import socket
 import os
 import json
 import time
-from PyQt5.QtCore import pyqtSignal, QObject
 from parametros import PARAMETROS
 
 class Client():
@@ -45,40 +44,22 @@ class Client():
 
     def listen_thread(self):
         """
-        Este método es el usado en el thread y la idea es que reciba lo que
-        envía el servidor. Implementa el protocolo de agregar los primeros
-        4 bytes, que indican el largo del mensaje
-        :return:
-
-        TODO
-        ESTA WEA NO SIRVE JJJJJJJAAAAAAAAAA
+        Método usado en un thread, esta pendiente de recibir los datos del
+        servidor. Invoca a la función encargada de manejar los comandos.
         """
 
-        # Si desean que un usuario pueda desconectarse
         while self.connected:
-            # Primero recibimos los 4 bytes del largo
-            response_bytes_length = self.client_socket.recv(4)
-            # Los decodificamos
-            response_length = int.from_bytes(response_bytes_length, byteorder="little")
+            data = self.receive()
+            self.manejar_comando(data)
 
-            # Luego, creamos un bytearray vacío para juntar el mensaje
-            response_bytes = bytearray()
+    def manejar_comando(self, data):
+        """
+        Maneja la señal enviada por el servidor.
 
-            # Recibimos datos hasta que alcancemos la totalidad de los datos
-            # indicados en los primeros 4 bytes recibidos.
-            while len(response_bytes) < response_length:
-                largo_por_recibir = min(response_length - len(response_bytes), 256)
-                response_bytes += self.client_socket.recv(largo_por_recibir)
-
-            # Una vez que tenemos todos los bytes, entonces ahí decodificamos
-            response = response_bytes.decode()
-
-            # Luego, debemos cargar lo anterior utilizando json
-            decoded = json.loads(response)
-
-            # Para evitar hacer muy largo este método, el manejo del mensaje se
-            # realizará en otro método
-            self.manejar_comando(decoded)
+        TODO
+        literalmente todo
+        """
+        print("Se recibió:", data)
 
     @staticmethod
     def encode_message(msg):

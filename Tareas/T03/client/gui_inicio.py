@@ -34,7 +34,7 @@ class VentanaInicio(QWidget):
         self.setGeometry(50, 50, 500, 500)
 
         # Logo
-        path_logo = os.path.join('sprites', 'logo.png')
+        path_logo = os.path.join('..', 'sprites', 'logo.png')
         logo_pixmap = QPixmap(path_logo)
         self.logo = QLabel(self)
         self.logo.setPixmap(logo_pixmap)
