@@ -178,6 +178,6 @@ class Client():
             mode = "a"
         else:
             mode = "w"
-        with open(filename_, mode) as log_file:
+        with open(filename_, mode, encoding="utf-8") as log_file:
             time_ = time.strftime(r"%y-%m-%d %H:%M:%S")
             log_file.write(f"[{time_}] {msg}{end}")
