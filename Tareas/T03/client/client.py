@@ -17,6 +17,8 @@ class Client():
     """
 
     def __init__(self):
+        # TODO CONECTAR SEÑALES
+        # COMO MIERDA CONECTO EL CLIENT AL BACKEND!!!!
         self.start_time = time.strftime(r"%y-%m-%d %H.%M.%S")
         self.log("Inicializando cliente...")
 
@@ -47,6 +49,9 @@ class Client():
             self.log("Escuchando al servidor...")
         except ConnectionRefusedError:
             self.log(f"No se encontró un servidor en {self.host}:{self.port}")
+        except ConnectionError:
+            self.log("ERROR: Servidor desconectado.")
+        finally:
             self.log("Cerrando cliente")
             self.client_socket.close()
             exit()
@@ -59,6 +64,8 @@ class Client():
 
         while self.connected:
             data = self.receive()
+            if data is None:
+                raise ConnectionError
             self.manejar_comando(data)
 
     def manejar_comando(self, data):
@@ -150,6 +157,8 @@ class Client():
         Retorna el objeto recibido y decodificado.
         """
         msg_length_bytes = self.client_socket.recv(4)
+        if not msg_length_bytes:
+            return None
         msg_length = int.from_bytes(msg_length_bytes, byteorder="little")
 
         msg = bytearray()
