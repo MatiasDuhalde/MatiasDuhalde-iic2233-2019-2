@@ -6,6 +6,7 @@ import socket
 import os
 import json
 import time
+from usuarios import Usuario
 from parametros import PARAMETROS
 
 class Server:
@@ -17,15 +18,19 @@ class Server:
     """
 
     def __init__(self):
+        # Log attribute
         self.start_time = time.strftime(r"%y-%m-%d %H.%M.%S")
         self.log("Inicializando servidor...")
 
         # Diccionario a contener los sockets de los clients
-        self.sockets = dict()
-
         self.host = PARAMETROS["host"]
         self.port = PARAMETROS["port"]
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        # Other attributes
+        self.sockets = dict()
+        self.usuarios_registrados = Usuario.get_usuarios()
+        self.nombres_usuarios_registrados = [u.username for u in self.usuarios_registrados]
 
         self.server_socket.bind((self.host, self.port))
         self.log("Dirección y puerto enlazados..")
@@ -33,7 +38,6 @@ class Server:
         self.server_socket.listen()
         self.log(f"Servidor escuchando en {self.host}:{self.port}...")
 
-        # Thread para aceptar conexiones entrantes
         thread = threading.Thread(target=self.login_thread, daemon=True)
         thread.start()
         self.log("Servidor aceptando conexiones...")
@@ -44,69 +48,81 @@ class Server:
         Este método acepta conexiones entrantes y se encarga de iniciar sesión
         a los usuarios. Recibe un socket y luego un nombre de usuario. Si este
         es válido, se acepta la conexión y se guarda el socket en self.sockets.
-
-        TODO
-        NO SIRVE LUL
+        Finalmente, se inicia un thread que escucha al socket en cuestión.
         """
         while True:
             client_socket, _ = self.server_socket.accept()
             self.log("Servidor conectado a un nuevo cliente...")
 
-            # RECIBIR NOMBRE DEL USUARIO (O INSTANCIA USUARIO) desde client
+            # Recibir y validar username para indexar el socket en self.sockets
+            username_valid = False
+            while not username_valid:
+                dict_ = self.receive(client_socket)
+                if not dict_:
+                    # Case ConnectionError in self.receive()
+                    self.log("Se perdió la conexión con el cliente.")
+                    break
+                username = dict_["username"]
+                username_valid = self.validate_username(username)
+            if not username_valid:
+                # Case ConnectionError in self.receive()
+                self.log("Cerrando socket...")
+                client_socket.close()
+                break
 
-            # Guarda el socket
-            self.sockets["name"] = client_socket
+            self.log(f"Usuario {username} iniciando sesión...")
+            self.sockets[username] = client_socket
 
             # Inicia el thread encargado de escuchar al cliente
-            # listening_client_thread = threading.Thread(
-            #     target=self.listen_client_thread,
-            #     args=(client_socket, id_),
-            #     daemon=True
-            # )
-            # listening_client_thread.start()
+            listening_client_thread = threading.Thread(
+                target=self.listen_client_thread,
+                args=(client_socket, username),
+                daemon=True
+            )
+            listening_client_thread.start()
 
-    def listen_client_thread(self, client_socket, id_cliente):
+    def validate_username(self, username):
         """
-        Este método va a ser usado múltiples veces en threads pero cada vez con
-        sockets de clientes distintos.
-        :param client_socket: objeto socket correspondiente a algún cliente
-        :return:
+        Valida el nombre de usuario ingresado según el enunciado. Solo se
+        admite si cumple con las siguientes condiciones.
+         - El username está registrado (en usuarios.json)
+         - El username no está actualmente conectado
+        El username es case-sensitive!
 
-        TODO
-        LEER Y ARREGLAR ESTO ALSO DOC
+        Parámetros:
+         - username: Nombre de usuario a analizar
+
+        Retorna bool indicando si el nombre de usuario es válido o no
+        """
+        self.log(f"Se recibe el nombre '{username}'.")
+        if username in self.sockets:
+            self.log(f"El usuario {username} ya está conectado.")
+            return False
+        if username in self.nombres_usuarios_registrados:
+            return True
+        self.log(f"El usuario {username} no está registrado en el servidor.")
+        return False
+
+    def listen_client_thread(self, client_socket, username):
+        """
+        Un thread por cada socket, que recibe los mensajes del usuario.
+        El recibir un mensaje, invoca a self.handle_command() para trabajar
+        el comando. En caso de desconexión borra el socket y cierra el thread.
         """
 
         while True:
             try:
-                # Primero recibimos los 4 bytes del largo
-                response_bytes_length = client_socket.recv(4)
-                # Los decodificamos
-                response_length = int.from_bytes(response_bytes_length,
-                                                 byteorder="big")
-
-                # Luego, creamos un bytearray vacío para juntar el mensaje
-                response_bytes = bytearray()
-
-                # Recibimos datos hasta que alcancemos la totalidad de los datos
-                # indicados en los primeros 4 bytes recibidos.
-                while len(response_bytes) < response_length:
-                    largo_por_recibir = min(response_length - len(response_bytes), 256)
-                    response_bytes += client_socket.recv(largo_por_recibir)
-
-                # Una vez que tenemos todos los bytes, entonces ahí decodificamos
-                response = response_bytes.decode()
-
-                # Luego, debemos cargar lo anterior utilizando json
-                decoded = json.loads(response)
-
-                # Para evitar hacer muy largo este método, el manejo del mensaje se
-                # realizará en otro método
-                self.manejar_comando(decoded, client_socket)
+                dict_ = self.receive(client_socket)
+                if dict_ is None:
+                    raise ConnectionResetError
+                self.handle_command(dict_, client_socket)
             except ConnectionResetError:  # Es decir, si el cliente se desconecta
-                del self.sockets[id_cliente]
+                self.log(f"El usuario {username} se ha desconectado.")
+                self.log(f"Cerrando conexión...")
+                del self.sockets[username]
                 break
 
-    def manejar_comando(self, recibido, socket):
+    def handle_command(self, recibido, client_socket):
         """
         Este método toma lo recibido por el cliente correspondiente al socket pasado
         como argumento.
@@ -117,24 +133,25 @@ class Server:
         TODO
         MODIFICAR PARA ESTE CONTEXTO
         """
-
-        # Podemos imprimir para verificar que toodo anda bien
         print("Mensaje Recibido: {}".format(recibido))
 
-        palabra = recibido['palabra']
-        palabra_fonetica, palabra_traducida = traducir(palabra)
+        # TODO ANALIZAR EL MENSAJE
 
-        mensaje = {"propio": True,
-                   "original": palabra,
-                   "fonetica": palabra_fonetica,
-                   "traducida": palabra_traducida}
+        # palabra = recibido['palabra']
+        # palabra_fonetica, palabra_traducida = traducir(palabra)
 
-        # primero le enviamos la respuesta al que pidio la conversion
-        self.send(socket, mensaje)
+        # mensaje = {"propio": True,
+        #            "original": palabra,
+        #            "fonetica": palabra_fonetica,
+        #            "traducida": palabra_traducida}
 
-        # despues le actualizamos la ultima consulta a todas los clientes
-        mensaje.update({"propio": False})
-        self.sendall(mensaje)
+        # TODO HACER ALGO PARA RESPONDER
+
+
+        # self.send(socket, mensaje)
+
+        # mensaje.update({"propio": False})
+        # self.sendall(mensaje)
 
     @staticmethod
     def encode_message(msg):
@@ -207,10 +224,10 @@ class Server:
                 self.send(self.sockets[username], mensaje)
             except ConnectionResetError:
                 del self.sockets[username]
-                self.log(f'Error de conexion con cliente ')
+                self.log(f'Error de conexión con cliente ')
             except ConnectionAbortedError:
                 del self.sockets[username]
-                self.log('Error de conexion con cliente')
+                self.log('Error de conexión con cliente')
             except IndexError:
                 self.log('Ya se ha eliminado el cliente del diccionario')
 
@@ -230,19 +247,21 @@ class Server:
 
         return decoded_msg
 
-    def receive(self):
+    def receive(self, client_socket):
         """
         Este método se encarga de recibir los mensajes del cliente.
 
         Retorna el objeto recibido y decodificado.
         """
-        msg_length_bytes = self.server_socket.recv(4)
+        msg_length_bytes = client_socket.recv(4)
+        if not msg_length_bytes:
+            return None
         msg_length = int.from_bytes(msg_length_bytes, byteorder="little")
 
         msg = bytearray()
         proof_counter = 1
         while len(msg) < msg_length:
-            bytes_msg = self.server_socket.recv(128)
+            bytes_msg = client_socket.recv(128)
             index = int.from_bytes(bytes_msg[0:4], byteorder="big")
             if proof_counter != index:
                 error_msg = "Mensaje no recibido correctamente"
