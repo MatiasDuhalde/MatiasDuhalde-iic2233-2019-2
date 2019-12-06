@@ -4,7 +4,7 @@ Código y funcionamiento del cliente.
 import threading
 import socket
 import os
-import json
+import pickle
 import time
 from PyQt5.QtCore import pyqtSignal, QObject
 from backend import Backend
@@ -36,20 +36,24 @@ class Client(QObject):
         self.ventana_principal = None
 
         # Other attributes
-        self.username = None
+        self.user = None
+        self.current_window = None
         self.connected = False
 
         try:
             self.client_socket.connect((self.host, self.port))
-            self.log(f"Cliente conectado exitosamente al servidor en {self.host}:{self.port}")
+            self.log("Cliente conectado exitosamente al servidor en" + 
+                        f"{self.host}:{self.port}")
             self.connected = True
 
-            self.log("Iniciando GUI...")
-            self.ventana_inicio = VentanaInicio()
-            self.connect_signals()
+            if not self.ventana_inicio:
+                self.log("Iniciando GUI...")
+                self.ventana_inicio = VentanaInicio()
+                self.current_window = "inicio"
+                self.connect_signals()
 
-            thread = threading.Thread(target=self.listen_thread, daemon=True)
-            thread.start()
+            self.thread = threading.Thread(target=self.listen_thread, daemon=True)
+            self.thread.start()
             self.log("Escuchando al servidor...")
         except ConnectionRefusedError:
             self.log(f"No se encontró un servidor en {self.host}:{self.port}")
@@ -76,14 +80,23 @@ class Client(QObject):
         """
         Maneja información recibida desde la interfaz, y se comunica con el
         servidor en caso de ser necesario.
+
+        Parámetros:
+         - dict_: diccionario recibido desde frontend
         """
         new_dict = Backend.handle_gui_signal(dict_)
-        if new_dict["send"]:
-            del new_dict["send"]
-            self.send(**new_dict)
         command = dict_["command"]
         if command == "start":
-            self.ventana_principal = VentanaPrincipal()
+            self.ventana_principal = VentanaPrincipal(**dict_)
+            self.current_window = "principal"
+        elif command == "logout":
+            self.current_window = "inicio"
+            del self.ventana_principal
+            self.ventana_principal = None
+            self.ventana_inicio.show()
+        if new_dict["send"]:
+            del new_dict["send"]
+            self.send(new_dict)
 
 
     def listen_thread(self):
@@ -101,17 +114,24 @@ class Client(QObject):
         """
         Maneja la señal enviada por el servidor.
 
-        TODO
-        ADD OTHER WINDOWS
+        Parámetros:
+         - dict_: diccionario recibido desde método listen_thread
         """
         command = dict_["command"]
-        if command in ["login", "start"]:
+        if command == "login":
+            # Inicio, send directly to GUI
             self.sendto_inicio_signal.emit(dict_)
+        elif command == "start":
+            # Inicio, get user object and send to GUI
+            self.user = dict_["user"]
+            self.sendto_inicio_signal.emit(dict_)
+        elif command == "logout":
+            self.connected = False
 
     @staticmethod
     def encode_message(msg):
         """
-        Transforma un mensaje en chunks. Este se serializa usando JSON, y luego
+        Transforma un mensaje en chunks. Este se serializa usando pickle, y luego
         se codifica según el protocolo descrito en el enunciado:
          - Primeros 4 bytes indican el largo del contenido del mensaje, en
            little endian.
@@ -128,8 +148,7 @@ class Client(QObject):
 
         VER: https://github.com/IIC2233/syllabus/issues/546#issuecomment-559302753
         """
-        msg_json = json.dumps(msg)
-        msg_bytes = msg_json.encode()
+        msg_bytes = pickle.dumps(msg)
 
         msg_length = len(msg_bytes)
         msg_length_bytes = msg_length.to_bytes(4, byteorder="little")
@@ -144,23 +163,14 @@ class Client(QObject):
             blocks.append(n_chunk_bytes + chunk_bytes)
         return blocks
 
-    def send(self, username, command):
+    def send(self, dict_):
         """
         Este método se encarga de comunicarse con el servidor. La información
         es indexada dentro de un diccionario, el cual se codifica y se manda.
 
         Parámetros:
-         - username: Nombre de usuario
-
-        TODO
-        AGREGAR LOS OTROS PARÁMETROS
+         - dict_: Diccionario que contiene parámetros a enviar
         """
-
-        dict_ = {
-            "username": username,
-            "command": command
-        }
-
         msg_encoded = Client.encode_message(dict_)
         for chunk in msg_encoded:
             self.client_socket.send(chunk)
@@ -176,9 +186,7 @@ class Client(QObject):
 
         Retorna el objeto decodificado.
         """
-        msg_json = msg.decode(encoding="utf-8")
-        decoded_msg = json.loads(msg_json)
-
+        decoded_msg = pickle.loads(msg)
         return decoded_msg
 
     def receive(self):
@@ -227,8 +235,8 @@ class Client(QObject):
             mode = "a"
         else:
             mode = "w"
-        with open(filename_, mode, encoding="utf-8") as log_file:
-            time_ = time.strftime(r"%y-%m-%d %H:%M:%S")
-            output_ = f"[{time_}] {msg}{end}"
-            log_file.write(output_)
-            print(output_, end="")
+        time_ = time.strftime(r"%y-%m-%d %H:%M:%S")
+        output_ = f"[{time_}] {msg}{end}"
+        # with open(filename_, mode, encoding="utf-8") as log_file:
+        #     log_file.write(output_)
+        print(output_, end="")

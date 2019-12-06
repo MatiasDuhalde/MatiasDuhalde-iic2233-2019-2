@@ -100,12 +100,8 @@ class VentanaInicio(QWidget):
             feedback = dict_["feedback"]
             self.update_feedback(feedback)
         elif command == "start":
-            new_dict = {
-                "window": "inicio",
-                "command": "start"
-            }
             self.hide()
-            self.sendto_client_signal.emit(new_dict)
+            self.sendto_client_signal.emit(dict_)
 
 
     def update_feedback(self, msg):

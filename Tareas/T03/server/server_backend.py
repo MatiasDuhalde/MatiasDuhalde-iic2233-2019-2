@@ -37,7 +37,12 @@ class ServerBackend:
             log_output += "\n" + feedback
             return False, response, log_output
         if username in self.usernames_registrados:
+            for usuario in self.usuarios_registrados:
+                if usuario.username == username:
+                    user = usuario
+                    break
             response["command"] = "start"
+            response["user"] = user
             return True, response, log_output
         feedback = f"El usuario {username} no está registrado en el servidor."
         log_output += "\n" + feedback

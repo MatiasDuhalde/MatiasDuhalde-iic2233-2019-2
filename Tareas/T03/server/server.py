@@ -4,7 +4,7 @@ Código y funcionamiento del servidor.
 import threading
 import socket
 import os
-import json
+import pickle
 import time
 from server_backend import ServerBackend
 from parametros import PARAMETROS
@@ -108,28 +108,26 @@ class Server:
                 del self.sockets[username]
                 break
 
-    def handle_command(self, recibido, client_socket):
+    def handle_command(self, dict_, client_socket):
         """
-        Este método toma lo recibido por el cliente correspondiente al socket pasado
-        como argumento.
-        :param received: diccionario de la forma: {"palabra": Palabra recibida}
-        :param client_socket: socket correspondiente al cliente que envió el mensaje
-        :return:
+        Este método analiza el diccionario recibido por el cliente
+        correspondiente al socket pasado como argumento.
+        Procesa la solicitud según lo pedido.
 
+        Parámetros:
+         - dict_: Diccionario proveniente del client.
+         - client_socket: socket correspondiente al client.
         TODO
         MODIFICAR PARA ESTE CONTEXTO
         """
-        print("Mensaje Recibido: {}".format(recibido))
+        print("Mensaje Recibido: {}".format(dict_))
 
-        # TODO ANALIZAR EL MENSAJE
+        command = dict_["command"]
+        if command == "logout":
+            # Return same dict to accept closure
+            self.send(client_socket, dict_)
+            raise ConnectionResetError
 
-        # palabra = recibido['palabra']
-        # palabra_fonetica, palabra_traducida = traducir(palabra)
-
-        # mensaje = {"propio": True,
-        #            "original": palabra,
-        #            "fonetica": palabra_fonetica,
-        #            "traducida": palabra_traducida}
 
         # TODO HACER ALGO PARA RESPONDER
 
@@ -159,9 +157,7 @@ class Server:
 
         VER: https://github.com/IIC2233/syllabus/issues/546#issuecomment-559302753
         """
-        msg_json = json.dumps(msg)
-        msg_bytes = msg_json.encode()
-
+        msg_bytes = pickle.dumps(msg)
         msg_length = len(msg_bytes)
         msg_length_bytes = msg_length.to_bytes(4, byteorder="little")
         blocks = [msg_length_bytes]
@@ -219,9 +215,7 @@ class Server:
 
         Retorna el objeto decodificado.
         """
-        msg_json = msg.decode(encoding="utf-8")
-        decoded_msg = json.loads(msg_json)
-
+        decoded_msg = pickle.loads(msg)
         return decoded_msg
 
     def receive(self, client_socket):
@@ -262,8 +256,8 @@ class Server:
             mode = "a"
         else:
             mode = "w"
-        with open(filename_, mode, encoding="utf-8") as log_file:
-            time_ = time.strftime(r"%y-%m-%d %H:%M:%S")
-            output_ = f"[{time_}] {msg}{end}"
-            log_file.write(output_)
-            print(output_, end="")
+        time_ = time.strftime(r"%y-%m-%d %H:%M:%S")
+        output_ = f"[{time_}] {msg}{end}"
+        # with open(filename_, mode, encoding="utf-8") as log_file:
+        #     log_file.write(output_)
+        print(output_, end="")

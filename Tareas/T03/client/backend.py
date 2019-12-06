@@ -26,5 +26,9 @@ class Backend():
             if not "username" is None:
                 base_dict["send"] = True
         elif base_dict["command"] == "start":
-            pass
+            base_dict.update({
+                "user": dict_["user"]
+            })
+        elif base_dict["command"] == "logout":
+            base_dict["send"] = True
         return base_dict
