@@ -1,44 +1,25 @@
 """
 Funcionamiento de la parte de usuario del programa
 """
-from PyQt5.QtCore import pyqtSignal, QObject
 
-class Backend(QObject):
+class Backend():
     """
-    Esta clase maneja el funcionamiento del programa client-side
-
-    Actúa como puente entre el frontend y el client.
-    Hereda de QObject para poder emitir y conectar señales.
+    Esta clase maneja el funcionamiento del programa client-side.
     """
 
-    # Signals
-    username_signal = pyqtSignal(str)
-
-    def __init__(self):
-        # El init simplemente maneja la declaración y conexión de las señales
-        super().__init__()
-        self.username_signal.connect(self.receive_username)
-        self.feedback_signal = None
-
-    def receive_username(self, username):
+    @staticmethod
+    def handle_gui_signal(dict_):
         """
-        Recibe un username desde el frontend para ser enviado y analizado
-        por el server.
+        Revisa un estado enviado desde el frontend al cliente.
+        new_dict["send"] determina si el estado será enviado al server o no.
 
-        Parámetros:
-         - username: nombre de usuario recibido desde el frontend
-
-        Retorna un feedback legible al frontend en caso de ser necesario.
-
-        TODO
-        HANDLE USERNAME
+        Retorna otro diccionario que será enviado al server.
         """
-        return
-
-        if username == "":
-            msg = "El nombre no puede estar vacío."
-        else:
-            msg = f"ingresaste: {username}"
-        if self.feedback_signal is None:
-            raise NotImplementedError
-        self.feedback_signal.emit(msg)
+        new_dict = {
+            "username": dict_["username"],
+            "command": dict_["command"],
+            "send": False
+        }
+        if not "username" is None:
+            new_dict["send"] = True
+        return new_dict

@@ -6,7 +6,7 @@ import socket
 import os
 import json
 import time
-from usuarios import Usuario
+from server_backend import ServerBackend
 from parametros import PARAMETROS
 
 class Server:
@@ -29,8 +29,7 @@ class Server:
 
         # Other attributes
         self.sockets = dict()
-        self.usuarios_registrados = Usuario.get_usuarios()
-        self.nombres_usuarios_registrados = [u.username for u in self.usuarios_registrados]
+        self.backend = ServerBackend()
 
         self.server_socket.bind((self.host, self.port))
         self.log("Dirección y puerto enlazados..")
@@ -41,7 +40,6 @@ class Server:
         thread = threading.Thread(target=self.login_thread, daemon=True)
         thread.start()
         self.log("Servidor aceptando conexiones...")
-
 
     def login_thread(self):
         """
@@ -57,18 +55,26 @@ class Server:
             # Recibir y validar username para indexar el socket en self.sockets
             username_valid = False
             while not username_valid:
-                dict_ = self.receive(client_socket)
-                if not dict_:
-                    # Case ConnectionError in self.receive()
-                    self.log("Se perdió la conexión con el cliente.")
+                try:
+                    dict_ = self.receive(client_socket)
+                    if not dict_:
+                        # Case ConnectionError in self.receive()
+                        self.log("Se perdió la conexión con el cliente.")
+                        break
+                except ConnectionResetError:
+                    self.log(f"No se pudo concretar comunicación con usuario.")
+                    self.log(f"Cerrando conexión...")
+                    del client_socket
                     break
                 username = dict_["username"]
-                username_valid = self.validate_username(username)
+                username_valid = self.backend.validate_username(self.sockets, username)
+            if not 'client_socket' in locals():
+                continue
             if not username_valid:
                 # Case ConnectionError in self.receive()
                 self.log("Cerrando socket...")
                 client_socket.close()
-                break
+                continue
 
             self.log(f"Usuario {username} iniciando sesión...")
             self.sockets[username] = client_socket
@@ -81,35 +87,12 @@ class Server:
             )
             listening_client_thread.start()
 
-    def validate_username(self, username):
-        """
-        Valida el nombre de usuario ingresado según el enunciado. Solo se
-        admite si cumple con las siguientes condiciones.
-         - El username está registrado (en usuarios.json)
-         - El username no está actualmente conectado
-        El username es case-sensitive!
-
-        Parámetros:
-         - username: Nombre de usuario a analizar
-
-        Retorna bool indicando si el nombre de usuario es válido o no
-        """
-        self.log(f"Se recibe el nombre '{username}'.")
-        if username in self.sockets:
-            self.log(f"El usuario {username} ya está conectado.")
-            return False
-        if username in self.nombres_usuarios_registrados:
-            return True
-        self.log(f"El usuario {username} no está registrado en el servidor.")
-        return False
-
     def listen_client_thread(self, client_socket, username):
         """
         Un thread por cada socket, que recibe los mensajes del usuario.
         El recibir un mensaje, invoca a self.handle_command() para trabajar
         el comando. En caso de desconexión borra el socket y cierra el thread.
         """
-
         while True:
             try:
                 dict_ = self.receive(client_socket)
@@ -269,11 +252,11 @@ class Server:
                 raise ValueError(error_msg)
             proof_counter += 1
             msg += bytes_msg[4:]
-
+        msg = msg[:msg_length]
         return self.decode_message(msg)
 
 
-    def log(self, msg):
+    def log(self, msg, end="\n"):
         """
         Escribe en el archivo txt de log/registro
 
@@ -287,4 +270,6 @@ class Server:
             mode = "w"
         with open(filename_, mode, encoding="utf-8") as log_file:
             time_ = time.strftime(r"%y-%m-%d %H:%M:%S")
-            log_file.write(f"[{time_}] {msg}\n")
+            output_ = f"[{time_}] {msg}{end}"
+            log_file.write(output_)
+            print(output_, end="")
