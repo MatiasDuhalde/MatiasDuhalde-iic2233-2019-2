@@ -28,10 +28,18 @@ class ServerBackend:
         mensaje a escribir en el log.
         """
         log_output = f"Se recibe el nombre '{username}'."
+        response = {
+            "command": "login",
+            "feedback": ""
+        }
         if username in sockets:
-            log_output += f"\nEl usuario {username} ya está conectado."
-            return False, log_output
+            feedback = f"El usuario {username} ya está conectado."
+            log_output += "\n" + feedback
+            return False, response, log_output
         if username in self.usernames_registrados:
-            return True, log_output
-        log_output += f"\nEl usuario {username} no está registrado en el servidor."
-        return False, log_output
+            response["command"] = "start"
+            return True, response, log_output
+        feedback = f"El usuario {username} no está registrado en el servidor."
+        log_output += "\n" + feedback
+        response["feedback"] = feedback
+        return False, response, log_output

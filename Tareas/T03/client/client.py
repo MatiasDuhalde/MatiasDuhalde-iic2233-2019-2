@@ -9,6 +9,7 @@ import time
 from PyQt5.QtCore import pyqtSignal, QObject
 from backend import Backend
 from gui_inicio import VentanaInicio
+from gui_principal import VentanaPrincipal
 from parametros import PARAMETROS
 
 class Client(QObject):
@@ -17,6 +18,7 @@ class Client(QObject):
     Hereda de QObject para poder emitir y conectar señales.
     """
     sendto_inicio_signal = pyqtSignal(dict)
+    sendto_principal_signal = pyqtSignal(dict)
 
     def __init__(self):
         super().__init__()
@@ -31,7 +33,7 @@ class Client(QObject):
         # Functional attributes
         self.backend = Backend()
         self.ventana_inicio = None
-        self.venana_principal = None
+        self.ventana_principal = None
 
         # Other attributes
         self.username = None
@@ -63,8 +65,12 @@ class Client(QObject):
         TODO
         Otras ventanas
         """
-        self.ventana_inicio.sendto_client_signal.connect(self.handle_gui)
-        self.sendto_inicio_signal.connect(self.ventana_inicio.handle_client)
+        if self.ventana_inicio:
+            self.ventana_inicio.sendto_client_signal.connect(self.handle_gui)
+            self.sendto_inicio_signal.connect(self.ventana_inicio.handle_client)
+        if self.ventana_principal:
+            self.ventana_principal.sendto_client_signal.connect(self.handle_gui)
+            self.sendto_principal_signal.connect(self.ventana_principal.handle_client)
 
     def handle_gui(self, dict_):
         """
@@ -75,8 +81,9 @@ class Client(QObject):
         if new_dict["send"]:
             del new_dict["send"]
             self.send(**new_dict)
-        else:
-            raise NotImplementedError
+        command = dict_["command"]
+        if command == "start":
+            self.ventana_principal = VentanaPrincipal()
 
 
     def listen_thread(self):
@@ -90,15 +97,16 @@ class Client(QObject):
                 raise ConnectionError
             self.handle_command(data)
 
-    def handle_command(self, data):
+    def handle_command(self, dict_):
         """
         Maneja la señal enviada por el servidor.
 
         TODO
-        literalmente todo
+        ADD OTHER WINDOWS
         """
-        command = data["command"]
-        print("Se recibió:", data)
+        command = dict_["command"]
+        if command in ["login", "start"]:
+            self.sendto_inicio_signal.emit(dict_)
 
     @staticmethod
     def encode_message(msg):
@@ -130,7 +138,7 @@ class Client(QObject):
         for i in range(0, msg_length, 124):
             n_chunk = i//124 + 1
             n_chunk_bytes = n_chunk.to_bytes(4, byteorder="big")
-            chunk_bytes = msg_bytes[i:80+i]
+            chunk_bytes = msg_bytes[i:i+124]
             if len(chunk_bytes) < 124:
                 chunk_bytes += b"\x00"*(124 - len(chunk_bytes))
             blocks.append(n_chunk_bytes + chunk_bytes)
@@ -195,7 +203,7 @@ class Client(QObject):
                 raise ValueError(error_msg)
             proof_counter += 1
             msg += bytes_msg[4:]
-
+        msg = msg[:msg_length]
         return self.decode_message(msg)
 
     def close_client(self):

@@ -15,11 +15,16 @@ class Backend():
 
         Retorna otro diccionario que será enviado al server.
         """
-        new_dict = {
-            "username": dict_["username"],
+        base_dict = {
             "command": dict_["command"],
             "send": False
         }
-        if not "username" is None:
-            new_dict["send"] = True
-        return new_dict
+        if base_dict["command"] == "login":
+            base_dict.update({
+                "username": dict_["username"],
+            })
+            if not "username" is None:
+                base_dict["send"] = True
+        elif base_dict["command"] == "start":
+            pass
+        return base_dict

@@ -67,7 +67,10 @@ class Server:
                     del client_socket
                     break
                 username = dict_["username"]
-                username_valid = self.backend.validate_username(self.sockets, username)
+                username_valid, response, log_output = self.backend.validate_username(
+                    self.sockets, username)
+                self.log(log_output)
+                self.send(client_socket, response)
             if not 'client_socket' in locals():
                 continue
             if not username_valid:
@@ -161,34 +164,25 @@ class Server:
 
         msg_length = len(msg_bytes)
         msg_length_bytes = msg_length.to_bytes(4, byteorder="little")
-
         blocks = [msg_length_bytes]
         for i in range(0, msg_length, 124):
             n_chunk = i//124 + 1
             n_chunk_bytes = n_chunk.to_bytes(4, byteorder="big")
-            chunk_bytes = msg_bytes[i:80+i]
+            chunk_bytes = msg_bytes[i:i+124]
             if len(chunk_bytes) < 124:
                 chunk_bytes += b"\x00"*(124 - len(chunk_bytes))
             blocks.append(n_chunk_bytes + chunk_bytes)
         return blocks
 
     @staticmethod
-    def send(socket_, msg=None):
+    def send(socket_, dict_=None):
         """
         Este método envía la información al cliente correspondiente al socket.
 
         Parámetros:
          - msg: Objeto a enviar
          - socket_: socket del cliente target
-
-        TODO
-        AGREGAR LOS OTROS PARÁMETROS
         """
-
-        dict_ = {
-            "something": msg
-        }
-
         msg_encoded = Server.encode_message(dict_)
         for chunk in msg_encoded:
             socket_.send(chunk)
