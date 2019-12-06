@@ -17,12 +17,10 @@ class VentanaInicio(QWidget):
      - Debe estar registrado en nombres.json
      - No debe haber otro usuario con el mismo nombre ya conectado
     """
-    feedback_signal = pyqtSignal(str)
+    sendto_client_signal = pyqtSignal(dict)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.username_signal = None
-        self.feedback_signal.connect(self.update_feedback)
         self.init_gui()
         self.show()
 
@@ -85,10 +83,17 @@ class VentanaInicio(QWidget):
         Envía una señal al backend para enviar el nombre de usuario introducido
         al servidor.
         """
-        nombre = self.text_box.text().strip()
-        if self.username_signal is None:
-            raise NotImplementedError
-        self.username_signal.emit(nombre)
+        username = self.text_box.text().strip()
+        dict_ = {
+            "window": "inicio",
+            "command": "login",
+            "username": username
+        }
+        self.sendto_client_signal.emit(dict_)
+
+    def handle_client(self):
+        pass
+
 
     def update_feedback(self, msg):
         """
