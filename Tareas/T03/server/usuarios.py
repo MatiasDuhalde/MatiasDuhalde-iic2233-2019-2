@@ -17,7 +17,7 @@ class Usuario:
      - get_amigos
     """
     def __init__(self, nombre, personaje):
-        self.nombre = nombre
+        self.username = nombre
         self.personaje = personaje
         self.amigos = self.get_amigos(self)
 
@@ -40,7 +40,7 @@ class Usuario:
         nombre de usuario pedido, según los contenidos de amigos.json
         """
         if isinstance(usuario, Usuario):
-            usuario = usuario.nombre
+            usuario = usuario.username
         elif isinstance(usuario, str):
             pass
         else:
@@ -54,4 +54,4 @@ class Usuario:
         return amigos
 
     def __repr__(self):
-        return self.nombre
+        return self.username
