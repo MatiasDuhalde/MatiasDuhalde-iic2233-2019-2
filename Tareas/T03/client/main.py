@@ -6,7 +6,13 @@ from PyQt5.QtWidgets import QApplication
 from client import Client
 
 if __name__ == '__main__':
-    APP = QApplication([])
-    CLIENT = Client()
+    while True:
+        APP = QApplication([])
+        CLIENT = Client()
 
-    sys.exit(APP.exec_())
+        APP.exec_()
+        if not CLIENT.reset:
+            break
+        del CLIENT
+        del APP
+

@@ -6,7 +6,7 @@ import socket
 import os
 import pickle
 import time
-from PyQt5.QtCore import pyqtSignal, QObject
+from PyQt5.QtCore import pyqtSignal, QObject, QCoreApplication
 from backend import Backend
 from gui_inicio import VentanaInicio
 from gui_principal import VentanaPrincipal
@@ -22,6 +22,7 @@ class Client(QObject):
 
     def __init__(self):
         super().__init__()
+        self.reset = False
         self.start_time = time.strftime(r"%y-%m-%d %H.%M.%S")
         self.log("Inicializando cliente...")
 
@@ -43,7 +44,7 @@ class Client(QObject):
         try:
             self.client_socket.connect((self.host, self.port))
             self.log("Cliente conectado exitosamente al servidor en" + 
-                        f"{self.host}:{self.port}")
+                     f"{self.host}:{self.port}")
             self.connected = True
 
             if not self.ventana_inicio:
@@ -89,11 +90,11 @@ class Client(QObject):
         if command == "start":
             self.ventana_principal = VentanaPrincipal(**dict_)
             self.current_window = "principal"
+            self.connect_signals()
         elif command == "logout":
             self.current_window = "inicio"
             del self.ventana_principal
             self.ventana_principal = None
-            self.ventana_inicio.show()
         if new_dict["send"]:
             del new_dict["send"]
             self.send(new_dict)
@@ -109,6 +110,7 @@ class Client(QObject):
             if data is None:
                 raise ConnectionError
             self.handle_command(data)
+        QCoreApplication.quit()
 
     def handle_command(self, dict_):
         """
@@ -127,6 +129,7 @@ class Client(QObject):
             self.sendto_inicio_signal.emit(dict_)
         elif command == "logout":
             self.connected = False
+            self.reset = True
 
     @staticmethod
     def encode_message(msg):

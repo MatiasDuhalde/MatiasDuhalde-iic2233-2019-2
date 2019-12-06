@@ -85,7 +85,6 @@ class VentanaInicio(QWidget):
         """
         username = self.text_box.text().strip()
         dict_ = {
-            "window": "inicio",
             "command": "login",
             "username": username
         }
