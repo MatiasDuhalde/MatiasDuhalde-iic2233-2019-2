@@ -7,6 +7,7 @@ import os
 import pickle
 import time
 from rooms import Room
+from usuarios import Usuario
 from server_backend import ServerBackend
 from parametros import PARAMETROS
 
@@ -32,8 +33,8 @@ class Server:
 
         # Other attributes
         self.sockets = dict()
-        self.backend = ServerBackend()
         self.rooms = [Room(nombre=f"Sala {i}") for i in range(4)]
+        self.usuarios = {usuario.username : usuario for usuario in Usuario.get_usuarios()}
 
         self.server_socket.bind((self.host, self.port))
         self.log("Dirección y puerto enlazados..")
@@ -71,9 +72,11 @@ class Server:
                     del client_socket
                     break
                 username = dict_["username"]
-                username_valid, response, log_output = self.backend.validate_username(
-                    self.sockets, username)
+                response, log_output = ServerBackend.validate_username(
+                    self.sockets, self.usuarios, username)
                 if response["command"] == "start":
+                    self.usuarios[username].online = True
+                    username_valid = True
                     response["rooms"] = self.rooms
                 self.log(log_output)
                 self.send(client_socket, response)
@@ -112,6 +115,16 @@ class Server:
                 self.log(f"El usuario {username} se ha desconectado.")
                 self.log(f"Cerrando conexión...")
                 del self.sockets[username]
+                self.usuarios[username].online = False
+                for room in self.rooms:
+                    if username in room.usuarios_conectados:
+                        del room.usuarios_conectados[username]
+                        new_dict = {
+                            "command": "update_rooms",
+                            "rooms": self.rooms
+                        }
+                        self.sendall(new_dict)
+                        break
                 break
 
     def handle_command(self, dict_, client_socket):
@@ -132,13 +145,13 @@ class Server:
         if command == "enter":
             user = dict_["user"]
             room = dict_["room"]
-            response, log_output = self.backend.grant_room_access(
-                client_socket, user, room, self.rooms)
+            response, log_output = ServerBackend.grant_room_access(
+                user, room, self.rooms)
             self.log(log_output)
             if response["command"] == "access_granted":
                 for temp_room in self.rooms:
                     if temp_room.nombre == room.nombre:
-                        temp_room.usuarios_conectados.append(user)
+                        temp_room.usuarios_conectados.update({user.username: user})
                         room = temp_room
                         break
             response["rooms"] = self.rooms
@@ -149,6 +162,9 @@ class Server:
                 "rooms": self.rooms
             }
             self.sendall(new_dict)
+        else:
+            feedback = "Comando inválido"
+
 
     @staticmethod
     def encode_message(msg):

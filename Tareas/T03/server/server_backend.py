@@ -9,11 +9,8 @@ class ServerBackend:
     servidor. Luego de procesar, retorna hacia este.
     """
 
-    def __init__(self):
-        self.usuarios_registrados = Usuario.get_usuarios()
-        self.usernames_registrados = [u.username for u in self.usuarios_registrados]
-
-    def validate_username(self, sockets, username):
+    @staticmethod
+    def validate_username(sockets, usuarios, username):
         """
         Valida el nombre de usuario ingresado según el enunciado. Solo se
         admite si cumple con las siguientes condiciones.
@@ -22,34 +19,40 @@ class ServerBackend:
         El username es case-sensitive!
 
         Parámetros:
+         - sockets: Diccionario de sockets de clientes conectados en la forma
+                    {username : socket}
+         - usuarios: Diccionario de instancias de Usuario {username : Usuario}
          - username: Nombre de usuario a analizar
 
-        Retorna bool indicando si el nombre de usuario es válido o no y un
-        mensaje a escribir en el log.
+        Retorna bool indicando si el nombre de usuario es válido o no, un
+        diccionario de respuesta, y un mensaje a escribir en el log.
         """
         log_output = f"Se recibe el nombre '{username}'."
         response = {
             "command": "login",
             "feedback": ""
         }
+        if username == "":
+            feedback = f"El nombre ingresado no es válido."
+            log_output += "\n" + feedback
+            response["feedback"] = feedback
+            return response, log_output
         if username in sockets:
             feedback = f"El usuario {username} ya está conectado."
             log_output += "\n" + feedback
-            return False, response, log_output
-        if username in self.usernames_registrados:
-            for usuario in self.usuarios_registrados:
-                if usuario.username == username:
-                    user = usuario
-                    break
+            return response, log_output
+        if username in usuarios:
+            user = usuarios[username]
             response["command"] = "start"
             response["user"] = user
-            return True, response, log_output
+            return response, log_output
         feedback = f"El usuario {username} no está registrado en el servidor."
         log_output += "\n" + feedback
         response["feedback"] = feedback
-        return False, response, log_output
+        return response, log_output
 
-    def grant_room_access(self, client_socket, user, room, rooms):
+    @staticmethod
+    def grant_room_access(user, room, rooms):
         room_name = room.nombre
         response = dict()
         log_output = f"{user.username} solicita entrar a {room_name}."
