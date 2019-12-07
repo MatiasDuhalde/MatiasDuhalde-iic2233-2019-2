@@ -40,6 +40,7 @@ class ServerBackend:
         if username in sockets:
             feedback = f"El usuario {username} ya está conectado."
             log_output += "\n" + feedback
+            response["feedback"] = feedback
             return response, log_output
         if username in usuarios:
             user = usuarios[username]
