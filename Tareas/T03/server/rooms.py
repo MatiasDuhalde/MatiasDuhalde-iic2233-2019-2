@@ -18,11 +18,11 @@ class Room:
      - get_amigos
     """
     def __init__(self, nombre, usuarios_conectados=None):
+        # CANNOT SERIALIZE SOCKETS
         if usuarios_conectados is None:
-            usuarios_conectados = []
+            usuarios_conectados = dict()
         self.nombre = nombre
         self.usuarios_conectados = usuarios_conectados
-
 
     def __repr__(self):
         return self.nombre + f"\nUsuarios conectados: {self.usuarios_conectados}"
