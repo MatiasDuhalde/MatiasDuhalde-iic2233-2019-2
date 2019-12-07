@@ -2,5 +2,7 @@
     "host": "localhost",
     "port": 42069,
     "path usuarios": "usuarios.json",
-    "path amigos": "amigos.json"
+    "path amigos": "amigos.json",
+    "rooms_number": 4,
+    "max_per_room": 5
 }

@@ -1,7 +1,7 @@
 """
 Este módulo actúa como unidad de procesamiento del server.
 """
-from usuarios import Usuario
+from parametros import PARAMETROS
 
 class ServerBackend:
     """
@@ -60,7 +60,7 @@ class ServerBackend:
             if r.nombre == room_name:
                 target_room = r
                 break
-        if len(target_room.usuarios_conectados) < 5:
+        if len(target_room.usuarios_conectados) < PARAMETROS["rooms_number"]:
             log_output += f"\nSolicitud aceptada."
             response["command"] = "access_granted"
         else:

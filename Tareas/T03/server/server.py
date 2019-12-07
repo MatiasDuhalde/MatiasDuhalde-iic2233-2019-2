@@ -33,7 +33,7 @@ class Server:
 
         # Other attributes
         self.sockets = dict()
-        self.rooms = [Room(nombre=f"Sala {i}") for i in range(4)]
+        self.rooms = [Room(nombre=f"Sala {i}") for i in range(PARAMETROS["rooms_number"])]
         self.usuarios = {usuario.username : usuario for usuario in Usuario.get_usuarios()}
 
         self.server_socket.bind((self.host, self.port))
