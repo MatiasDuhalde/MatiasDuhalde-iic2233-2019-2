@@ -163,9 +163,14 @@ class Server:
             }
             self.sendall(new_dict)
         if command == "enter_text":
+            is_command, com, args = ServerBackend.check_for_command(dict_["text"])
             user = dict_["user"]
             room = dict_["room"]
-            text = f"<html><b>{user.username}: </b</html>" + dict_["text"]
+            if is_command:
+                output = ServerBackend.exec_command(com, args)
+                text = f"<html><i><b>Server: </b></i></html>" + output
+            else:
+                text = f"<html><b>{user.username}: </b></html>" + dict_["text"]
             new_dict = {
                 "command": "receive_message",
                 "text": text,

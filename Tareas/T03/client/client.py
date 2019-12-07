@@ -131,7 +131,6 @@ class Client(QObject):
         elif command == "access_granted":
             nombre_room = dict_["room"].nombre
             self.log(f"Entrando a {nombre_room}...")
-            print(dict_)
             self.ventana_chat = VentanaChat(user=self.user, **dict_)
             self.current_window = "chat"
             self.connect_signals()

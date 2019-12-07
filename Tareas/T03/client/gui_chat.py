@@ -87,7 +87,6 @@ class VentanaChat(QWidget):
         Método conectado a señal, recibe diccionario desde el client
         """
         command = dict_["command"]
-        print(dict_)
         if command == "receive_message":
             self.display_message(dict_["text"])
 

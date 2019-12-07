@@ -2,6 +2,7 @@
 Este módulo actúa como unidad de procesamiento del server.
 """
 from parametros import PARAMETROS
+import re
 
 class ServerBackend:
     """
@@ -69,3 +70,31 @@ class ServerBackend:
             response["command"] = "access_denied"
             response["feedback"] = "No se puede entrar a esta sala, está llena."
         return response, log_output
+
+    @staticmethod
+    def check_for_command(text):
+        if re.match(r'/friend \'[^ ]+\' \'[^ ]+\'$', text):
+            text = text.replace("'", "")
+            args = text.split()[1:]
+            return True, "/friend", args
+        elif re.match(r'/unfriend \'[^ ]+\' \'[^ ]+\'$', text):
+            text = text.replace("'", "")
+            args = text.split()[1:]
+            return True, "/unfriend", args
+        elif re.match(r'/get reachable \'[^ ]+\' [1-9]+$', text):
+            text = text.replace("'", "")
+            args = text.split()[2:]
+            return True, "/get reachable",args
+        elif re.match(r'/get affinity \'[^ ]+\' \'[^ ]+\'$', text):
+            text = text.replace("'", "")
+            args = text.split()[2:]
+            return True, "/get affinity", args
+        elif re.match(r'/get recommendation \'[^ ]+\'$', text):
+            text = text.replace("'", "")
+            args = text.split()[2:]
+            return True, "/get recommendation", args
+        else:
+            return False, None, None
+
+    def exec_command(command, args):
+        return str(command) + str(args)
