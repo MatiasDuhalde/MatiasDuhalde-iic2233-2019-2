@@ -7,7 +7,6 @@ import os
 import pickle
 import time
 from PyQt5.QtCore import pyqtSignal, QObject, QCoreApplication
-from PyQt5.QtWidgets import QApplication
 from backend import Backend
 from gui_inicio import VentanaInicio
 from gui_principal import VentanaPrincipal
