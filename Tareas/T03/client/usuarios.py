@@ -55,5 +55,20 @@ class Usuario:
                 amigos = []
         return amigos
 
+    @staticmethod
+    def write_amigos(usuario):
+        """
+        Sobreescribe el JSON de amigos según lo contenido en usuario.amigos
+        """
+        if isinstance(usuario, Usuario):
+            pass
+        else:
+            raise TypeError
+        with open(PARAMETROS["path amigos"], 'r', encoding='utf-8-sig') as file_usuarios:
+            dict_amigos = json.load(file_usuarios)
+            dict_amigos[usuario.username] = usuario.amigos
+        with open(PARAMETROS["path amigos"], 'w', encoding='utf-8-sig') as file_usuarios:
+            json.dump(dict_amigos, file_usuarios)
+
     def __repr__(self):
         return self.username
