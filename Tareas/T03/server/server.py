@@ -6,6 +6,7 @@ import socket
 import os
 import pickle
 import time
+from rooms import Room
 from server_backend import ServerBackend
 from parametros import PARAMETROS
 
@@ -16,6 +17,8 @@ class Server:
     Crea un socket principal y trabaja sobre este para aceptar conexiones
     entrantes desde múltiples clientes.
     """
+
+    lock = threading.Lock()
 
     def __init__(self):
         # Log attribute
@@ -30,6 +33,7 @@ class Server:
         # Other attributes
         self.sockets = dict()
         self.backend = ServerBackend()
+        self.rooms = [Room(nombre=f"Sala {i}") for i in range(4)]
 
         self.server_socket.bind((self.host, self.port))
         self.log("Dirección y puerto enlazados..")
@@ -69,6 +73,8 @@ class Server:
                 username = dict_["username"]
                 username_valid, response, log_output = self.backend.validate_username(
                     self.sockets, username)
+                if response["command"] == "start":
+                    response["rooms"] = self.rooms
                 self.log(log_output)
                 self.send(client_socket, response)
             if not 'client_socket' in locals():
@@ -117,25 +123,32 @@ class Server:
         Parámetros:
          - dict_: Diccionario proveniente del client.
          - client_socket: socket correspondiente al client.
-        TODO
-        MODIFICAR PARA ESTE CONTEXTO
         """
-        print("Mensaje Recibido: {}".format(dict_))
-
         command = dict_["command"]
         if command == "logout":
             # Return same dict to accept closure
             self.send(client_socket, dict_)
             raise ConnectionResetError
-
-
-        # TODO HACER ALGO PARA RESPONDER
-
-
-        # self.send(socket, mensaje)
-
-        # mensaje.update({"propio": False})
-        # self.sendall(mensaje)
+        if command == "enter":
+            user = dict_["user"]
+            room = dict_["room"]
+            response, log_output = self.backend.grant_room_access(
+                client_socket, user, room, self.rooms)
+            self.log(log_output)
+            if response["command"] == "access_granted":
+                for temp_room in self.rooms:
+                    if temp_room.nombre == room.nombre:
+                        temp_room.usuarios_conectados.append(user)
+                        room = temp_room
+                        break
+            response["rooms"] = self.rooms
+            response["room"] = room
+            self.send(client_socket, response)
+            new_dict = {
+                "command": "update_rooms",
+                "rooms": self.rooms
+            }
+            self.sendall(new_dict)
 
     @staticmethod
     def encode_message(msg):
@@ -179,9 +192,11 @@ class Server:
          - msg: Objeto a enviar
          - socket_: socket del cliente target
         """
+        Server.lock.acquire()
         msg_encoded = Server.encode_message(dict_)
         for chunk in msg_encoded:
             socket_.send(chunk)
+        Server.lock.release()
 
     def sendall(self, mensaje):
         """
@@ -243,7 +258,6 @@ class Server:
         msg = msg[:msg_length]
         return self.decode_message(msg)
 
-
     def log(self, msg, end="\n"):
         """
         Escribe en el archivo txt de log/registro
@@ -258,6 +272,6 @@ class Server:
             mode = "w"
         time_ = time.strftime(r"%y-%m-%d %H:%M:%S")
         output_ = f"[{time_}] {msg}{end}"
-        # with open(filename_, mode, encoding="utf-8") as log_file:
-        #     log_file.write(output_)
+        with open(filename_, mode, encoding="utf-8") as log_file:
+            log_file.write(output_)
         print(output_, end="")

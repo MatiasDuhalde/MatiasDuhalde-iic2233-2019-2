@@ -48,3 +48,20 @@ class ServerBackend:
         log_output += "\n" + feedback
         response["feedback"] = feedback
         return False, response, log_output
+
+    def grant_room_access(self, client_socket, user, room, rooms):
+        room_name = room.nombre
+        response = dict()
+        log_output = f"{user.username} solicita entrar a {room_name}."
+        for r in rooms:
+            if r.nombre == room_name:
+                target_room = r
+                break
+        if len(target_room.usuarios_conectados) < 5:
+            log_output += f"\nSolicitud aceptada."
+            response["command"] = "access_granted"
+        else:
+            log_output += f"\nSolicitud rechazada, sala llena."
+            response["command"] = "access_denied"
+            response["feedback"] = "No se puede entrar a esta sala, está llena."
+        return response, log_output

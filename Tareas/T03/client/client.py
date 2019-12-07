@@ -10,6 +10,7 @@ from PyQt5.QtCore import pyqtSignal, QObject, QCoreApplication
 from backend import Backend
 from gui_inicio import VentanaInicio
 from gui_principal import VentanaPrincipal
+from gui_chat import VentanaChat
 from parametros import PARAMETROS
 
 class Client(QObject):
@@ -19,6 +20,7 @@ class Client(QObject):
     """
     sendto_inicio_signal = pyqtSignal(dict)
     sendto_principal_signal = pyqtSignal(dict)
+    sendto_chat_signal = pyqtSignal(dict)
 
     def __init__(self):
         super().__init__()
@@ -35,15 +37,17 @@ class Client(QObject):
         self.backend = Backend()
         self.ventana_inicio = None
         self.ventana_principal = None
+        self.ventana_chat = None
 
         # Other attributes
         self.user = None
         self.current_window = None
         self.connected = False
+        self._rooms = None
 
         try:
             self.client_socket.connect((self.host, self.port))
-            self.log("Cliente conectado exitosamente al servidor en" + 
+            self.log("Cliente conectado exitosamente al servidor en" +
                      f"{self.host}:{self.port}")
             self.connected = True
 
@@ -63,6 +67,18 @@ class Client(QObject):
             self.log("ERROR: Servidor desconectado.")
             self.close_client()
 
+    @property
+    def rooms(self):
+        """
+        Property que guarda una lista de instancias de Room
+        """
+        return self._rooms
+
+    @rooms.setter
+    def rooms(self, value):
+        if self.ventana_principal:
+            self.ventana_principal.rooms = value
+
     def connect_signals(self):
         """
         Conecta señales del backend con el frontend
@@ -76,6 +92,9 @@ class Client(QObject):
         if self.ventana_principal:
             self.ventana_principal.sendto_client_signal.connect(self.handle_gui)
             self.sendto_principal_signal.connect(self.ventana_principal.handle_client)
+        if self.ventana_chat:
+            self.ventana_chat.sendto_client_signal.connect(self.handle_gui)
+            self.sendto_chat_signal.connect(self.ventana_chat.handle_client)
 
     def handle_gui(self, dict_):
         """
@@ -95,6 +114,19 @@ class Client(QObject):
             self.current_window = "inicio"
             del self.ventana_principal
             self.ventana_principal = None
+        elif command == "enter":
+            nombre_room = dict_["room"].nombre
+            self.log(f"Solicitando entrar a {nombre_room}")
+            new_dict["user"] = self.user
+        elif command == "access_granted":
+            nombre_room = dict_["room"].nombre
+            self.log(f"Entrando a {nombre_room}...")
+            self.ventana_chat = VentanaChat()
+            self.current_window = "chat"
+            self.connect_signals()
+        elif command == "access_denied":
+            nombre_room = dict_["room"].nombre
+            self.log(f"No se pudo entrar a {nombre_room}.")
         if new_dict["send"]:
             del new_dict["send"]
             self.send(new_dict)
@@ -105,11 +137,15 @@ class Client(QObject):
         Método usado en un thread, esta pendiente de recibir los datos del
         servidor. Invoca a la función encargada de manejar los comandos.
         """
-        while self.connected:
-            data = self.receive()
-            if data is None:
-                raise ConnectionError
-            self.handle_command(data)
+        try:
+            while self.connected:
+                data = self.receive()
+                if data is None:
+                    raise ConnectionError
+                self.handle_command(data)
+        except ConnectionResetError:
+            self.log("Servidor desconectado forzosamente.")
+            self.log("Terminando programa...")
         QCoreApplication.quit()
 
     def handle_command(self, dict_):
@@ -130,6 +166,12 @@ class Client(QObject):
         elif command == "logout":
             self.connected = False
             self.reset = True
+        elif command == "update_rooms":
+            self.rooms = dict_["rooms"]
+        elif command == "access_granted":
+            self.sendto_principal_signal.emit(dict_)
+        elif command == "access_denied":
+            self.sendto_principal_signal.emit(dict_)
 
     @staticmethod
     def encode_message(msg):
@@ -240,6 +282,6 @@ class Client(QObject):
             mode = "w"
         time_ = time.strftime(r"%y-%m-%d %H:%M:%S")
         output_ = f"[{time_}] {msg}{end}"
-        # with open(filename_, mode, encoding="utf-8") as log_file:
-        #     log_file.write(output_)
+        with open(filename_, mode, encoding="utf-8") as log_file:
+            log_file.write(output_)
         print(output_, end="")
