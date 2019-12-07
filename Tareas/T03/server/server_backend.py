@@ -97,6 +97,7 @@ class ServerBackend:
         else:
             return False, None, None
 
+    @staticmethod
     def exec_command(command, args, usuarios):
         if command == "/friend":
             try:
