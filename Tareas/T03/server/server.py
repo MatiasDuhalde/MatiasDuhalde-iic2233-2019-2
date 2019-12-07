@@ -166,9 +166,12 @@ class Server:
             is_command, com, args = ServerBackend.check_for_command(dict_["text"])
             user = dict_["user"]
             room = dict_["room"]
+            text = dict_["text"]
+            self.log(f"{user.username} en {room.nombre} => {text}")
             if is_command:
-                output = ServerBackend.exec_command(com, args)
-                text = f"<html><i><b>Server: </b></i></html>" + output
+                output, usuarios = ServerBackend.exec_command(com, args, self.usuarios)
+                self.usuarios = usuarios
+                text = f"<html><i><b>Server:  </b></i></html>" + output
             else:
                 text = f"<html><b>{user.username}: </b></html>" + dict_["text"]
             new_dict = {
@@ -177,10 +180,13 @@ class Server:
                 "room": dict_["room"]
             }
             lista_sockets = []
-            for usuario in room.usuarios_conectados:
-                lista_sockets.append(self.sockets[usuario])
-            for user_socket in lista_sockets:
-                self.send(user_socket, new_dict)
+            if is_command:
+                self.send(client_socket, new_dict)
+            else:
+                for usuario in room.usuarios_conectados:
+                    lista_sockets.append(self.sockets[usuario])
+                for user_socket in lista_sockets:
+                    self.send(user_socket, new_dict)
 
         else:
             feedback = "Comando inválido"

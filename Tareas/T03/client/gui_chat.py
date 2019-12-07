@@ -96,6 +96,7 @@ class VentanaChat(QWidget):
             "text": self.line_input.text(),
             "room": self.room,
         }
+        exit()
 
 
     def enter_text_input(self):

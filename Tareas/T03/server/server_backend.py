@@ -1,8 +1,9 @@
 """
 Este módulo actúa como unidad de procesamiento del server.
 """
-from parametros import PARAMETROS
 import re
+from parametros import PARAMETROS
+from usuarios import Usuario
 
 class ServerBackend:
     """
@@ -96,5 +97,68 @@ class ServerBackend:
         else:
             return False, None, None
 
-    def exec_command(command, args):
-        return str(command) + str(args)
+    def exec_command(command, args, usuarios):
+        if command == "/friend":
+            try:
+                username_a = args[0]
+                username_b = args[1]
+                user_a = usuarios[username_a]
+                user_b = usuarios[username_b]
+            except KeyError:
+                output = "Error - usuario no existe"
+                return output, usuarios
+            if not username_b in user_a.amigos:
+                user_a.amigos.append(username_b)
+            if not username_a in user_b.amigos:
+                user_b.amigos.append(username_a)
+            usuarios[username_a] = user_a
+            usuarios[username_b] = user_b
+            Usuario.write_amigos(user_a)
+            Usuario.write_amigos(user_b)
+            output = f"{username_a} y {username_b} son amigos!"
+        elif command == "/unfriend":
+            try:
+                username_a = args[0]
+                username_b = args[1]
+                user_a = usuarios[args[0]]
+                user_b = usuarios[args[1]]
+            except KeyError:
+                output = "Error - usuario no existe"
+                return output, usuarios
+            if username_b in user_a.amigos:
+                user_a.amigos.remove(username_b)
+            if username_a in user_b.amigos:
+                user_b.amigos.remove(username_a)
+            usuarios[username_a] = user_a
+            usuarios[username_b] = user_b
+            Usuario.write_amigos(user_a)
+            Usuario.write_amigos(user_b)
+            output = f"{username_a} y {username_b} ya no son amigos!"
+        elif command == "/get reachable":
+            try:
+                username_a = args[0]
+                user_a = usuarios[args[0]]
+            except KeyError:
+                output = "Error - usuario no existe"
+                return output, usuarios
+            distance = int(args[1])
+            output = "No se"
+        elif command == "/get affinity":
+            try:
+                username_a = args[0]
+                username_b = args[1]
+                user_a = usuarios[args[0]]
+                user_b = usuarios[args[1]]
+            except KeyError:
+                output = "Error - usuario no existe"
+                return output, usuarios
+            output = "No se"
+        elif command == "/get recommendation":
+            try:
+                username_a = args[0]
+                user_a = usuarios[args[0]]
+            except KeyError:
+                output = "Error - usuario no existe"
+                return output, usuarios
+            output = "No se"
+        return output, usuarios
