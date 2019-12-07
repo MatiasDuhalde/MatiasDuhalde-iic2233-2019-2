@@ -7,10 +7,12 @@ import os
 import pickle
 import time
 from PyQt5.QtCore import pyqtSignal, QObject, QCoreApplication
+from PyQt5.QtWidgets import QApplication
 from backend import Backend
 from gui_inicio import VentanaInicio
 from gui_principal import VentanaPrincipal
 from gui_chat import VentanaChat
+from gui_error import VentanaError
 from parametros import PARAMETROS
 
 class Client(QObject):
@@ -38,6 +40,8 @@ class Client(QObject):
         self.ventana_inicio = None
         self.ventana_principal = None
         self.ventana_chat = None
+        self.ventana_error = VentanaError()
+        self.forced_exit = False
 
         # Other attributes
         self.user = None
@@ -146,7 +150,8 @@ class Client(QObject):
         except ConnectionResetError:
             self.log("Servidor desconectado forzosamente.")
             self.log("Terminando programa...")
-        QCoreApplication.quit()
+            self.forced_exit = True
+            QCoreApplication.quit()
 
     def handle_command(self, dict_):
         """

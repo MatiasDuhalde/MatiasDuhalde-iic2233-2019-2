@@ -11,7 +11,13 @@ if __name__ == '__main__':
         CLIENT = Client()
 
         APP.exec_()
+        del APP
+        if CLIENT.forced_exit:
+            print("yeet")
+            app = QApplication([])
+            CLIENT.ventana_error.show()
+            app.exec_()
+            del app
         if not CLIENT.reset:
             break
         del CLIENT
-        del APP

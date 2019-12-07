@@ -1,8 +1,6 @@
 """
 Interfaz gráfica de la ventana de inicio (primera ventana)
 """
-
-import os
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import (QWidget, QLabel, QHBoxLayout,
                              QVBoxLayout, QPushButton, QLineEdit)
