@@ -7,6 +7,7 @@ from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import (QWidget, QLabel, QHBoxLayout, QGridLayout,
                              QVBoxLayout, QPushButton)
 from PyQt5.QtGui import QPixmap
+from parametros import PARAMETROS
 
 class VentanaPrincipal(QWidget):
     """
@@ -42,7 +43,7 @@ class VentanaPrincipal(QWidget):
         self.setGeometry(50, 50, 500, 300)
 
         # Logo
-        path_logo = os.path.join('..', 'sprites', 'logo.png')
+        path_logo = PARAMETROS["path"]["logo"]
         logo_pixmap = QPixmap(path_logo).scaled(100, 100, Qt.KeepAspectRatio)
         self.logo = QLabel(self)
         self.logo.setPixmap(logo_pixmap)

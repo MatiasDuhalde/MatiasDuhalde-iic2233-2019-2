@@ -7,6 +7,7 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import (QWidget, QLabel, QHBoxLayout,
                              QVBoxLayout, QPushButton, QLineEdit)
 from PyQt5.QtGui import QPixmap
+from parametros import PARAMETROS
 
 class VentanaChat(QWidget):
     """
@@ -29,7 +30,7 @@ class VentanaChat(QWidget):
         self.setGeometry(50, 50, 500, 500)
 
         # Logo
-        path_logo = os.path.join('..', 'sprites', 'logo.png')
+        path_logo = PARAMETROS["path"]["logo"]
         logo_pixmap = QPixmap(path_logo)
         self.logo = QLabel(self)
         self.logo.setPixmap(logo_pixmap)

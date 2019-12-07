@@ -1,4 +1,7 @@
 {
     "host": "localhost",
-    "port": 42069
+    "port": 42069,
+    "path": {
+        "logo": "../sprites/logo.png"
+    }
 }
