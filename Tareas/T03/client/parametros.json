@@ -2,6 +2,10 @@
     "host": "localhost",
     "port": 42069,
     "path": {
-        "logo": "../sprites/logo.png"
+        "logo": "../sprites/logo.png",
+        "fondos": ["../sprites/fondos/1.png",
+                   "../sprites/fondos/2.png",
+                   "../sprites/fondos/3.png",
+                   "../sprites/fondos/4.png"]
     }
 }
