@@ -162,6 +162,21 @@ class Server:
                 "rooms": self.rooms
             }
             self.sendall(new_dict)
+        if command == "enter_text":
+            user = dict_["user"]
+            room = dict_["room"]
+            text = f"<html><b>{user.username}: </b</html>" + dict_["text"]
+            new_dict = {
+                "command": "receive_message",
+                "text": text,
+                "room": dict_["room"]
+            }
+            lista_sockets = []
+            for usuario in room.usuarios_conectados:
+                lista_sockets.append(self.sockets[usuario])
+            for user_socket in lista_sockets:
+                self.send(user_socket, new_dict)
+
         else:
             feedback = "Comando inválido"
 

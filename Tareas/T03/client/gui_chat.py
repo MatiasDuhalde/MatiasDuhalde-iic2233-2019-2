@@ -83,9 +83,21 @@ class VentanaChat(QWidget):
         Método conectado a señal, recibe diccionario desde el client
         """
         command = dict_["command"]
+        print(dict_)
+        if command == "receive_message":
+            self.display_message(dict_["text"])
+
 
     def enter_text_input(self):
-        username = self.user.username
-        text = f"<html><b>{username}: </b</html>" + self.line_input.text()
-        self.text_screen.append(text)
+        if self.line_input.text().strip() != "":
+            dict_ = {
+                "command": "enter_text",
+                "text": self.line_input.text(),
+                "room": self.room,
+
+            }
+            self.sendto_client_signal.emit(dict_)
         self.line_input.clear()
+
+    def display_message(self, text):
+        self.text_screen.append(text)

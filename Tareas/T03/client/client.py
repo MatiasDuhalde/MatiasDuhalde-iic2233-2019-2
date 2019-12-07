@@ -82,6 +82,12 @@ class Client(QObject):
     def rooms(self, value):
         if self.ventana_principal:
             self.ventana_principal.rooms = value
+        if self.ventana_chat:
+            for room in value:
+                if self.ventana_chat.room.nombre == room.nombre:
+                    self.ventana_chat.room = room
+                    break
+
 
     def connect_signals(self):
         """
@@ -132,6 +138,10 @@ class Client(QObject):
         elif command == "access_denied":
             nombre_room = dict_["room"].nombre
             self.log(f"No se pudo entrar a {nombre_room}.")
+        elif command == "enter_text":
+            new_dict["user"] = self.user
+            text = new_dict["text"]
+            self.log(f"{self.user.username} escribe: {text}.")
         if new_dict["send"]:
             del new_dict["send"]
             self.send(new_dict)
@@ -178,6 +188,8 @@ class Client(QObject):
             self.sendto_principal_signal.emit(dict_)
         elif command == "access_denied":
             self.sendto_principal_signal.emit(dict_)
+        elif command == "receive_message":
+            self.sendto_chat_signal.emit(dict_)
 
     @staticmethod
     def encode_message(msg):

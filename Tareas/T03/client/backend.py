@@ -37,4 +37,10 @@ class Backend():
                 "send": True,
                 "room": dict_["room"]
             })
+        elif base_dict["command"] == "enter_text":
+            base_dict.update({
+                "send": True,
+                "room": dict_["room"],
+                "text": dict_["text"]
+            })
         return base_dict
