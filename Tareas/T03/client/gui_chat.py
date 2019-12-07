@@ -28,8 +28,8 @@ class VentanaChat(QWidget):
         Inicializa la interfaz gráfica
         """
         self.setWindowTitle(self.room.nombre)
-        self.setGeometry(50, 50, 700, 600)
-        self.setFixedSize(700, 600)
+        self.setGeometry(50, 50, 700, 650)
+        self.setFixedSize(700, 650)
 
         # Logo
         path_logo = PARAMETROS["path"]["logo"]
@@ -61,6 +61,10 @@ class VentanaChat(QWidget):
         self.enter_button.setFixedSize(145, 25)
         self.enter_button.clicked.connect(self.enter_text_input)
 
+        # Exit button
+        self.exit_button = QPushButton("Salir", self)
+        self.exit_button.move(300, 600)
+        self.exit_button.clicked.connect(self.exit_click)
         # Interactive
 
         # Object Placement
@@ -86,6 +90,13 @@ class VentanaChat(QWidget):
         print(dict_)
         if command == "receive_message":
             self.display_message(dict_["text"])
+
+    def exit_click(self):
+        dict_ = {
+            "command": "exit_room",
+            "text": self.line_input.text(),
+            "room": self.room,
+        }
 
 
     def enter_text_input(self):
