@@ -20,6 +20,8 @@ class Usuario:
         self.username = nombre
         self.personaje = personaje
         self.amigos = self.get_amigos(self)
+        self.online = False
+        self.foto = None
 
     @staticmethod
     def get_usuarios():
