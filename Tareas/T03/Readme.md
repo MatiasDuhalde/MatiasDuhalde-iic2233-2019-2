@@ -1,19 +1,8 @@
-# Tarea X: Nombre de la tarea :school_satchel:
-
-
-Un buen ```README.md``` puede marcar una gran diferencia en la facilidad con la que corregimos una tarea, y consecuentemente cómo funciona su programa, por lo en general, entre más ordenado y limpio sea éste, mejor será 
-
-Para nuestra suerte, GitHub soporta el formato [MarkDown](https://es.wikipedia.org/wiki/Markdown), el cual permite utilizar una amplia variedad de estilos de texto, tanto para resaltar cosas importantes como para separar ideas o poner código de manera ordenada ([pueden ver casi todas las funcionalidades que incluye aquí](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet))
-
-Un buen ```README.md``` no tiene por que ser muy extenso tampoco, hay que ser **concisos** (a menos que lo consideren necesario) pero **tampoco pueden** faltar cosas. Lo importante es que sea claro y limpio 
-
-**Dejar claro lo que NO pudieron implementar y lo que no funciona a la perfección. Esto puede sonar innecesario pero permite que el ayudante se enfoque en lo que sí podría subir su puntaje.**
+# Tarea 03: DCClub :school_satchel:
 
 ## Consideraciones generales :octocat:
 
-<Descripción de lo que hace y que **_no_** hace la tarea que entregaron junto
-con detalles de último minuto y consideraciones como por ejemplo cambiar algo
-en cierta línea del código o comentar una función>
+Si bien no se pudo hacer todo lo pedido en el enunciado y la pauta, el programa es ejecutable y se puede acceder a todas las ventanas y funcionalidades base. Para hacer uso del programa, antes de ejecutarlo hay que asegurarse que se encuentren los archivos entregados que, de acuerdo al enunciado, no vienen en el repositorio. Estos son ```amigos.json``` y ```usuarios.json``` los cuales deben ir en el directorio ```./server/```, y todos los elementos gráficos de la interfaz, esto es, la carpeta `sprites` y todos sus contenidos, los cuales deben ser ubicados en el directorio base. La forma de partir el programa se explica en el apartado de [ejecución](https://github.com/IIC2233/MatiasDuhalde-iic2233-2019-2/tree/master/Tareas/T03#ejecuci%C3%B3n-computer)
 
 ### Cosas implementadas y no implementadas :white_check_mark: :x:
 
@@ -27,10 +16,8 @@ en cierta línea del código o comentar una función>
 * <Nombre item pauta<sub>n</sub>>: Me faltó hacer <insertar qué cosa faltó>
 
 ## Ejecución :computer:
-El módulo principal de la tarea a ejecutar es  ```archivo.py```. Además se debe crear los siguientes archivos y directorios adicionales:
-1. ```archivo.ext``` en ```ubicación```
-2. ```directorio``` en ```ubicación```
-3. ...
+
+Como el foco de esta tarea era *Networking*, el programa se divide en dos partes una del servidor (en `./server/`) y otra del cliente (en `./client/`). El archivo principal a ejecutar en ámbas partes es `main.py`. Para que funcione el programa, ámbos archivos deben ser ejecutados desde sus respectivos directorios, **no desde el directorio base**. Se debe primero iniciar el server, dado que si se inicia primero el cliente y no se puede detectar el servidor, el programa terminará, informando al usuario.
 
 
 ## Librerías :books:
