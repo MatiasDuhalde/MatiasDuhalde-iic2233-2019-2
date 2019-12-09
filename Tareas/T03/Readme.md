@@ -2,7 +2,7 @@
 
 ## Consideraciones generales :octocat:
 
-Si bien no se pudo hacer todo lo pedido en el enunciado y la pauta, el programa es ejecutable y se puede acceder a todas las ventanas y funcionalidades base. Para hacer uso del programa, antes de ejecutarlo hay que asegurarse que se encuentren los archivos entregados que, de acuerdo al enunciado, no vienen en el repositorio. Estos son ```amigos.json``` y ```usuarios.json``` los cuales deben ir en el directorio ```./server/```, y todos los elementos gráficos de la interfaz, esto es, la carpeta `sprites` y todos sus contenidos, los cuales deben ser ubicados en el directorio base. La forma de partir el programa se explica en el apartado de [ejecución](https://github.com/IIC2233/MatiasDuhalde-iic2233-2019-2/tree/master/Tareas/T03#ejecuci%C3%B3n-computer)
+Si bien no se pudo hacer todo lo pedido en el enunciado y la pauta, el programa es ejecutable y se puede acceder a todas las ventanas y funcionalidades base. Para hacer uso del programa, antes de ejecutarlo hay que asegurarse que se encuentren los archivos entregados que, de acuerdo al enunciado, no vienen en el repositorio. Estos son ```amigos.json``` y ```usuarios.json``` los cuales deben ir en el directorio ```./server/```, y todos los elementos gráficos de la interfaz, esto es, la carpeta `sprites` y todos sus contenidos, los cuales deben ser ubicados en el directorio base. La forma de partir el programa se explica en el apartado de [ejecución](##-Ejecución-:computer:)
 
 ### Cosas implementadas y no implementadas :white_check_mark: :x:
 
@@ -11,38 +11,42 @@ La pauta se encuentra [aquí](https://docs.google.com/spreadsheets/d/10NghnXWn9w
 * **Networking**: Hecha completa.
     * Protocolo: :heavy_check_mark:
     * Correcto uso de sockets: :heavy_check_mark:
-    * Conexión: :heavy_check_mark:
+    * Conexión: :heavy_check_mark: :warning:
     * Manejo de Clientes: :heavy_check_mark:
-* **Arquitectura Cliente - Servidor**: Hecha parcialmente.
-    * Roles
-    * Consistencia
-    * Logs
-* **Manejo de Bytes**: No implementado
-    * Codificación
-    * Decodificación
-    * Integración
-* **Interfaz gráfica**: Hecha completa (con ciertos detalles).
-    * Modelación
-    * Ventana de inicio
-    * Ventana principal
-    * Ventana de chat
-* **Grafo**: Hecha completa (con detalles)
-    * Archivo
-    * Amistades
-    * Consultas
-    * Integración
-* **General**: Hecha completa (con detalles)
+* **Arquitectura Cliente - Servidor**: Hecha completa (con ciertos detalles).
+    * Roles :heavy_check_mark:
+    * Consistencia :heavy_check_mark:
+    * Logs :heavy_check_mark: :warning:
+* **Manejo de Bytes**: Hecha completa.
+    * Codificación :heavy_check_mark:
+    * Decodificación :heavy_check_mark:
+    * Integración :heavy_check_mark:
+    * :ledger: Todo está en las funciones `encode_message`, `decode_message`, `send`, y `receive` tanto de `server.py` como de `client.py`. Se usó pickle para serializar.
+* **Interfaz gráfica**: Hecha parcialmente (con varios detalles).
+    * Modelación :heavy_check_mark:
+    * Ventana de inicio :heavy_check_mark:
+    * Ventana principal :heavy_check_mark:
+    * Ventana de chat :large_blue_circle: :warning:
+* **Grafo**: Hecha parcialmente.
+    * Archivo :heavy_check_mark:
+    * Amistades :heavy_check_mark:
+    * Consultas :x:
+    * Integración :heavy_check_mark: :warning:
+* **General**: Hecha completa.
     * Parámetros (JSON) :heavy_check_mark:
         * Se creó un módulo extra `parámetros.py` (en `server` y `client`) para poder extraer los parámetros del archivo JSON. Este módulo crea el diccionario `PARAMETROS` que es importado para ser ocupado en las otras partes del programa
 * **:sparkles:Bonus:sparkles:**: Hecho parcialmente.
     * Foto de perfil :x:
     * Regex :heavy_check_mark:
+        * `server_backend.py`, se detectan los comandos, pero como se dijo antes, no se implementaron todas las consultas (ver consideraciones)
     * Palabras bobba :x:
     * Movimiento personaje :x:
     * Mensaje con foto :x:
     * DCCMascota :x:
     * DCCPalabra :x:
     * Robustez :heavy_check_mark:
+
+**Nota**: aquellas líneas marcadas con :warning:, tienen detalles extra en [supuestos y consideraciones adicionales](#Supuestos-y-consideraciones-adicionales-:thinking:).
 
 ## Ejecución :computer:
 
@@ -85,7 +89,10 @@ Los supuestos que realicé durante la tarea son los siguientes:
 
 1. En el pié de página de la página 7 del enunciado se comenta que el botón (X) también puede ser valido para volver a la ventana de inicio. Personalmente decidí añadir un botón aparte para volver a la ventana de inicio. El botón (X) sigue con su comportamiento normal, es decir, cerrar la aplicación client-side.
 2. `server` y `client` tienen algunas librerías que son idénticas entre sí. Estas son `parametros`, `rooms`, y `usuarios`. Me pareció que copiarlos y pegarlos en cada directorio por separado se apegaba mejor a una arquitectura server-client que hacer que ámbos importaran desde un directorio externo. Si se va a revisar el código de estas librerías solo basta con revisar un lado (`server` o `client`), ya que ámbas tienen el mismo contenido.
-3. 
+3. :warning: Existe un "bloqueo" al abrir múltiples clients sin haber iniciado sesión (estando en la ventana de inicio). En este caso, el programa sigue funcionando, pero los clients deben iniciar sesión en el orden que fueron iniciados.
+4. :warning: Se implementaron los logs, tanto de servidor como de cliente. Al ejecutarlos, se crea un archivo `txt` con la etiqueta de tiempo en el nombre. Cada vez que se ejecuta nuevamente el programa, se crea un archivo de log nuevo (no se borra el anterior). Esto puede resultar molesto al testear, por lo que se puede comentar la parte que crea el archivo en `Server` y `Client`. Los logs fueron implementados y se usan a lo largo de la ejecución, pero no tienen un orden tan estructurado como se recomendaba en el enunciado.
+5. Para la ventana de chat, se ocupo un concepto distinto al planteado en el enunciado, por temas de tiempo. Si bien se puede ver un fondo de decoración, **no se muestran los avatares de los usuarios**. Al no haber avatares, tampoco hay "globos de chat". A pesar de esto, si es posible que dos (o mas) usuarios se comuniquen en una misma sala. Los mensajes (incluyendo las respuestas a las consultas) se pueden ver en un recuadro de texto (hecho usando `QTextEdit`), donde cada linea indica la persona que mandó el mensaje junto con el mensaje, muestra `"Server: {respuesta}"`, en caso de una consulta.
+6. :warning: En la parte de integración de los grafos, si bien se pueden detectar los comandos (por medio de expresiones regulares), las consultas no entregan un resultado debido a que esta parte no se implementó (sin embargo, la consulta de eliminar y agregar amigos si está habilitada, y estas actualizan el archivo JSON correspondiente).
 
 ## Referencias de código externo :book:
 
