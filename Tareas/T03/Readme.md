@@ -53,63 +53,43 @@ Como el foco de esta tarea era *Networking*, el programa se divide en dos partes
 ### Librerías externas utilizadas
 La lista de librerías externas que utilicé fue la siguiente:
 
-1. ```librería_1```: ```función() / módulo```
-2. ```librería_2```: ```función() / módulo``` (debe instalarse)
-3. ...
+1. `PyQt5`: Varias funciones y clases / Usado sólo en la parte `client`, en los archivos `gui_*.py` (elementos gráficos), `main.py`, y `client.py` (app y señales). **Debe instalarse**
+2. ```threading```: Usado para implementar comportamiento paralelo en el uso de sockets, mediante `Locks` y `Threads`, en `client.py` y `server.py`
+3. `socket`: Base de *Networking* usada en `client.py` y `server.py`
+4. `pickle`: Serializar los mensajes de acuerdo al protocolo de envío, usada en `client.py` y `server.py`
+5. `json`: Lectura y escritura de archivos en formato `JSON` usado en `parametros.py`
+6. `time`: Usado en los logs de `client.py` y `server.py`
+7. `random`: `choice`, para elegir un fondo random (ver consideraciones) en `gui_principal.py`
+8. `os`: `path.join`, trabajo con paths en `parametros.json`
+9. `re`: `match`, detección de comandos usando expresiones regulares en `server_backend.py`
+
+**Nota:** se importa `sys` pero no se usa, se me olvidó quitarlo
 
 ### Librerías propias
 Por otro lado, los módulos que fueron creados fueron los siguientes:
 
-1. ```librería_1```: Contiene a ```ClaseA```, ```ClaseB```, (ser general, tampoco es necesario especificar cada una)...
-2. ```librería_2```: Hecha para <insertar descripción **breve** de lo que hace o qué contiene>
-3. ...
+1. ```parametros```: Carga los archivos `parametros.json`. Posee el diccionario ```PARAMETROS```, que guarda sus contenidos. En `client` y `server`.
+2. `backend`: Contiene un método que ayuda a manejar los comandos recibidos desde la interfaz. En `client`.
+3. `client`: Funcionamiento base del *Networking* del programa client-side. En `client`.
+4. `gui_chat`: Interfaz ventana de chat. En `client`.
+5. `gui_error`: Interfaz ventana de error. En `client`.
+6. `gui_inicio`: Interfaz ventana de inicio. En `client`.
+7. `gui_principal`: Interfaz ventana principal. En `client`.
+8. `rooms`: Modela las salas de chat. En `client` y `server`.
+9. `usuarios`: Modela los usuarios, cada uno referenciando a sus amigos (estructura de nodos). En `client` y `server`.
+10. `server`: Funcionamiento base del *Networking* del programa server-side. En `server`.
+11. ``server_backend`: Contiene métodos auxiliares que ayudan a procesar los mensajes recibidos desde en cliente. En `server`.
 
 ## Supuestos y consideraciones adicionales :thinking:
 Los supuestos que realicé durante la tarea son los siguientes:
 
-1. <Descripción/consideración 1 y justificación del por qué es válido/a> 
-2. <Descripción/consideración 2 y justificación del por qué es válido/a>
-3. ...
-
-PD: <una última consideración (de ser necesaria) o comentario hecho anteriormente que se quiera **recalcar**>
-
-En el pié de página de la página 7 del enunciado se comenta que el botón (X) también puede ser valido para volver a la ventana de inicio. Personalmente decidí añadir un botón aparte para volver a la ventana de inicio. El botón (X) sigue con su comportamiento normal, es decir, cerrar la aplicación client-side.
-
--------
-
-
-
-**EXTRA:** si van a explicar qué hace específicamente un método, no lo coloquen en el README mismo. Pueden hacerlo directamente comentando el método en su archivo. Por ejemplo:
-
-```python
-class Corrector:
-
-    def __init__(self):
-          pass
-
-    # Este método coloca un 6 en las tareas que recibe
-    def corregir(self, tarea):
-        tarea.nota  = 6
-        return tarea
-```
-
-Si quieren ser más formales, pueden usar alguna convención de documentación. Google tiene la suya, Python tiene otra y hay muchas más. La de Python es la [PEP287, conocida como reST](https://www.python.org/dev/peps/pep-0287/). Lo más básico es documentar así:
-
-```python
-def funcion(argumento):
-    """
-    Mi función hace X con el argumento
-    """
-    return argumento_modificado
-```
-Lo importante es que expliquen qué hace la función y que si saben que alguna parte puede quedar complicada de entender o tienen alguna función mágica usen los comentarios/documentación para que el ayudante entienda sus intenciones.
+1. En el pié de página de la página 7 del enunciado se comenta que el botón (X) también puede ser valido para volver a la ventana de inicio. Personalmente decidí añadir un botón aparte para volver a la ventana de inicio. El botón (X) sigue con su comportamiento normal, es decir, cerrar la aplicación client-side.
+2. `server` y `client` tienen algunas librerías que son idénticas entre sí. Estas son `parametros`, `rooms`, y `usuarios`. Me pareció que copiarlos y pegarlos en cada directorio por separado se apegaba mejor a una arquitectura server-client que hacer que ámbos importaran desde un directorio externo. Si se va a revisar el código de estas librerías solo basta con revisar un lado (`server` o `client`), ya que ámbas tienen el mismo contenido.
+3. 
 
 ## Referencias de código externo :book:
 
-Para realizar mi tarea saqué código de:
-1. \<link de código>: este hace \<lo que hace> y está implementado en el archivo <nombre.py> en las líneas <número de líneas> y hace <explicación breve de que hace>
-
-
+1. Base inicialmente mi código en la estructura que ocupa la ayudantía 08 ([Japonizador](https://github.com/IIC2233/syllabus/tree/master/Ayudantias/AY08/Ejemplo%20json%20(Japonizador))), por si es que existe alguna similitud.
 
 ## Descuentos
 La guía de descuentos se encuentra [link](https://github.com/IIC2233/syllabus/blob/master/Tareas/Descuentos.md).
