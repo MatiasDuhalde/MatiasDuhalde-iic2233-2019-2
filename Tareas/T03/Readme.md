@@ -6,14 +6,43 @@ Si bien no se pudo hacer todo lo pedido en el enunciado y la pauta, el programa 
 
 ### Cosas implementadas y no implementadas :white_check_mark: :x:
 
-* <Nombre item pauta<sub>1</sub>>: Hecha completa
-* <Nombre item pauta<sub>2</sub>>: Me faltó hacer <insertar qué cosa faltó>
-    * <Nombre subitem pauta<sub>2.1</sub>>: Hecha completa 
-    * <Nombre subitem pauta<sub>2.2</sub>>: Me faltó hacer <insertar qué cosa faltó>
-    * ...
-* <Nombre item pauta<sub>3</sub>>: Me faltó hacer <insertar qué cosa faltó>
-* ...
-* <Nombre item pauta<sub>n</sub>>: Me faltó hacer <insertar qué cosa faltó>
+La pauta se encuentra [aquí](https://docs.google.com/spreadsheets/d/10NghnXWn9wzEYtm6kFUrG1616janfOSROJ-4z9pqbhE/edit).
+
+* **Networking**: Hecha completa.
+    * Protocolo: :heavy_check_mark:
+    * Correcto uso de sockets: :heavy_check_mark:
+    * Conexión: :heavy_check_mark:
+    * Manejo de Clientes: :heavy_check_mark:
+* **Arquitectura Cliente - Servidor**: Hecha parcialmente.
+    * Roles
+    * Consistencia
+    * Logs
+* **Manejo de Bytes**: No implementado
+    * Codificación
+    * Decodificación
+    * Integración
+* **Interfaz gráfica**: Hecha completa (con ciertos detalles).
+    * Modelación
+    * Ventana de inicio
+    * Ventana principal
+    * Ventana de chat
+* **Grafo**: Hecha completa (con detalles)
+    * Archivo
+    * Amistades
+    * Consultas
+    * Integración
+* **General**: Hecha completa (con detalles)
+    * Parámetros (JSON) :heavy_check_mark:
+        * Se creó un módulo extra `parámetros.py` (en `server` y `client`) para poder extraer los parámetros del archivo JSON. Este módulo crea el diccionario `PARAMETROS` que es importado para ser ocupado en las otras partes del programa
+* **:sparkles:Bonus:sparkles:**: Hecho parcialmente.
+    * Foto de perfil :x:
+    * Regex :heavy_check_mark:
+    * Palabras bobba :x:
+    * Movimiento personaje :x:
+    * Mensaje con foto :x:
+    * DCCMascota :x:
+    * DCCPalabra :x:
+    * Robustez :heavy_check_mark:
 
 ## Ejecución :computer:
 
